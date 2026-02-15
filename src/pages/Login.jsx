@@ -39,15 +39,44 @@ function LoginPage() {
     // Expected: https://rep.merkwave.com/api/clients/{company name}/auth/login.php
     const fullLoginUrl = `${API_LOGIN_BASE_URL}${companyName}/auth/login.php`;
 
-    let result;
+    try {
+      // Pass the dynamically constructed fullLoginUrl and other credentials
+      // Note: companyName is passed here as a parameter for loginUser,
+      // but it will NOT be appended to FormData in loginUser.
+      const result = await loginUser(fullLoginUrl, email, password, companyName);
 
-    if (import.meta.env.DEV) {
-      result = {
-        status: "success",
-        message: "Dev login success"
-      };
-    } else {
-      result = await loginUser(fullLoginUrl, email, password, companyName);
+      if (result.status === "success") {
+        // Fetch notifications immediately on first successful login
+        try {
+          if (notificationsCtx) {
+            await notificationsCtx.fetchNotifications({ is_read: 0, page: 1 });
+            if (typeof notificationsCtx.fetchUnreadCount === 'function') {
+              await notificationsCtx.fetchUnreadCount();
+            }
+            try {
+              localStorage.setItem('notifications_initialFetched', 'true');
+            } catch { /* noop */ }
+          }
+        } catch { /* silent */ }
+        setMessage(result.message || "تم تسجيل الدخول بنجاح!");
+        navigate('/dashboard'); // Redirect to dashboard
+      } else {
+        console.error('Login failed:', result.message);
+        setMessage(result.message || "فشل تسجيل الدخول. يرجى التحقق من بياناتك.");
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      // Specific handling for 404 or undefined status (network/connection error)
+      if (error.status === 404 || error.status === undefined) {
+        setMessage("اسم الشركة غير موجود بقواعد البيانات");
+      } else if (error.message !== "Relogin required.") {
+        // Handle other general errors (excluding "Relogin required." as it causes global redirect)
+        // Use the error translation utility to get Arabic message
+        const translatedMessage = getErrorMessage(error);
+        setMessage(`حدث خطأ أثناء تسجيل الدخول: ${translatedMessage}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
