@@ -1,25 +1,21 @@
 // Example: How to integrate mock data into your RepWave app
 // Add this to your main.jsx or App.jsx
 
-import React, { useEffect } from 'react';
-import { initializeMockData, getMockDataStats } from './mock';
+import React, { useEffect } from "react";
+import { initializeMockData, getMockDataStats } from "./mock";
 
 // Option 1: Initialize on app startup (recommended)
 function App() {
   useEffect(() => {
     // Initialize mock data when app starts
     initializeMockData();
-    
+
     // Optional: Log statistics
     const stats = getMockDataStats();
-    console.log('📊 Mock Data Statistics:', stats);
+    console.log("📊 Mock Data Statistics:", stats);
   }, []);
 
-  return (
-    <div>
-      {/* Your app components */}
-    </div>
-  );
+  return <div>{/* Your app components */}</div>;
 }
 
 // Option 2: Manual initialization with UI controls
@@ -32,24 +28,24 @@ function MockDataControls() {
   };
 
   const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset all mock data?')) {
+    if (window.confirm("Are you sure you want to reset all mock data?")) {
       resetMockData();
       setStats(getMockDataStats());
     }
   };
 
   const handleClear = () => {
-    if (window.confirm('Are you sure you want to clear all mock data?')) {
+    if (window.confirm("Are you sure you want to clear all mock data?")) {
       clearMockData();
       setStats(null);
     }
   };
 
   return (
-    <div style={{ padding: '20px', border: '1px solid #ccc', margin: '10px' }}>
+    <div style={{ padding: "20px", border: "1px solid #ccc", margin: "10px" }}>
       <h3>🎭 Mock Data Controls</h3>
-      
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+
+      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
         <button onClick={handleInitialize}>Initialize Mock Data</button>
         <button onClick={handleReset}>Reset Mock Data</button>
         <button onClick={handleClear}>Clear Mock Data</button>
@@ -75,7 +71,7 @@ function MockDataControls() {
 }
 
 // Option 3: Use mock APIs in your components
-import { mockClientsApi, mockSalesOrdersApi } from './mock';
+import { mockClientsApi, mockSalesOrdersApi } from "./mock";
 
 function ClientOrders({ clientId }) {
   const [orders, setOrders] = React.useState([]);
@@ -85,15 +81,16 @@ function ClientOrders({ clientId }) {
     async function loadOrders() {
       try {
         // Use mock API instead of real API
-        const clientOrders = await mockSalesOrdersApi.getSalesOrdersByClient(clientId);
+        const clientOrders =
+          await mockSalesOrdersApi.getSalesOrdersByClient(clientId);
         setOrders(clientOrders);
       } catch (error) {
-        console.error('Error loading orders:', error);
+        console.error("Error loading orders:", error);
       } finally {
         setLoading(false);
       }
     }
-    
+
     if (clientId) {
       loadOrders();
     }
@@ -108,11 +105,11 @@ function ClientOrders({ clientId }) {
         <p>No orders found</p>
       ) : (
         <ul>
-          {orders.map(order => (
+          {orders.map((order) => (
             <li key={order.sales_orders_id}>
-              Order #{order.sales_orders_order_number} - 
-              {order.sales_orders_total_amount} EGP - 
-              Status: {order.sales_orders_status}
+              Order #{order.sales_orders_order_number} -
+              {order.sales_orders_total_amount} EGP - Status:{" "}
+              {order.sales_orders_status}
             </li>
           ))}
         </ul>
@@ -122,8 +119,8 @@ function ClientOrders({ clientId }) {
 }
 
 // Option 4: Create a wrapper to switch between mock and real APIs
-import { USE_MOCK_DATA, mockClientsApi } from './mock';
-import * as realClientsApi from './apis/clients';
+import { USE_MOCK_DATA, mockClientsApi } from "./mock";
+import * as realClientsApi from "./apis/clients";
 
 export const clientsApi = USE_MOCK_DATA ? mockClientsApi : realClientsApi;
 
@@ -144,7 +141,7 @@ function ClientsList() {
     <div>
       <h3>Clients ({clients.length})</h3>
       <ul>
-        {clients.map(client => (
+        {clients.map((client) => (
           <li key={client.clients_id}>
             {client.clients_name} - {client.clients_phone}
           </li>
@@ -155,7 +152,7 @@ function ClientsList() {
 }
 
 // Option 5: Use in Dashboard
-import { mockOtherApis } from './mock';
+import { mockOtherApis } from "./mock";
 
 function Dashboard() {
   const [stats, setStats] = React.useState(null);
@@ -163,7 +160,7 @@ function Dashboard() {
   useEffect(() => {
     // Get dashboard stats from mock data
     const dashboardStats = JSON.parse(
-      localStorage.getItem('appDashboardStats') || '{}'
+      localStorage.getItem("appDashboardStats") || "{}",
     );
     setStats(dashboardStats);
   }, []);
@@ -176,11 +173,11 @@ function Dashboard() {
       <div className="stats-grid">
         <div className="stat-card">
           <h3>Total Sales</h3>
-          <p>{stats.total_sales?.toLocaleString('ar-EG')} EGP</p>
+          <p>{stats.total_sales?.toLocaleString("ar-EG")} EGP</p>
         </div>
         <div className="stat-card">
           <h3>Total Purchases</h3>
-          <p>{stats.total_purchases?.toLocaleString('ar-EG')} EGP</p>
+          <p>{stats.total_purchases?.toLocaleString("ar-EG")} EGP</p>
         </div>
         <div className="stat-card">
           <h3>Total Clients</h3>
@@ -196,7 +193,7 @@ function Dashboard() {
         </div>
         <div className="stat-card">
           <h3>Inventory Value</h3>
-          <p>{stats.total_inventory_value?.toLocaleString('ar-EG')} EGP</p>
+          <p>{stats.total_inventory_value?.toLocaleString("ar-EG")} EGP</p>
         </div>
         <div className="stat-card">
           <h3>Pending Orders</h3>
@@ -215,12 +212,12 @@ function Dashboard() {
 async function testMockDataOperations() {
   // Add a new client
   const newClientMessage = await mockClientsApi.addClient({
-    clients_name: 'شركة اختبار',
-    clients_phone: '01099887766',
-    clients_email: 'test@example.com',
-    clients_address: 'عنوان تجريبي',
-    clients_city: 'القاهرة',
-    clients_status: 'نشط',
+    clients_name: "شركة اختبار",
+    clients_phone: "01099887766",
+    clients_email: "test@example.com",
+    clients_address: "عنوان تجريبي",
+    clients_city: "القاهرة",
+    clients_status: "نشط",
     clients_type_id: 1,
     clients_credit_limit: 25000,
   });
@@ -228,11 +225,11 @@ async function testMockDataOperations() {
 
   // Get all clients
   const clients = await mockClientsApi.getAllClients();
-  console.log('Total clients:', clients.length);
+  console.log("Total clients:", clients.length);
 
   // Update a client
   const updateMessage = await mockClientsApi.updateClient(1, {
-    clients_phone: '01000000000',
+    clients_phone: "01000000000",
   });
   console.log(updateMessage); // "تم تحديث العميل بنجاح"
 
@@ -241,9 +238,9 @@ async function testMockDataOperations() {
     sales_orders_client_id: 1,
     sales_orders_warehouse_id: 1,
     sales_orders_representative_id: 1,
-    sales_orders_order_date: '2024-02-19',
-    sales_orders_status: 'معلق',
-    sales_orders_delivery_status: 'لم يتم التسليم',
+    sales_orders_order_date: "2024-02-19",
+    sales_orders_status: "معلق",
+    sales_orders_delivery_status: "لم يتم التسليم",
     sales_orders_subtotal: 5000,
     sales_orders_discount_amount: 0,
     sales_orders_tax_amount: 700,
@@ -257,10 +254,10 @@ async function testMockDataOperations() {
         sales_order_items_discount: 0,
         sales_order_items_tax_rate: 14,
         sales_order_items_total: 5000,
-      }
-    ]
+      },
+    ],
   });
-  console.log('New order:', orderResult);
+  console.log("New order:", orderResult);
 }
 
 export default App;

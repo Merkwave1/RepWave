@@ -17,7 +17,7 @@ This directory contains a comprehensive mock data system that allows the entire 
 Add this to your `main.jsx` or app entry point:
 
 ```javascript
-import { initializeMockData } from './mock';
+import { initializeMockData } from "./mock";
 
 // Initialize mock data when app starts
 initializeMockData();
@@ -31,28 +31,32 @@ The mock data is stored in localStorage with these keys:
 
 ```javascript
 // Users
-const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+const users = JSON.parse(localStorage.getItem("appUsers") || "[]");
 
 // Categories
-const categories = JSON.parse(localStorage.getItem('appCategories') || '[]');
+const categories = JSON.parse(localStorage.getItem("appCategories") || "[]");
 
 // Clients
-const clients = JSON.parse(localStorage.getItem('appClients') || '[]');
+const clients = JSON.parse(localStorage.getItem("appClients") || "[]");
 
 // Products
-const products = JSON.parse(localStorage.getItem('appProducts') || '[]');
+const products = JSON.parse(localStorage.getItem("appProducts") || "[]");
 
 // Warehouses
-const warehouses = JSON.parse(localStorage.getItem('appWarehouses') || '{"data":[]}');
+const warehouses = JSON.parse(
+  localStorage.getItem("appWarehouses") || '{"data":[]}',
+);
 
 // Inventory
-const inventory = JSON.parse(localStorage.getItem('appInventory') || '[]');
+const inventory = JSON.parse(localStorage.getItem("appInventory") || "[]");
 
 // Sales Orders
-const salesOrders = JSON.parse(localStorage.getItem('appSalesOrders') || '[]');
+const salesOrders = JSON.parse(localStorage.getItem("appSalesOrders") || "[]");
 
 // Purchase Orders
-const purchaseOrders = JSON.parse(localStorage.getItem('appPurchaseOrders') || '[]');
+const purchaseOrders = JSON.parse(
+  localStorage.getItem("appPurchaseOrders") || "[]",
+);
 
 // And many more...
 ```
@@ -62,16 +66,16 @@ const purchaseOrders = JSON.parse(localStorage.getItem('appPurchaseOrders') || '
 Instead of calling real APIs, use the mock API wrapper:
 
 ```javascript
-import { mockClientsApi, mockProductsApi, mockSalesOrdersApi } from './mock';
+import { mockClientsApi, mockProductsApi, mockSalesOrdersApi } from "./mock";
 
 // Get all clients
 const clients = await mockClientsApi.getAllClients();
 
 // Add a new client
 await mockClientsApi.addClient({
-  clients_name: 'عميل جديد',
-  clients_phone: '01012345678',
-  clients_email: 'client@example.com',
+  clients_name: "عميل جديد",
+  clients_phone: "01012345678",
+  clients_email: "client@example.com",
   // ... other fields
 });
 
@@ -82,15 +86,15 @@ const { products } = await mockProductsApi.getAllProducts();
 const result = await mockSalesOrdersApi.addSalesOrder({
   sales_orders_client_id: 1,
   sales_orders_warehouse_id: 1,
-  sales_orders_order_date: '2024-02-19',
-  sales_orders_status: 'معلق',
+  sales_orders_order_date: "2024-02-19",
+  sales_orders_status: "معلق",
   items: [
     {
       sales_order_items_variant_id: 1,
       sales_order_items_quantity: 10,
       sales_order_items_unit_price: 100,
-    }
-  ]
+    },
+  ],
 });
 ```
 
@@ -99,6 +103,7 @@ const result = await mockSalesOrdersApi.addSalesOrder({
 The system generates realistic data for:
 
 ### Core Entities
+
 - ✅ **Users** (25 users with different roles)
 - ✅ **Categories** (9 product categories)
 - ✅ **Clients** (80 clients with full details)
@@ -109,6 +114,7 @@ The system generates realistic data for:
 - ✅ **Inventory** (1000+ inventory items)
 
 ### Transactions
+
 - ✅ **Sales Orders** (150 orders with items)
 - ✅ **Purchase Orders** (100 orders with items)
 - ✅ **Client Payments** (200 payments)
@@ -119,6 +125,7 @@ The system generates realistic data for:
 - ✅ **Sales Deliveries** (100 deliveries)
 
 ### Reference Data
+
 - ✅ **Client Industries** (10 industries)
 - ✅ **Client Types** (6 types)
 - ✅ **Client Area Tags** (6 areas)
@@ -130,6 +137,7 @@ The system generates realistic data for:
 - ✅ **Safes** (3 safes)
 
 ### Other
+
 - ✅ **Notifications** (50 notifications)
 - ✅ **Settings** (8 system settings)
 - ✅ **Visit Plans** (40 planned visits)
@@ -139,46 +147,51 @@ The system generates realistic data for:
 ## 🛠️ Utility Functions
 
 ### Initialize Mock Data
+
 ```javascript
-import { initializeMockData } from './mock';
+import { initializeMockData } from "./mock";
 
 // Seeds data if not already seeded
 initializeMockData();
 ```
 
 ### Reset All Mock Data
+
 ```javascript
-import { resetMockData } from './mock';
+import { resetMockData } from "./mock";
 
 // Clears and regenerates all mock data
 resetMockData();
 ```
 
 ### Clear Mock Data
+
 ```javascript
-import { clearMockData } from './mock';
+import { clearMockData } from "./mock";
 
 // Removes all mock data from localStorage
 clearMockData();
 ```
 
 ### Check if Mock Data Exists
+
 ```javascript
-import { isMockDataAvailable } from './mock';
+import { isMockDataAvailable } from "./mock";
 
 if (isMockDataAvailable()) {
-  console.log('Mock data is ready!');
+  console.log("Mock data is ready!");
 }
 ```
 
 ### Get Mock Data Statistics
+
 ```javascript
-import { getMockDataStats } from './mock';
+import { getMockDataStats } from "./mock";
 
 const stats = getMockDataStats();
-console.log('Users:', stats.users);
-console.log('Products:', stats.products);
-console.log('Sales Orders:', stats.salesOrders);
+console.log("Users:", stats.users);
+console.log("Products:", stats.products);
+console.log("Sales Orders:", stats.salesOrders);
 ```
 
 ## 🎯 Mock API Reference
@@ -186,8 +199,9 @@ console.log('Sales Orders:', stats.salesOrders);
 All mock APIs follow the same patterns as real APIs and return Promises.
 
 ### Users API
+
 ```javascript
-import { mockUsersApi } from './mock';
+import { mockUsersApi } from "./mock";
 
 await mockUsersApi.getAllUsers();
 await mockUsersApi.getUserById(userId);
@@ -197,8 +211,9 @@ await mockUsersApi.deleteUser(userId);
 ```
 
 ### Categories API
+
 ```javascript
-import { mockCategoriesApi } from './mock';
+import { mockCategoriesApi } from "./mock";
 
 await mockCategoriesApi.getAllCategories();
 await mockCategoriesApi.addCategory(categoryData);
@@ -207,8 +222,9 @@ await mockCategoriesApi.deleteCategory(categoryId);
 ```
 
 ### Clients API
+
 ```javascript
-import { mockClientsApi } from './mock';
+import { mockClientsApi } from "./mock";
 
 await mockClientsApi.getAllClients();
 await mockClientsApi.getClientById(clientId);
@@ -220,8 +236,9 @@ await mockClientsApi.getClientReports(reportType);
 ```
 
 ### Products API
+
 ```javascript
-import { mockProductsApi } from './mock';
+import { mockProductsApi } from "./mock";
 
 await mockProductsApi.getAllProducts(); // Returns { products: [] }
 await mockProductsApi.addProduct(productData);
@@ -231,8 +248,9 @@ await mockProductsApi.getProductReports(reportType);
 ```
 
 ### Warehouses API
+
 ```javascript
-import { mockWarehousesApi } from './mock';
+import { mockWarehousesApi } from "./mock";
 
 await mockWarehousesApi.getAllWarehouses(includeAll);
 await mockWarehousesApi.addWarehouse(warehouseData);
@@ -241,8 +259,9 @@ await mockWarehousesApi.deleteWarehouse(warehouseId);
 ```
 
 ### Inventory API
+
 ```javascript
-import { mockInventoryApi } from './mock';
+import { mockInventoryApi } from "./mock";
 
 await mockInventoryApi.getAllInventory(filters);
 await mockInventoryApi.addInventory(inventoryData);
@@ -253,8 +272,9 @@ await mockInventoryApi.repackInventory(repackData);
 ```
 
 ### Sales Orders API
+
 ```javascript
-import { mockSalesOrdersApi } from './mock';
+import { mockSalesOrdersApi } from "./mock";
 
 await mockSalesOrdersApi.getAllSalesOrders(options);
 await mockSalesOrdersApi.getSalesOrderDetails(id);
@@ -267,8 +287,9 @@ await mockSalesOrdersApi.getDeliverableSalesOrders(options);
 ```
 
 ### Purchase Orders API
+
 ```javascript
-import { mockPurchaseOrdersApi } from './mock';
+import { mockPurchaseOrdersApi } from "./mock";
 
 await mockPurchaseOrdersApi.getAllPurchaseOrders();
 await mockPurchaseOrdersApi.getPurchaseOrderDetails(orderId);
@@ -277,12 +298,17 @@ await mockPurchaseOrdersApi.updatePurchaseOrder(orderId, orderData);
 await mockPurchaseOrdersApi.deletePurchaseOrder(orderId);
 await mockPurchaseOrdersApi.getPurchaseOrdersPaginated(params);
 await mockPurchaseOrdersApi.getPendingPurchaseOrdersForReceive();
-await mockPurchaseOrdersApi.getPurchaseOrdersBySupplier(supplierId, statuses, limit);
+await mockPurchaseOrdersApi.getPurchaseOrdersBySupplier(
+  supplierId,
+  statuses,
+  limit,
+);
 ```
 
 ### Other APIs
+
 ```javascript
-import { mockOtherApis } from './mock';
+import { mockOtherApis } from "./mock";
 
 await mockOtherApis.getSuppliers();
 await mockOtherApis.getClientIndustries();
@@ -310,8 +336,8 @@ await mockOtherApis.getDeliverableSalesOrders();
 ### Example 1: Using in a Component
 
 ```javascript
-import React, { useState, useEffect } from 'react';
-import { mockClientsApi } from '../mock';
+import React, { useState, useEffect } from "react";
+import { mockClientsApi } from "../mock";
 
 function ClientsList() {
   const [clients, setClients] = useState([]);
@@ -323,7 +349,7 @@ function ClientsList() {
         const data = await mockClientsApi.getAllClients();
         setClients(data);
       } catch (error) {
-        console.error('Error loading clients:', error);
+        console.error("Error loading clients:", error);
       } finally {
         setLoading(false);
       }
@@ -337,7 +363,7 @@ function ClientsList() {
     <div>
       <h2>Clients ({clients.length})</h2>
       <ul>
-        {clients.map(client => (
+        {clients.map((client) => (
           <li key={client.clients_id}>
             {client.clients_name} - {client.clients_phone}
           </li>
@@ -351,7 +377,7 @@ function ClientsList() {
 ### Example 2: Adding a New Record
 
 ```javascript
-import { mockProductsApi } from '../mock';
+import { mockProductsApi } from "../mock";
 
 async function handleAddProduct(formData) {
   try {
@@ -360,16 +386,16 @@ async function handleAddProduct(formData) {
       products_sku: formData.sku,
       products_category_id: formData.categoryId,
       products_base_unit_id: formData.baseUnitId,
-      products_status: 'active',
+      products_status: "active",
     });
-    
+
     console.log(message); // "تم إضافة المنتج بنجاح"
-    
+
     // Refresh the products list
     const { products } = await mockProductsApi.getAllProducts();
     setProducts(products);
   } catch (error) {
-    console.error('Error adding product:', error);
+    console.error("Error adding product:", error);
   }
 }
 ```
@@ -377,18 +403,18 @@ async function handleAddProduct(formData) {
 ### Example 3: Filtering Data
 
 ```javascript
-import { mockSalesOrdersApi } from '../mock';
+import { mockSalesOrdersApi } from "../mock";
 
 async function loadPendingOrders() {
   const result = await mockSalesOrdersApi.getAllSalesOrders({
-    status: 'معلق',
+    status: "معلق",
     page: 1,
-    limit: 20
+    limit: 20,
   });
-  
-  console.log('Orders:', result.data);
-  console.log('Total:', result.pagination.total_items);
-  console.log('Pages:', result.pagination.total_pages);
+
+  console.log("Orders:", result.data);
+  console.log("Total:", result.pagination.total_items);
+  console.log("Pages:", result.pagination.total_pages);
 }
 ```
 
@@ -405,8 +431,8 @@ const USE_MOCK_DATA = true; // Set to false to use real API
 You can use this flag to conditionally use mock or real APIs:
 
 ```javascript
-import { USE_MOCK_DATA, mockClientsApi } from './mock';
-import { getAllClients as getRealClients } from '../apis/clients';
+import { USE_MOCK_DATA, mockClientsApi } from "./mock";
+import { getAllClients as getRealClients } from "../apis/clients";
 
 async function getClients() {
   if (USE_MOCK_DATA) {
@@ -420,6 +446,7 @@ async function getClients() {
 ## 📝 Data Structure
 
 ### Sample Client Object
+
 ```javascript
 {
   clients_id: 1,
@@ -447,6 +474,7 @@ async function getClients() {
 ```
 
 ### Sample Sales Order Object
+
 ```javascript
 {
   sales_orders_id: 1,
@@ -478,35 +506,40 @@ data.clients = Array.from({ length: 100 }, (_, i) => ({
 }));
 
 // Add custom product categories
-const productCategories = ['Category 1', 'Category 2', /* ... */];
+const productCategories = ["Category 1", "Category 2" /* ... */];
 
 // Customize data ranges
-const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const randomInt = (min, max) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 ```
 
 ## 🐛 Troubleshooting
 
 ### Mock data not loading
+
 ```javascript
 // Check if data is seeded
-import { isMockDataAvailable } from './mock';
-console.log('Mock data available:', isMockDataAvailable());
+import { isMockDataAvailable } from "./mock";
+console.log("Mock data available:", isMockDataAvailable());
 
 // Force reset
-import { resetMockData } from './mock';
+import { resetMockData } from "./mock";
 resetMockData();
 ```
 
 ### Data seems outdated
+
 ```javascript
 // Clear and regenerate
-import { clearMockData, seedComprehensiveMockData } from './mock';
+import { clearMockData, seedComprehensiveMockData } from "./mock";
 clearMockData();
 seedComprehensiveMockData();
 ```
 
 ### localStorage quota exceeded
+
 The mock data is quite large. If you hit localStorage limits:
+
 1. Use a smaller subset of data
 2. Store in memory instead of localStorage
 3. Use IndexedDB for larger datasets
@@ -520,6 +553,7 @@ The mock data is quite large. If you hit localStorage limits:
 ## 🤝 Contributing
 
 To add new mock data:
+
 1. Add the data structure in `comprehensiveMockData.js`
 2. Add corresponding API functions in `mockApiWrapper.js`
 3. Export from `index.js`

@@ -2,8 +2,13 @@
 // Display mock data statistics and controls
 // Add this to your dashboard or any page to see the loaded mock data
 
-import React, { useState, useEffect } from 'react';
-import { getMockDataStats, resetMockData, clearMockData, isMockDataAvailable } from '../../mock';
+import React, { useState, useEffect } from "react";
+import {
+  getMockDataStats,
+  resetMockData,
+  clearMockData,
+  isMockDataAvailable,
+} from "../../mock";
 
 function MockDataInfo() {
   const [stats, setStats] = useState(null);
@@ -22,7 +27,9 @@ function MockDataInfo() {
   }, []);
 
   const handleReset = () => {
-    if (window.confirm('هل أنت متأكد من إعادة تعيين جميع البيانات التجريبية؟')) {
+    if (
+      window.confirm("هل أنت متأكد من إعادة تعيين جميع البيانات التجريبية؟")
+    ) {
       resetMockData();
       loadStats();
       window.location.reload(); // Reload to refresh all components
@@ -30,7 +37,7 @@ function MockDataInfo() {
   };
 
   const handleClear = () => {
-    if (window.confirm('هل أنت متأكد من حذف جميع البيانات التجريبية؟')) {
+    if (window.confirm("هل أنت متأكد من حذف جميع البيانات التجريبية؟")) {
       clearMockData();
       loadStats();
       window.location.reload();
@@ -54,9 +61,7 @@ function MockDataInfo() {
       <div style={styles.header} onClick={() => setShowDetails(!showDetails)}>
         <span style={styles.icon}>🎭</span>
         <h3 style={styles.title}>البيانات التجريبية</h3>
-        <button style={styles.toggleButton}>
-          {showDetails ? '▼' : '▶'}
-        </button>
+        <button style={styles.toggleButton}>{showDetails ? "▼" : "▶"}</button>
       </div>
 
       {showDetails && stats && (
@@ -118,106 +123,106 @@ function MockDataInfo() {
 
 const styles = {
   container: {
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #dee2e6',
-    borderRadius: '8px',
-    padding: '16px',
-    margin: '16px 0',
-    fontFamily: 'Arial, sans-serif',
+    backgroundColor: "#f8f9fa",
+    border: "1px solid #dee2e6",
+    borderRadius: "8px",
+    padding: "16px",
+    margin: "16px 0",
+    fontFamily: "Arial, sans-serif",
   },
   header: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    cursor: 'pointer',
-    userSelect: 'none',
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    cursor: "pointer",
+    userSelect: "none",
   },
   icon: {
-    fontSize: '24px',
+    fontSize: "24px",
   },
   title: {
     margin: 0,
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: "18px",
+    fontWeight: "bold",
+    color: "#333",
     flex: 1,
   },
   toggleButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '14px',
-    cursor: 'pointer',
-    padding: '4px 8px',
+    background: "none",
+    border: "none",
+    fontSize: "14px",
+    cursor: "pointer",
+    padding: "4px 8px",
   },
   message: {
-    marginTop: '12px',
-    color: '#666',
-    fontSize: '14px',
+    marginTop: "12px",
+    color: "#666",
+    fontSize: "14px",
   },
   statsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-    gap: '12px',
-    marginTop: '16px',
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+    gap: "12px",
+    marginTop: "16px",
   },
   statCard: {
-    backgroundColor: 'white',
-    border: '1px solid #e9ecef',
-    borderRadius: '6px',
-    padding: '12px',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
+    backgroundColor: "white",
+    border: "1px solid #e9ecef",
+    borderRadius: "6px",
+    padding: "12px",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
   },
   statValue: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#0066cc',
+    fontSize: "24px",
+    fontWeight: "bold",
+    color: "#0066cc",
   },
   statLabel: {
-    fontSize: '12px',
-    color: '#666',
+    fontSize: "12px",
+    color: "#666",
   },
   controls: {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '16px',
-    flexWrap: 'wrap',
+    display: "flex",
+    gap: "12px",
+    marginTop: "16px",
+    flexWrap: "wrap",
   },
   resetButton: {
-    backgroundColor: '#0066cc',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '8px 16px',
-    fontSize: '14px',
-    cursor: 'pointer',
+    backgroundColor: "#0066cc",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    padding: "8px 16px",
+    fontSize: "14px",
+    cursor: "pointer",
     flex: 1,
-    minWidth: '150px',
+    minWidth: "150px",
   },
   clearButton: {
-    backgroundColor: '#dc3545',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '8px 16px',
-    fontSize: '14px',
-    cursor: 'pointer',
+    backgroundColor: "#dc3545",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    padding: "8px 16px",
+    fontSize: "14px",
+    cursor: "pointer",
     flex: 1,
-    minWidth: '150px',
+    minWidth: "150px",
   },
   info: {
-    marginTop: '12px',
-    padding: '12px',
-    backgroundColor: '#e7f3ff',
-    borderRadius: '4px',
-    border: '1px solid #b3d9ff',
+    marginTop: "12px",
+    padding: "12px",
+    backgroundColor: "#e7f3ff",
+    borderRadius: "4px",
+    border: "1px solid #b3d9ff",
   },
   infoText: {
     margin: 0,
-    fontSize: '13px',
-    color: '#004085',
+    fontSize: "13px",
+    color: "#004085",
   },
 };
 
