@@ -326,7 +326,7 @@ export default function ReceivingHistoryTab() {
       <CustomPageHeader
         title="سجلات الاستلام"
         subtitle="مراجعة وإدارة عمليات الاستلام"
-        icon={<InboxArrowDownIcon className="h-8 w-8 text-white" />}
+        icon={<InboxArrowDownIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={serverPagination?.total ?? receipts.length}
         statLabel="عملية استلام"
       />

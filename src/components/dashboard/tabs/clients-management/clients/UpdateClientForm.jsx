@@ -230,16 +230,29 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
     });
   };
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'general': {
-        const previewUrl = imagePreview || formData.clients_image_url;
-        return (
+const premiumInput =
+  "block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md focus:outline-none focus:border-[#8DD8F5] focus:ring-4 focus:ring-[#8DD8F5]/30 transition-all duration-300";
+
+const premiumInputSmall =
+  "block w-full px-3 py-2 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md focus:outline-none focus:border-[#8DD8F5] focus:ring-4 focus:ring-[#8DD8F5]/30 transition-all duration-300 text-sm";
+
+const premiumLabel =
+  "block text-sm font-semibold text-[#1F2937] mb-1 tracking-wide";
+
+const premiumCard =
+  "relative rounded-2xl bg-white/70 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(31,41,55,0.35)] border border-white/40 p-6";
+
+const renderTabContent = () => {
+  switch (activeTab) {
+    case 'general': {
+      const previewUrl = imagePreview || formData.clients_image_url;
+      return (
+        <div className={premiumCard}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Image Upload Section */}
             <div className="md:col-span-2 flex flex-col items-center gap-3 py-4">
               <label htmlFor="clients_image" className="group relative block cursor-pointer">
-                <div className="w-36 h-36 rounded-full overflow-hidden border-3 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 shadow-lg flex items-center justify-center transition-all duration-300 group-hover:border-indigo-500 group-hover:shadow-xl group-hover:scale-105">
+                <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-[#8DD8F5]/40 to-white border border-white/60 shadow-[0_12px_40px_-10px_rgba(141,216,245,0.9)] hover:shadow-[0_18px_60px_-10px_rgba(141,216,245,1)] transition-all duration-500 flex items-center justify-center group-hover:scale-105">
                   {previewUrl ? (
                     <img src={previewUrl} alt="صورة العميل" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://placehold.co/144x144/e5e7eb/6b7280?text=صورة'; }} />
                   ) : (
@@ -261,7 +274,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
 
             {/* Basic Information */}
             <div>
-              <label htmlFor="clients_company_name" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_company_name" className={premiumLabel}>
                 اسم الشركة <span className="text-red-500">*</span>
               </label>
               <input 
@@ -272,14 +285,14 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 onChange={handleChange} 
                 required 
                 maxLength={100} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="أدخل اسم الشركة"
               />
             </div>
 
             {odooEnabled && (
             <div>
-              <label htmlFor="clients_odoo_partner_id" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_odoo_partner_id" className={premiumLabel}>
                 معرف Odoo (Partner ID)
               </label>
               <input 
@@ -289,14 +302,14 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_odoo_partner_id} 
                 onChange={handleChange} 
                 maxLength={50} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400 font-mono" 
+                className={premiumInput + " font-mono"} 
                 placeholder="مثال: 123"
               />
             </div>
             )}
 
             <div>
-              <label htmlFor="clients_email" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_email" className={premiumLabel}>
                 البريد الإلكتروني <span className="text-red-500">*</span>
               </label>
               <input 
@@ -307,19 +320,19 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 onChange={handleChange} 
                 required 
                 maxLength={100} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="example@company.com"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_client_type_id" className="block text-sm font-semibold text-gray-700 mb-1">نوع العميل</label>
+              <label htmlFor="clients_client_type_id" className={premiumLabel}>نوع العميل</label>
               <select 
                 id="clients_client_type_id" 
                 name="clients_client_type_id" 
                 value={formData.clients_client_type_id} 
                 onChange={handleChange} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400 bg-white"
+                className={premiumInput}
               >
                 {clientTypes.map(t => (
                   <option key={t.client_type_id} value={t.client_type_id}>{t.client_type_name}</option>
@@ -336,13 +349,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
             </div>
 
             <div>
-              <label htmlFor="clients_industry_id" className="block text-sm font-semibold text-gray-700 mb-1">صناعة العميل</label>
+              <label htmlFor="clients_industry_id" className={premiumLabel}>صناعة العميل</label>
               <select 
                 id="clients_industry_id" 
                 name="clients_industry_id" 
                 value={formData.clients_industry_id} 
                 onChange={handleChange} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400 bg-white"
+                className={premiumInput}
               >
                 <option value="">اختر صناعة</option>
                 {clientIndustries.map(industry => (
@@ -360,25 +373,25 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
             </div>
 
             <div>
-              <label htmlFor="clients_credit_limit" className="block text-sm font-semibold text-gray-700 mb-1">الحد الائتماني</label>
+              <label htmlFor="clients_credit_limit" className={premiumLabel}>الحد الائتماني</label>
               <NumberInput 
                 id="clients_credit_limit" 
                 name="clients_credit_limit" 
                 value={formData.clients_credit_limit} 
                 onChange={(val)=> setFormData(prev=>({ ...prev, clients_credit_limit: val }))} 
                 placeholder="0.00" 
-                className="mt-1" 
+                className={"mt-1 " + premiumInput} 
               />
             </div>
 
             <div>
-              <label htmlFor="clients_status" className="block text-sm font-semibold text-gray-700 mb-1">الحالة</label>
+              <label htmlFor="clients_status" className={premiumLabel}>الحالة</label>
               <select 
                 id="clients_status" 
                 name="clients_status" 
                 value={formData.clients_status} 
                 onChange={handleChange} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400 bg-white"
+                className={premiumInput}
               >
                 {CLIENT_STATUS_OPTIONS.map((statusOption) => (
                   <option key={statusOption.value} value={statusOption.value}>
@@ -389,7 +402,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
             </div>
 
             <div>
-              <label htmlFor="clients_website" className="block text-sm font-semibold text-gray-700 mb-1">الموقع الإلكتروني</label>
+              <label htmlFor="clients_website" className={premiumLabel}>الموقع الإلكتروني</label>
               <input 
                 type="url" 
                 id="clients_website" 
@@ -397,13 +410,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_website} 
                 onChange={handleChange} 
                 maxLength={255} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="https://www.example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_vat_number" className="block text-sm font-semibold text-gray-700 mb-1">رقم ضريبة القيمة المضافة</label>
+              <label htmlFor="clients_vat_number" className={premiumLabel}>رقم ضريبة القيمة المضافة</label>
               <input 
                 type="text" 
                 id="clients_vat_number" 
@@ -412,7 +425,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 onChange={handleChange} 
                 maxLength={15} 
                 pattern="^3\d{13}3$"
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="310175397400003"
               />
               <p className="mt-1 text-xs text-gray-500">يجب أن يكون 15 رقماً، يبدأ بـ 3 وينتهي بـ 3</p>
@@ -424,7 +437,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="clients_description" className="block text-sm font-semibold text-gray-700 mb-1">الوصف</label>
+              <label htmlFor="clients_description" className={premiumLabel}>الوصف</label>
               <textarea 
                 id="clients_description" 
                 name="clients_description" 
@@ -432,18 +445,20 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 onChange={handleChange} 
                 rows="4" 
                 maxLength={500} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400 resize-none" 
+                className={premiumInput + " resize-none"} 
                 placeholder="أضف وصفاً للعميل أو ملاحظات إضافية..."
               ></textarea>
             </div>
           </div>
-        );
-      }
-      case 'contact':
-        return (
+        </div>
+      );
+    }
+    case 'contact':
+      return (
+        <div className={premiumCard}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="clients_contact_name" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_contact_name" className={premiumLabel}>
                 اسم جهة الاتصال <span className="text-red-500">*</span>
               </label>
               <input 
@@ -454,13 +469,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 onChange={handleChange} 
                 required 
                 maxLength={100} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="أدخل اسم جهة الاتصال"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_contact_job_title" className="block text-sm font-semibold text-gray-700 mb-1">المسمى الوظيفي</label>
+              <label htmlFor="clients_contact_job_title" className={premiumLabel}>المسمى الوظيفي</label>
               <input 
                 type="text" 
                 id="clients_contact_job_title" 
@@ -468,13 +483,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_contact_job_title} 
                 onChange={handleChange} 
                 maxLength={100} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="مثال: مدير المشتريات"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_contact_phone_1" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_contact_phone_1" className={premiumLabel}>
                 رقم الهاتف 1 <span className="text-red-500">*</span>
               </label>
               <input 
@@ -485,13 +500,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 onChange={handleChange} 
                 required 
                 maxLength={20} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="+20 123 456 7890"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_contact_phone_2" className="block text-sm font-semibold text-gray-700 mb-1">رقم الهاتف 2</label>
+              <label htmlFor="clients_contact_phone_2" className={premiumLabel}>رقم الهاتف 2</label>
               <input 
                 type="tel" 
                 id="clients_contact_phone_2" 
@@ -499,17 +514,19 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_contact_phone_2} 
                 onChange={handleChange} 
                 maxLength={20} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="+20 123 456 7890"
               />
             </div>
           </div>
-        );
-      case 'address':
-        return (
+        </div>
+      );
+    case 'address':
+      return (
+        <div className={premiumCard}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label htmlFor="clients_address" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_address" className={premiumLabel}>
                 العنوان {formData.clients_vat_number && <span className="text-red-500">*</span>}
               </label>
               <input 
@@ -519,13 +536,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_address} 
                 onChange={handleChange} 
                 maxLength={255} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="أدخل العنوان التفصيلي (الشارع الرئيسي)"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_street2" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_street2" className={premiumLabel}>
                 العنوان 2 {formData.clients_vat_number && <span className="text-red-500">*</span>}
               </label>
               <input 
@@ -535,13 +552,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_street2} 
                 onChange={handleChange} 
                 maxLength={255} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="عنوان إضافي (اختياري)"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_building_number" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_building_number" className={premiumLabel}>
                 رقم المبنى {formData.clients_vat_number && <span className="text-red-500">*</span>}
               </label>
               <input 
@@ -551,13 +568,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_building_number} 
                 onChange={handleChange} 
                 maxLength={50} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="رقم المبنى"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_country" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_country" className={premiumLabel}>
                 الدولة {formData.clients_vat_number && <span className="text-red-500">*</span>}
               </label>
               <SearchableSelect
@@ -573,7 +590,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
             </div>
 
             <div>
-              <label htmlFor="clients_state" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_state" className={premiumLabel}>
                 المنطقة / المحافظة {formData.clients_vat_number && <span className="text-red-500">*</span>}
               </label>
               <SearchableSelect
@@ -590,7 +607,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
             </div>
 
             <div>
-              <label htmlFor="clients_city" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_city" className={premiumLabel}>
                 المدينة {formData.clients_vat_number && <span className="text-red-500">*</span>}
               </label>
               <input 
@@ -600,13 +617,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_city} 
                 onChange={handleChange} 
                 maxLength={100} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="أدخل اسم المدينة"
               />
             </div>
 
             <div>
-              <label htmlFor="clients_zip" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_zip" className={premiumLabel}>
                 الرمز البريدي {formData.clients_vat_number && <span className="text-red-500">*</span>}
               </label>
               <input 
@@ -616,13 +633,13 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_zip} 
                 onChange={handleChange} 
                 maxLength={20} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="الرمز البريدي"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="clients_area_tag_id" className="block text-sm font-semibold text-gray-700 mb-1">
+              <label htmlFor="clients_area_tag_id" className={premiumLabel}>
                 منطقة العميل <span className="text-red-500">*</span>
               </label>
               <SearchableSelect
@@ -661,7 +678,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                     value={formData.clients_latitude} 
                     onChange={handleChange} 
                     maxLength={20} 
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all duration-200 hover:border-gray-400" 
+                    className={premiumInputSmall} 
                     placeholder="30.0444"
                   />
                 </div>
@@ -674,19 +691,21 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                     value={formData.clients_longitude} 
                     onChange={handleChange} 
                     maxLength={20} 
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all duration-200 hover:border-gray-400" 
+                    className={premiumInputSmall} 
                     placeholder="31.2357"
                   />
                 </div>
               </div>
             </div>
           </div>
-        );
-      case 'other':
-        return (
+        </div>
+      );
+    case 'other':
+      return (
+        <div className={premiumCard}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="clients_source" className="block text-sm font-semibold text-gray-700 mb-1">مصدر العميل</label>
+              <label htmlFor="clients_source" className={premiumLabel}>مصدر العميل</label>
               <input 
                 type="text" 
                 id="clients_source" 
@@ -694,20 +713,20 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 value={formData.clients_source} 
                 onChange={handleChange} 
                 maxLength={100} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400" 
+                className={premiumInput} 
                 placeholder="مثال: إعلانات، توصية، معرض..."
               />
             </div>
 
             <div>
-              <label htmlFor="clients_rep_user_id" className="block text-sm font-semibold text-gray-700 mb-1">المندوب المسئول</label>
+              <label htmlFor="clients_rep_user_id" className={premiumLabel}>المندوب المسئول</label>
               <select 
                 id="clients_rep_user_id" 
                 name="clients_rep_user_id" 
                 value={formData.clients_rep_user_id} 
                 onChange={handleChange} 
                 required 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400 bg-white"
+                className={premiumInput}
               >
                 <option value="">اختر مندوب</option>
                 {allUsers.map(user => (
@@ -719,7 +738,7 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="clients_reference_note" className="block text-sm font-semibold text-gray-700 mb-1">ملاحظة مرجعية</label>
+              <label htmlFor="clients_reference_note" className={premiumLabel}>ملاحظة مرجعية</label>
               <textarea 
                 id="clients_reference_note" 
                 name="clients_reference_note" 
@@ -727,73 +746,209 @@ function UpdateClientForm({ client, onUpdate, onCancel, clientAreaTags, clientIn
                 onChange={handleChange} 
                 rows="4" 
                 maxLength={500} 
-                className="block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:border-gray-400 resize-none" 
+                className={premiumInput + " resize-none"} 
                 placeholder="أضف أي ملاحظات مرجعية أو تفاصيل إضافية..."
               ></textarea>
             </div>
           </div>
-        );
-      default:
-        return null;
-    }
-  };
+        </div>
+      );
+    default:
+      return null;
+  }
+};
 
-  return (
-    <div className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto border border-gray-100" dir="rtl">
-      <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center pb-4 border-b-2 border-gray-200">تعديل العميل</h3>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {formError && <Alert message={formError} type="error" className="mb-4" onClose={() => setFormError('')} />}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8 space-x-reverse" aria-label="Tabs">
-            <button 
-              type="button" 
-              onClick={() => setActiveTab('general')} 
-              className={`whitespace-nowrap py-3 px-5 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200 ease-in-out ${activeTab === 'general' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
-            >
-              المعلومات الأساسية
-            </button>
-            <button 
-              type="button" 
-              onClick={() => setActiveTab('contact')} 
-              className={`whitespace-nowrap py-3 px-5 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200 ease-in-out ${activeTab === 'contact' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
-            >
-              معلومات الاتصال
-            </button>
-            <button 
-              type="button" 
-              onClick={() => setActiveTab('address')} 
-              className={`whitespace-nowrap py-3 px-5 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200 ease-in-out ${activeTab === 'address' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
-            >
-              العنوان والخريطة
-            </button>
-            <button 
-              type="button" 
-              onClick={() => setActiveTab('other')} 
-              className={`whitespace-nowrap py-3 px-5 border-b-2 font-semibold text-sm rounded-t-lg transition-all duration-200 ease-in-out ${activeTab === 'other' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}
-            >
-              تفاصيل أخرى
-            </button>
-          </nav>
-        </div>
-        <div className="mt-4">{renderTabContent()}</div>
-        <div className="flex justify-end space-x-4 space-x-reverse mt-8 pt-6 border-t border-gray-200">
-          <button 
-            type="button" 
-            onClick={onCancel} 
-            className="px-6 py-2.5 border-2 border-gray-300 rounded-lg shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 ease-in-out"
-          >
-            إلغاء
-          </button>
-          <button 
-            type="submit" 
-            className="px-6 py-2.5 border-2 border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-in-out transform hover:scale-105"
-          >
-            تحديث عميل
-          </button>
-        </div>
-      </form>
+return (
+  <div
+    className="
+      bg-white/90 backdrop-blur-md
+      p-4 sm:p-6 lg:p-8
+      rounded-2xl
+      shadow-[0_15px_40px_rgba(0,0,0,0.08)]
+      max-w-5xl mx-auto
+      border border-[#8DD8F5]/10
+    "
+    dir="rtl"
+  >
+    {/* Top accent */}
+    <div className="h-1.5 w-full rounded-t-2xl mb-4" style={{ background: '#8DD8F5' }} />
+    
+    
+
+
+
+{/* Strong Title with Icon */}
+<div className="relative mb-8 text-center">
+  <div className="flex items-center justify-center gap-3">
+              <button
+    type="button"
+    onClick={onCancel}
+    aria-label="إغلاق"
+    className="
+      absolute top-0 right-0
+      p-2
+      rounded-lg
+      text-[#1F2937]/70
+      hover:bg-[#8DD8F5]/20
+      transition
+    "
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+    
+    <div className="
+      w-12 h-12
+      rounded-xl
+      bg-[#8DD8F5]/20
+      flex items-center justify-center
+      text-[#8DD8F5]
+      shadow-sm
+    ">
+      <svg
+        className="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round"
+          d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3z"
+        />
+        <path strokeLinecap="round" strokeLinejoin="round"
+          d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2"
+        />
+      </svg>
     </div>
-  );
+
+
+    <h3
+      className="
+        text-2xl sm:text-3xl lg:text-4xl
+        font-black
+        text-[#1F2937]
+        tracking-tight
+      "
+    >
+      تعديل العميل
+    </h3>
+  </div>
+
+  {/* bottom glow line */}
+  <div className="mt-3 flex justify-center">
+    <span className="w-24 h-1 rounded-full bg-[#8DD8F5]/70" />
+  </div>
+
+</div>
+
+    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+      {formError && (
+        <Alert
+          message={formError}
+          type="error"
+          className="mb-4"
+          onClose={() => setFormError('')}
+        />
+      )}
+
+      {/* Tabs */}
+      <div className="border-b border-gray-100 overflow-x-auto">
+        <nav
+          className="flex min-w-max gap-2 sm:gap-4 pb-1"
+          aria-label="Tabs"
+        >
+          {[
+            { key: 'general', label: 'المعلومات الأساسية' },
+            { key: 'contact', label: 'معلومات الاتصال' },
+            { key: 'address', label: 'العنوان والخريطة' },
+            { key: 'other', label: 'تفاصيل أخرى' },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`
+                whitespace-nowrap
+                px-4 sm:px-5 py-2.5
+                rounded-t-xl
+                text-xs sm:text-sm font-semibold
+                border-b-2
+                transition-all duration-200
+                ${
+                  activeTab === tab.key
+                    ? 'border-[#8DD8F5] text-[#1F2937] bg-[#8DD8F5]/10 shadow-sm'
+                    : 'border-transparent text-[#1F2937]/60 hover:text-[#1F2937] hover:bg-gray-50'
+                }
+              `}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Content */}
+      <div className="mt-4 sm:mt-6">
+        {renderTabContent()}
+      </div>
+
+      {/* Actions */}
+      <div className="
+        flex flex-col sm:flex-row
+        gap-3 sm:gap-4
+        justify-end
+        mt-8 pt-6
+        border-t border-gray-100
+      ">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="
+            px-6 py-2.5
+            rounded-xl
+            border border-gray-200
+            text-sm font-semibold
+            text-[#1F2937]
+            bg-white
+            hover:bg-gray-50
+            focus:outline-none
+            focus:ring-2 focus:ring-[#8DD8F5]/30
+            transition
+          "
+        >
+          إلغاء
+        </button>
+
+        <button
+          type="submit"
+          className="
+            px-6 py-2.5
+            rounded-xl
+            text-sm font-semibold
+            text-[#1F2937]
+            bg-[#8DD8F5]
+            hover:bg-[#7ccfee]
+            focus:outline-none
+            focus:ring-2 focus:ring-[#8DD8F5]/40
+            shadow-lg
+            transition
+            transform hover:scale-[1.02]
+          "
+        >
+          تحديث عميل
+        </button>
+      </div>
+    </form>
+  </div>
+);
 }
 
 export default UpdateClientForm;

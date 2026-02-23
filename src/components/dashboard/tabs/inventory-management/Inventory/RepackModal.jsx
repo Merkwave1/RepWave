@@ -1,6 +1,6 @@
 // src/components/dashboard/tabs/inventory-management/Inventory/RepackModal.jsx
 import React, { useState, useMemo, useEffect } from 'react';
-import { XMarkIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
 import Modal from '../../../../common/Modal/Modal';
 import Alert from '../../../../common/Alert/Alert';
 
@@ -16,7 +16,22 @@ const lcm = (a, b) => {
   return Math.abs(a * b) / gcd(a, b);
 };
 
-export default function RepackModal({ isOpen, onClose, onRepackConfirm, inventoryItem, packagingTypes, baseUnits, allowedTargetPackagingTypeIds }) {
+export default function RepackModal({
+  isOpen,
+  onClose,
+  onRepackConfirm,
+  inventoryItem,
+  packagingTypes,
+  baseUnits,
+  allowedTargetPackagingTypeIds
+}) {
+  // theme colors from your page
+  const THEME_DARK = '#1F2937';
+  const THEME_ACCENT = '#8DD8F5';
+  // rgb values (used for rgba backgrounds)
+  const THEME_ACCENT_RGB = '141,216,245';
+  const THEME_DARK_RGB = '31,41,55';
+
   // Initialize quantityToConvert to 0, as the step will handle initial increment
   const [quantityToConvert, setQuantityToConvert] = useState(0);
   const [toPackagingTypeId, setToPackagingTypeId] = useState('');
@@ -29,14 +44,16 @@ export default function RepackModal({ isOpen, onClose, onRepackConfirm, inventor
 
   // Find the current packaging type object
   const currentPackagingType = useMemo(() => {
-    return Array.isArray(packagingTypes) ? packagingTypes.find(pt => pt.packaging_types_id === inventoryItem?.packaging_type_id) : undefined;
+    return Array.isArray(packagingTypes)
+      ? packagingTypes.find(pt => pt.packaging_types_id === inventoryItem?.packaging_type_id)
+      : undefined;
   }, [packagingTypes, inventoryItem]);
 
   // Filter packaging types that share the same base unit as the current item
   // Exclude the current packaging type from compatible options
   const compatiblePackagingTypes = useMemo(() => {
     if (!Array.isArray(packagingTypes) || !currentBaseUnitId) return [];
-    let list = packagingTypes.filter(pt => 
+    let list = packagingTypes.filter(pt =>
       pt.packaging_types_compatible_base_unit_id === currentBaseUnitId &&
       pt.packaging_types_id !== inventoryItem?.packaging_type_id
     );
@@ -62,29 +79,16 @@ export default function RepackModal({ isOpen, onClose, onRepackConfirm, inventor
 
     if (isNaN(currentFactor) || isNaN(targetFactor) || currentFactor <= 0 || targetFactor <= 0) return 1;
 
-    // To ensure whole numbers in target, we need to find the smallest 'x' such that (x * currentFactor) / targetFactor is a whole number.
-    // This is equivalent to finding the smallest 'x' such that (x * currentFactor) is a multiple of targetFactor.
-    // Let ratio = currentFactor / targetFactor. We need x * ratio to be a whole number.
-    // If ratio is a fraction a/b, we need x * a/b to be a whole number, so x must be a multiple of b.
-    // More generally, we can use LCM.
-    // The step in source units should be (targetFactor / GCD(currentFactor, targetFactor))
-    // This simplifies to LCM(currentFactor, targetFactor) / currentFactor, but since factors can be decimals,
-    // we need to work with ratios.
-
     // Convert factors to integers by multiplying by a large power of 10 to handle decimals
     const multiplier = 10000; // Adjust as needed for precision
     const intCurrentFactor = Math.round(currentFactor * multiplier);
     const intTargetFactor = Math.round(targetFactor * multiplier);
 
     // Calculate the step in terms of 'current packaging units'
-    // This is the smallest number of 'current packaging units' that will result in a whole number of 'target packaging units'
-    // and vice-versa.
     const commonMultiple = lcm(intCurrentFactor, intTargetFactor);
     const step = commonMultiple / intCurrentFactor;
 
-    // If the step is very small (e.g., due to very different conversion factors),
-    // we might still want a minimum step of 1 to avoid tiny increments.
-    return Math.max(1, step); 
+    return Math.max(1, step);
 
   }, [currentPackagingType, selectedToPackagingType]);
 
@@ -117,12 +121,11 @@ export default function RepackModal({ isOpen, onClose, onRepackConfirm, inventor
     setToPackagingTypeId(''); // Reset target packaging type
   }, [inventoryItem]);
 
-
   const handleIncrement = () => {
     setError(null); // Clear error on interaction
     if (!selectedToPackagingType) {
-        setError('الرجاء اختيار نوع تعبئة أولاً لتحديد خطوة التحويل.');
-        return;
+      setError('الرجاء اختيار نوع تعبئة أولاً لتحديد خطوة التحويل.');
+      return;
     }
 
     setQuantityToConvert(prev => {
@@ -139,8 +142,8 @@ export default function RepackModal({ isOpen, onClose, onRepackConfirm, inventor
   const handleDecrement = () => {
     setError(null); // Clear error on interaction
     if (!selectedToPackagingType) {
-        setError('الرجاء اختيار نوع تعبئة أولاً لتحديد خطوة التحويل.');
-        return;
+      setError('الرجاء اختيار نوع تعبئة أولًا لتحديد خطوة التحويل.');
+      return;
     }
 
     setQuantityToConvert(prev => {
@@ -170,16 +173,16 @@ export default function RepackModal({ isOpen, onClose, onRepackConfirm, inventor
       return;
     }
     if (quantity > parseFloat(inventoryItem.inventory_quantity)) {
-        setError(`الكمية المراد تحويلها (${quantity}) أكبر من الكمية المتاحة في المخزون (${parseFloat(inventoryItem.inventory_quantity).toFixed(0)}).`);
-        return;
+      setError(`الكمية المراد تحويلها (${quantity}) أكبر من الكمية المتاحة في المخزون (${parseFloat(inventoryItem.inventory_quantity).toFixed(0)}).`);
+      return;
     }
     if (selectedToPackagingType === undefined) {
-        setError('نوع التعبئة المحدد غير صالح.');
-        return;
+      setError('نوع التعبئة المحدد غير صالح.');
+      return;
     }
     if (equivalentQuantityInTarget === null) {
-        setError('لا يمكن إجراء هذا التحويل بكميات صحيحة. يرجى تعديل الكمية أو نوع التعبئة.');
-        return;
+      setError('لا يمكن إجراء هذا التحويل بكميات صحيحة. يرجى تعديل الكمية أو نوع التعبئة.');
+      return;
     }
 
     onRepackConfirm({
@@ -192,106 +195,154 @@ export default function RepackModal({ isOpen, onClose, onRepackConfirm, inventor
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`تحويل تعبئة/تفكيك لـ: ${inventoryItem?.variant_display_name}`}>
-      <div className="p-6" dir="rtl">
-        {error && <Alert type="error" message={error} className="mb-4" />}
-        
-        <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-md mb-6">
-            <p className="font-semibold text-lg mb-1">تفاصيل العنصر الحالي:</p>
-            <p className="text-base">
-                <span className="font-medium">المنتج:</span> {inventoryItem?.variant_display_name}
-            </p>
-            <p className="text-base">
-                <span className="font-medium">الكمية المتاحة:</span> <span className="font-semibold">{parseFloat(inventoryItem?.inventory_quantity).toFixed(0)}</span> {currentPackagingType?.packaging_types_name || 'غير معروفة'}
-            </p>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`تحويل تعبئة/تفكيك — ${inventoryItem?.variant_display_name}`}
+    >
+      <div className="p-6 space-y-6" dir="rtl" style={{ color: THEME_DARK }}>
+        {error && <Alert type="error" message={error} className="mb-2" />}
+
+        {/* ===== PRODUCT CARD ===== */}
+        <div
+          className="relative overflow-hidden rounded-2xl p-5 shadow-lg"
+          style={{
+            background: `linear-gradient(135deg, rgba(${THEME_ACCENT_RGB},0.18), rgba(255,255,255,1))`,
+            border: `1px solid rgba(${THEME_ACCENT_RGB},0.45)`
+          }}
+        >
+          <div className="absolute top-[-20px] right-[-20px] w-36 h-36 bg-blue-200 opacity-20 rounded-full filter blur-2xl" />
+
+          <p className="text-xs uppercase tracking-wide opacity-70 mb-1">
+            العنصر الحالي
+          </p>
+
+          <h3 className="font-extrabold text-lg mb-2">
+            {inventoryItem?.variant_display_name}
+          </h3>
+
+          <div className="flex justify-between text-sm font-semibold">
+            <span>الكمية المتاحة</span>
+            <span className="text-lg">
+              {parseFloat(inventoryItem?.inventory_quantity || 0).toFixed(0)}{' '}
+              {currentPackagingType?.packaging_types_name || ''}
+            </span>
+          </div>
         </div>
 
-        {/* Convert to Packaging Type - Placed first for better flow */}
-        <div className="mb-6">
-          <label htmlFor="toPackagingType" className="block text-sm font-medium text-gray-700 mb-2">
-            التحويل إلى نوع التعبئة الجديد
-          </label>
+        {/* ===== TARGET PACKAGING ===== */}
+        <div className="bg-white rounded-2xl shadow-md p-5 border">
+          <p className="text-xs font-semibold opacity-70 mb-2">
+            التحويل إلى
+          </p>
+
           <select
-            id="toPackagingType"
             value={toPackagingTypeId}
             onChange={(e) => setToPackagingTypeId(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-300 transition text-sm"
+            style={{ borderColor: THEME_ACCENT }}
           >
             <option value="">اختر نوع تعبئة</option>
             {compatiblePackagingTypes.map(pt => (
               <option key={pt.packaging_types_id} value={pt.packaging_types_id}>
-                {pt.packaging_types_name} (معامل تحويل: {pt.packaging_types_default_conversion_factor})
+                {pt.packaging_types_name} — معامل {pt.packaging_types_default_conversion_factor}
               </option>
             ))}
           </select>
+
           {compatiblePackagingTypes.length === 0 && (
-            <p className="text-sm text-red-500 mt-2">
-              لا توجد أنواع تعبئة متوافقة{Array.isArray(allowedTargetPackagingTypeIds) && allowedTargetPackagingTypeIds.length > 0 ? ' ضمن التعبئة المفضلة لهذا المنتج.' : ' مع الوحدة الأساسية لهذا المنتج.'}
+            <p className="text-sm mt-2" style={{ color: '#cc3333' }}>
+              لا توجد أنواع تعبئة متوافقة
+              {Array.isArray(allowedTargetPackagingTypeIds) && allowedTargetPackagingTypeIds.length > 0
+                ? ' ضمن التعبئة المفضلة لهذا المنتج.'
+                : ' مع الوحدة الأساسية لهذا المنتج.'}
             </p>
           )}
         </div>
 
-        {/* Quantity to Convert with Increment/Decrement Buttons */}
-        <div className="mb-6">
-          <label htmlFor="quantityToConvert" className="block text-sm font-medium text-gray-700 mb-2">
-            الكمية المراد تحويلها (بالتعبئة الحالية)
-          </label>
-          <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+        {/* ===== QUANTITY CONTROL ===== */}
+        <div className="bg-white rounded-2xl shadow-md p-6 border space-y-4">
+          <p className="text-xs font-semibold opacity-70 text-center">
+            الكمية المراد تحويلها
+          </p>
+
+          <div className="flex items-center justify-center gap-4">
             <button
-              type="button"
               onClick={handleDecrement}
-              className="p-3 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150 ease-in-out"
-              disabled={quantityToConvert <= 0 || !selectedToPackagingType} // Disable if no target type selected
+              disabled={quantityToConvert <= 0 || !selectedToPackagingType}
+              className="w-12 h-12 rounded-full flex items-center justify-center shadow hover:scale-105 transition bg-white border"
+              aria-label="decrement"
             >
-              <MinusIcon className="h-6 w-6 text-gray-700" />
+              <MinusIcon className="w-6 h-6" />
             </button>
-            <input
-              type="text"
-              id="quantityToConvert"
-              value={quantityToConvert.toFixed(0)}
-              readOnly
-              className="w-24 text-xl font-bold px-3 py-2 border border-gray-300 rounded-md shadow-sm text-center bg-gray-100 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={handleIncrement}
-              className="p-3 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150 ease-in-out"
-              disabled={quantityToConvert >= parseFloat(inventoryItem?.inventory_quantity) || !selectedToPackagingType} // Disable if no target type selected
+
+            <div
+              className="px-10 py-4 rounded-2xl text-3xl font-extrabold shadow-inner"
+              style={{
+                background: '#f8fafc',
+                border: '1px solid rgba(0,0,0,0.05)'
+              }}
             >
-              <PlusIcon className="h-6 w-6 text-gray-700" />
+              {quantityToConvert.toFixed(0)}
+            </div>
+
+            <button
+              onClick={handleIncrement}
+              disabled={!selectedToPackagingType}
+              className="w-12 h-12 rounded-full flex items-center justify-center shadow hover:scale-105 transition bg-white border"
+              aria-label="increment"
+            >
+              <PlusIcon className="w-6 h-6" />
             </button>
           </div>
-          {/* Display equivalent quantity in target packaging */}
+
           {selectedToPackagingType && quantityToConvert > 0 && (
-            <p className="text-base text-gray-700 mt-4 text-center p-3 bg-indigo-50 border border-indigo-200 rounded-md">
-              وهذا يعادل: 
+            <div
+              className="text-center rounded-xl p-3 text-sm font-semibold"
+              style={{
+                background: `rgba(${THEME_ACCENT_RGB},0.12)`,
+                border: `1px solid rgba(${THEME_ACCENT_RGB},0.35)`
+              }}
+            >
+              الناتج =
               {equivalentQuantityInTarget !== null ? (
-                <span className="font-extrabold text-indigo-700 text-lg ml-1">{equivalentQuantityInTarget.toFixed(0)}</span>
+                <span className="mx-1 text-lg font-extrabold">
+                  {equivalentQuantityInTarget.toFixed(0)}
+                </span>
               ) : (
-                <span className="font-bold text-red-700 text-lg ml-1">لا يمكن التحويل بكمية صحيحة</span>
+                <span className="mx-1 text-red-600 font-bold">
+                  غير صالح
+                </span>
               )}
-              {selectedToPackagingType.packaging_types_name}
-            </p>
+              {selectedToPackagingType?.packaging_types_name || ''}
+            </div>
           )}
+
           {!selectedToPackagingType && (
-            <p className="text-sm text-gray-500 mt-2 text-center">الرجاء اختيار نوع تعبئة جديد لحساب الكمية المحولة.</p>
+            <p className="text-sm mt-2 text-center" style={{ color: `rgba(${THEME_DARK_RGB},0.6)` }}>
+              الرجاء اختيار نوع تعبئة جديد لحساب الكمية المحولة.
+            </p>
           )}
         </div>
 
-        <div className="flex justify-end space-x-4 space-x-reverse mt-6 pt-4 border-t border-gray-200">
+        {/* ===== ACTIONS ===== */}
+        <div className="flex justify-between pt-4">
           <button
-            type="button"
             onClick={onClose}
-            className="px-5 py-2.5 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-150 ease-in-out"
+            className="px-6 py-3 rounded-xl border hover:bg-gray-50 transition"
           >
             إلغاء
           </button>
+
           <button
-            type="button"
             onClick={handleConfirm}
-            className="px-5 py-2.5 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-purple-600 hover:bg-purple-700 transition duration-150 ease-in-out"
+            className="px-8 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition"
+            style={{
+              background: `linear-gradient(135deg, ${THEME_DARK}, #0f172a)`,
+              color: 'white'
+            }}
           >
-            تأكيد التحويل
+            تنفيذ التحويل
           </button>
         </div>
       </div>

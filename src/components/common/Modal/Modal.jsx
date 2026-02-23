@@ -30,7 +30,7 @@ function Modal({ isOpen, onClose, title, children, modalWidthClass, actions, siz
         dir="rtl" // Set direction to RTL for Arabic content
       >
         {/* Modal Header */}
-        <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-l from-blue-600 to-blue-700 text-white rounded-t-xl">
+        <div className="flex justify-between items-center px-6 py-4 bg-[#02415A] text-white rounded-t-xl">
           <h3 className="text-xl font-bold">{title}</h3>
           <div className="flex items-center gap-3">
             {actions && <div className="ml-2">{actions}</div>}

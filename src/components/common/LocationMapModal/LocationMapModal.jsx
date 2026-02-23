@@ -43,102 +43,128 @@ function LocationMapModal({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto" dir="rtl">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div
-          className="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75"
-          onClick={onClose}
-        ></div>
+return (
+  <div className="fixed inset-0 z-[60] overflow-y-auto" dir="rtl">
+    <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
 
-        {/* Modal panel */}
-        <div className="inline-block w-full max-w-4xl my-8 overflow-hidden text-right align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-          {/* Header */}
-          <div className="px-6 py-4 bg-gradient-to-l from-green-600 to-green-700 text-white">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold flex items-center gap-2">
+      {/* Background overlay */}
+      <div
+        className="fixed inset-0 bg-[#1F2937]/80 transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal panel */}
+      <div className="inline-block w-full max-w-4xl my-8 overflow-hidden text-right align-middle transform bg-white shadow-2xl rounded-2xl border border-[#8DD8F5]/30">
+
+        {/* Header */}
+        <div className="border-b border-[#8DD8F5]/40">
+          <div className="h-1.5 bg-[#8DD8F5]" />
+          <div className="px-6 py-5 flex items-center justify-between bg-white">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-[#8DD8F5]/20 flex items-center justify-center text-[#8DD8F5]">
                 <MapPinIcon className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-extrabold text-[#1F2937]">
                 {title || (derivedReadOnly ? 'عرض الموقع' : 'اختر الموقع')}
               </h3>
-              <button
-                onClick={onClose}
-                className="text-white hover:text-gray-200 transition-colors"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
             </div>
-          </div>
-
-          {/* Content */}
-          <div className="px-6 py-6">
-            {/* Map Container */}
-            <div className="mb-4">
-              <MapPicker
-                key={`map-${initialLat ?? latitude}-${initialLng ?? longitude}-${derivedReadOnly}`}
-                initialLatitude={selectedLat}
-                initialLongitude={selectedLng}
-                onLocationChange={derivedReadOnly ? (() => {}) : handleLocationChange}
-                readOnly={derivedReadOnly}
-              />
-            </div>
-
-            {/* Selected Coordinates Display */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    خط العرض (Latitude)
-                  </label>
-                  <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 font-mono text-sm">
-                    {(parseFloat(selectedLat) || 0).toFixed(7)}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    خط الطول (Longitude)
-                  </label>
-                  <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 font-mono text-sm">
-                    {(parseFloat(selectedLng) || 0).toFixed(7)}
-                  </div>
-                </div>
-              </div>
-              {!derivedReadOnly && (
-                <p className="text-xs text-gray-500 mt-2">
-                  💡 انقر على الخريطة أو اسحب العلامة لتحديد الموقع
-                </p>
-              )}
-              {derivedReadOnly && description && (
-                <div className="mt-3 text-xs text-gray-600 flex items-start gap-2">
-                  <InformationCircleIcon className="h-4 w-4 text-gray-400 mt-0.5" />
-                  <span>{description}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3">
             <button
               onClick={onClose}
-              className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-2 rounded-lg text-[#1F2937]/70 hover:bg-[#8DD8F5]/20 transition"
             >
-              {derivedReadOnly ? 'إغلاق' : 'إلغاء'}
+              <XMarkIcon className="h-6 w-6" />
             </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-6 space-y-4">
+
+          {/* Map Container */}
+          <div className="rounded-2xl overflow-hidden border border-[#8DD8F5]/30 shadow-sm">
+            <MapPicker
+              key={`map-${initialLat ?? latitude}-${initialLng ?? longitude}-${derivedReadOnly}`}
+              initialLatitude={selectedLat}
+              initialLongitude={selectedLng}
+              onLocationChange={derivedReadOnly ? (() => {}) : handleLocationChange}
+              readOnly={derivedReadOnly}
+            />
+          </div>
+
+          {/* Selected Coordinates */}
+          <div className="bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 p-4">
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1">
+                  خط العرض (Latitude)
+                </label>
+                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 font-mono text-sm text-[#1F2937] shadow-sm">
+                  {(parseFloat(selectedLat) || 0).toFixed(7)}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1">
+                  خط الطول (Longitude)
+                </label>
+                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 font-mono text-sm text-[#1F2937] shadow-sm">
+                  {(parseFloat(selectedLng) || 0).toFixed(7)}
+                </div>
+              </div>
+            </div>
+
             {!derivedReadOnly && (
-              <button
-                onClick={handleConfirm}
-                className="px-6 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-              >
-                <MapPinIcon className="h-5 w-5" />
-                تأكيد الموقع
-              </button>
+              <p className="text-xs text-[#1F2937]/60 mt-2">
+                💡 انقر على الخريطة أو اسحب العلامة لتحديد الموقع
+              </p>
+            )}
+
+            {derivedReadOnly && description && (
+              <div className="mt-3 text-xs text-[#1F2937]/70 flex items-start gap-2">
+                <InformationCircleIcon className="h-4 w-4 text-[#8DD8F5] mt-0.5" />
+                <span>{description}</span>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-200">
+
+          <button
+            onClick={onClose}
+            className="
+              px-6 py-2 rounded-xl
+              bg-gray-100 border border-gray-200
+              text-[#1F2937]
+              hover:bg-gray-200 transition
+            "
+          >
+            {derivedReadOnly ? 'إغلاق' : 'إلغاء'}
+          </button>
+
+          {!derivedReadOnly && (
+            <button
+              onClick={handleConfirm}
+              className="
+                px-6 py-2 rounded-xl
+                bg-[#8DD8F5] hover:bg-[#7ccfee]
+                text-[#1F2937] font-semibold
+                shadow-md transition
+                flex items-center gap-2
+              "
+            >
+              <MapPinIcon className="h-5 w-5" />
+              تأكيد الموقع
+            </button>
+          )}
+
+        </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default LocationMapModal;

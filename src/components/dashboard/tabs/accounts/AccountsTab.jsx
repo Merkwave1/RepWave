@@ -236,7 +236,7 @@ export default function AccountsTab() {
         actionButton={(
           <button
             onClick={handleAddAccount}
-            className="flex items-center px-4 py-2 text-sm font-bold text-blue-600 bg-white rounded-lg shadow-sm hover:bg-blue-50 transition-colors"
+                className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
           >
             <PlusIcon className="w-5 h-5 ml-2" />
             إضافة حساب جديد

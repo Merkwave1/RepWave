@@ -12,7 +12,7 @@ function InventoryManagementTab() {
 
   const getSubTabNavLinkClasses = (isActive) =>
     `py-2 px-4 text-sm font-medium rounded-t-lg transition-colors duration-200 ml-2 rtl:mr-2 rtl:ml-0 flex items-center focus:outline-none ${
-      isActive ? 'bg-blue-600 text-white shadow-md' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
+      isActive ? 'bg-[#8DD8F5] text-black shadow-md' : 'text-gray-700 hover:text-[#8DD8F5] hover:bg-gray-100'
     }`;
 
   return (

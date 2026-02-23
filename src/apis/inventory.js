@@ -10,39 +10,27 @@ function buildApiUrl(endpoint) {
   return `${API_BASE_URL}${companyName}/${endpoint}`;}
 
 export const getAllInventory = async (filters = {}) => {
-  const url = buildApiUrl("inventory/get_all.php");
-  const formData = new FormData();
-  
-  // Support both old format (warehouseId as direct parameter) and new format (filters object)
-  if (typeof filters === 'string' || typeof filters === 'number') {
-    // Legacy support: warehouseId passed directly
-    formData.append('warehouse_id', filters);
-  } else if (filters && typeof filters === 'object') {
-    // New format: filters object
-    if (filters.warehouse_id) {
-      formData.append('warehouse_id', filters.warehouse_id);
-    }
-    if (filters.variant_id) {
-      formData.append('variant_id', filters.variant_id);
-    }
-    if (filters.packaging_type_id) {
-      formData.append('packaging_type_id', filters.packaging_type_id);
-    }
-    if (filters.production_date) {
-      formData.append('production_date', filters.production_date);
-    }
-  }
-  
-  const response = await apiClient.postFormData(url, formData);
-
-
-  if (response.status === "success") {
-    return {
-      data: response.data?.inventory_items || [],
-      success: true
-    };
-  } else {
-    throw new Error(response.message || "Failed to retrieve inventory items.");
+  try {
+    const raw = localStorage.getItem('appInventory');
+    const all = raw ? JSON.parse(raw) : [];
+    const items = Array.isArray(all) ? all : [];
+    // Add normalized alias fields so UI components using warehouse_id / packaging_type_id work
+    const variantsRaw = localStorage.getItem('appProductVariants');
+    const variants = variantsRaw ? JSON.parse(variantsRaw) : [];
+    const normalized = items.map(item => {
+      const variantId = item.inventory_variant_id ?? item.variant_id;
+      const variant = variants.find(v => v.product_variants_id === variantId);
+      return {
+        ...item,
+        variant_id: variantId,
+        warehouse_id: item.inventory_warehouse_id ?? item.warehouse_id,
+        packaging_type_id: item.inventory_packaging_type_id ?? item.packaging_type_id,
+        products_id: variant?.product_variants_product_id ?? item.products_id,
+      };
+    });
+    return { data: normalized, success: true };
+  } catch {
+    return { data: [], success: true };
   }
 };
 

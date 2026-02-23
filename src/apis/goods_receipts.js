@@ -10,9 +10,9 @@ import { getCompanyName } from '../apis/auth.js';
  */
 function buildApiUrl(endpoint) {
   const companyName = getCompanyName();
-  if (!companyName) throw new Error('Company name not found in localStorage. Please log in.');
+  if (!companyName) return endpoint; // mock mode: apiClient ignores the URL
   const API_BASE_URL = import.meta.env.VITE_API_LOGIN_BASE_URL;
-  if (!API_BASE_URL) throw new Error('VITE_API_LOGIN_BASE_URL is not defined.');
+  if (!API_BASE_URL) return endpoint; // mock mode: apiClient ignores the URL
   return `${API_BASE_URL}${companyName}/${endpoint}`;
 }
 
@@ -59,7 +59,11 @@ export const getAllGoodsReceipts = async () => {
   const response = await apiClient.get(url);
 
   if (response.status === "success") {
-    return response.data || [];
+    // unwrap nested { data: { data: [...] } } or flat { data: [...] }
+    const raw = response.data;
+    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw?.data)) return raw.data;
+    return [];
   } else {
     throw new Error(response.message || "Failed to fetch goods receipts.");
   }
@@ -83,15 +87,27 @@ export const getGoodsReceiptsPaginated = async (params = {}) => {
   const url = `${base}?${query.toString()}`;
   const response = await apiClient.get(url);
   if (response.status === 'success') {
-    const data = response.data || [];
-    const p = response.pagination || {};
+    // unwrap nested { data: { data: [...], pagination: {...} } } or flat { data: [...] }
+    const raw = response.data;
+    let list, paginationRaw;
+    if (Array.isArray(raw)) {
+      list = raw;
+      paginationRaw = {};
+    } else if (Array.isArray(raw?.data)) {
+      list = raw.data;
+      paginationRaw = raw.pagination || {};
+    } else {
+      list = [];
+      paginationRaw = {};
+    }
+    const p = { ...paginationRaw, ...response.pagination };
     const pagination = {
-      total: Number(p.total ?? 0),
+      total: Number(p.total ?? list.length),
       per_page: Number(p.per_page ?? limit),
       page: Number(p.page ?? page),
-      total_pages: Number(p.total_pages ?? Math.max(1, Math.ceil(Number(p.total ?? 0) / Number(p.per_page ?? limit))))
+      total_pages: Number(p.total_pages ?? Math.max(1, Math.ceil(Number(p.total ?? list.length) / Number(p.per_page ?? limit))))
     };
-    return { data, pagination };
+    return { data: list, pagination };
   }
   throw new Error(response.message || 'Failed to fetch goods receipts');
 };

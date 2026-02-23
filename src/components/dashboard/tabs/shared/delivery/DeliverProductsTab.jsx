@@ -1069,7 +1069,7 @@ export default function DeliverProductsTab() {
       <CustomPageHeader
         title="تسليم المنتجات للعملاء"
         subtitle="قائمة أوامر البيع الجاهزة للتسليم"
-        icon={<TruckIcon className="h-8 w-8 text-white" />}
+        icon={<TruckIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={filteredOrders.length}
         statLabel="عدد الأوامر"
       />

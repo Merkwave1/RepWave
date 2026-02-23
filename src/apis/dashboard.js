@@ -15,58 +15,129 @@ function buildApiUrl(endpoint) {
  * Get comprehensive dashboard statistics and data (NEW)
  */
 export const getComprehensiveDashboardData = async () => {
-  const users_uuid = getUserUUID();
-  if (!users_uuid) throw new Error('User UUID is required. Please log in.');
+  return {
+    meta: { generated_at: new Date().toISOString() },
 
-  const url = buildApiUrl(`reports/dashboard_comprehensive.php?users_uuid=${users_uuid}`);
-  console.log('Fetching comprehensive dashboard data from:', url);
+    sales: {
+      invoiced_30d_count: 45,
+      invoiced_30d_value: 185000,
+      invoiced_7d_count: 12,
+      invoiced_7d_value: 52000,
+      invoiced_today_count: 3,
+      invoiced_today_value: 11000
+    },
 
-  try {
-    const response = await apiClient.get(url);
-    console.log('API Response:', response);
+    purchases: {
+      active_30d_count: 18,
+      active_30d_value: 97000,
+      active_7d_count: 6,
+      active_7d_value: 24000,
+      active_today_count: 2,
+      active_today_value: 8000
+    },
 
-    const payload = response && typeof response === 'object' && 'status' in response
-      ? response
-      : response?.data;
+    financial: {
+      income_30d: 185000,
+      expenses_30d: 73000,
+      income_7d: 52000,
+      expenses_7d: 21000
+    },
 
-    if (!payload || typeof payload !== 'object') {
-      throw new Error('Invalid response structure: missing data');
-    }
+    returns: {
+      returns_30d_count: 5,
+      returns_30d_value: 9000,
+      returns_7d_count: 2,
+      returns_7d_value: 3500,
+      returns_today_count: 1,
+      returns_today_value: 1200
+    },
 
-    const { status, data, message } = payload;
+    clients: {
+      new_clients_30d: 14,
+      new_clients_7d: 4,
+      total_active_clients: 126,
+      total_clients_balance: 340000
+    },
 
-    if (status === 'success' && data) {
-      // If suppliers total balance is not present in the comprehensive payload,
-      // try a lightweight secondary request to retrieve suppliers summary/balance.
-      const hasSuppliersBalance = data.suppliers?.total_balance !== undefined || data.total_suppliers_balance !== undefined || data.suppliers_balance !== undefined;
-      if (!hasSuppliersBalance) {
-        try {
-          const suppliersUrl = buildApiUrl(`reports/suppliers_summary.php?users_uuid=${users_uuid}`);
-          console.log('Fetching suppliers summary from:', suppliersUrl);
-          const supResp = await apiClient.get(suppliersUrl);
-          const supPayload = supResp && typeof supResp === 'object' && 'status' in supResp ? supResp : supResp?.data;
-          if (supPayload && supPayload.status === 'success' && supPayload.data) {
-            // attempt to merge known keys
-            const supData = supPayload.data;
-            data.suppliers = data.suppliers ?? {};
-            data.suppliers.total_balance = supData.total_balance ?? supData.suppliers_total_balance ?? supData.total_suppliers_balance ?? supData.suppliers_balance ?? data.suppliers.total_balance;
-            console.log('Merged suppliers balance into dashboard data:', data.suppliers.total_balance);
-          }
-        } catch (supErr) {
-          // don't fail the whole dashboard if suppliers summary is unavailable
-          console.warn('Failed to fetch suppliers summary (non-fatal):', supErr?.message || supErr);
-        }
+    suppliers: {
+      total_balance: 215000
+    },
+
+    top_selling_products: [
+      {
+        variant_name: "Acetone 1L",
+        products_name: "Acetone",
+        total_quantity: 520,
+        total_revenue: 26000,
+        order_count: 38
+      },
+      {
+        variant_name: "Methanol 500ml",
+        products_name: "Methanol",
+        total_quantity: 340,
+        total_revenue: 17000,
+        order_count: 24
       }
+    ],
 
-      return data;
-    }
+    top_returned_products: [
+      {
+        variant_name: "Safety Gloves XL",
+        products_name: "Safety Gloves",
+        total_returned_quantity: 40,
+        total_returned_value: 2000,
+        return_count: 6
+      }
+    ],
 
-    throw new Error(message || 'فشل في جلب بيانات لوحة المعلومات');
-  } catch (error) {
-    console.error('Error fetching comprehensive dashboard data:', error);
-    throw error;
-  }
+    low_stock_products: [
+      {
+        variant_name: "Sulfuric Acid 2L",
+        products_name: "Sulfuric Acid",
+        total_stock: 8,
+        warehouse_name: "Main Warehouse"
+      }
+    ],
+
+    recent_visits: [
+      {
+        visits_id: 1,
+        client_company_name: "Alpha Trading",
+        visits_start_time: new Date().toISOString(),
+        visits_status: "completed",
+        visits_purpose: "تحصيل دفعة",
+        representative_name: "Ahmed Ali"
+      }
+    ],
+
+    monthly_comparison: {
+      current_month_sales: 185000,
+      current_month_orders: 45,
+      previous_month_sales: 150000,
+      previous_month_orders: 38
+    },
+
+    user_performance: [
+      {
+        users_id: 1,
+        users_name: "Ahmed Ali",
+        users_role: "Sales",
+        orders_handled: 22,
+        total_sales_value: 98000,
+        visits_conducted: 15
+      },
+      {
+        users_id: 2,
+        users_name: "Mohamed Samy",
+        users_role: "Sales",
+        orders_handled: 18,
+        total_sales_value: 72000,
+        visits_conducted: 11
+      }
+    ]
+  };
 };
+
 
 /**
  * Get dashboard statistics and data (LEGACY - for backward compatibility)

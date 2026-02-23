@@ -3,6 +3,7 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { getNotifications, markNotificationRead } from '../apis/notifications';
 import { useAuth } from '../hooks/useAuth.js';
+import { USE_MOCK_DATA } from '../mock/mockApiWrapper.js';
 
 export const NotificationContext = createContext();
 
@@ -51,6 +52,7 @@ export const NotificationProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const fetchNotifications = useCallback(async ({ append = false, page = null, ...params } = {}) => {
+    if (USE_MOCK_DATA) return;
     if (!sessionActive()) return;
     
     try {
@@ -92,6 +94,7 @@ export const NotificationProvider = ({ children }) => {
 
     // Fetch unread count only
   const fetchUnreadCount = useCallback(async () => {
+    if (USE_MOCK_DATA) return;
     if (!sessionActive()) return;
     
     try {

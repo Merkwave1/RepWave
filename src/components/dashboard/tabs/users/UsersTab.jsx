@@ -11,6 +11,40 @@ import UserDetailsModal from './UserDetailsModal.jsx';
 import CustomPageHeader from '../../../common/CustomPageHeader/CustomPageHeader';
 import { Bars3BottomLeftIcon, PlusIcon, EyeIcon, PencilIcon, TrashIcon, UsersIcon } from '@heroicons/react/24/outline';
 
+const MOCK_MODE = true; // ⬅ switch to false when using real API
+
+const mockSettings = [
+  { settings_key: "users_limits", settings_value: "8" },
+];
+
+const mockUsers = [
+  {
+    users_id: 1,
+    users_name: "أحمد علي",
+    users_role: "مدير",
+    users_email: "ahmed@test.com",
+  },
+  {
+    users_id: 2,
+    users_name: "سارة محمد",
+    users_role: "مندوب مبيعات",
+    users_email: "sara@test.com",
+  },
+  {
+    users_id: 3,
+    users_name: "خالد حسن",
+    users_role: "محاسب",
+    users_email: "khaled@test.com",
+  },
+  {
+    users_id: 4,
+    users_name: "ريم يوسف",
+    users_role: "مشرفة",
+    users_email: "reem@test.com",
+  },
+];
+
+
 function UsersTab() {
   const { setGlobalMessage } = useOutletContext();
   const navigate = useNavigate();
@@ -49,7 +83,8 @@ function UsersTab() {
       //   setUserLimit(limitSetting ? parseInt(limitSetting.settings_value, 10) : null);
 
 
-      const settings = await getAppSettings(); 
+      const settings = MOCK_MODE ? mockSettings : await getAppSettings();
+
       if (settings && Array.isArray(settings)) { // Ensure settings is an array
         const limitSetting = settings.find(s => s.settings_key === 'users_limits');
         setUserLimit(limitSetting ? parseInt(limitSetting.settings_value, 10) : null);
@@ -152,9 +187,10 @@ function UsersTab() {
         <CustomPageHeader
           title="إدارة المستخدمين"
           subtitle="إدارة وتنظيم المستخدمين"
-          icon={<UsersIcon className="h-8 w-8 text-white" />}
+          icon={<UsersIcon className="h-8 w-8 text-[#1F2937]" />}
           statValue={currentUsers.length}
           statLabel="إجمالي المستخدمين"
+          color='blue'
           actionButton={
             <button
               onClick={() => {
@@ -164,7 +200,7 @@ function UsersTab() {
                   navigate('/dashboard/users/add-user');
                 }
               }}
-              className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
+                className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
             >
               <PlusIcon className="h-5 w-5" />
               إضافة مستخدم

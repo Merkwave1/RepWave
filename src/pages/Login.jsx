@@ -27,8 +27,7 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setMessage('');
-
-    if (!API_LOGIN_BASE_URL || !companyName) {
+    if ( !companyName) {
       console.error("Error: VITE_API_LOGIN_BASE_URL or Company Name is missing.");
       setMessage("خطأ: يرجى إدخال اسم الشركة وعنوان URL الأساسي لتسجيل الدخول.");
       setLoading(false);

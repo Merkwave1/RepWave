@@ -416,14 +416,14 @@ export default function SupplierAccountStatementModal({ supplier, open, onClose 
             .print-scroll-reset { overflow: visible!important; max-height: none!important; }
           }
         `}</style>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50 rounded-t-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-[#8DD8F5] rounded-t-xl">
           <div>
-            <h3 className="text-lg font-bold text-gray-800">كشف حساب المورد: <span className="text-orange-600">{supplier.supplier_name}</span></h3>
+            <h3 className="text-lg font-bold text-gray-800">كشف حساب المورد: <span className="text-[#1F2937]">{supplier.supplier_name}</span></h3>
             <p className="text-xs text-gray-500 mt-1">تاريخ الطباعة: {printableDate}</p>
           </div>
           <div className="flex gap-2 no-print">
-            <button onClick={handlePrint} className="px-3 py-1.5 text-xs font-semibold rounded-md bg-orange-600 hover:bg-orange-700 text-white">طباعة</button>
-            <button onClick={onClose} className="px-3 py-1.5 text-xs font-semibold rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700">إغلاق ✕</button>
+            <button onClick={handlePrint} className="px-3 py-1.5 text-xs font-semibold rounded-md bg-[#1F2937] hover:bg-[#374151] text-white">طباعة</button>
+            <button onClick={onClose} className="px-3 py-1.5 text-xs font-semibold rounded-md bg-[#8DD8F5] hover:bg-[#7CC0E0] text-gray-700">إغلاق ✕</button>
           </div>
         </div>
   <div className="p-6 overflow-y-auto text-sm space-y-6 print-scroll-reset">
@@ -520,7 +520,7 @@ export default function SupplierAccountStatementModal({ supplier, open, onClose 
           )}
         </div>
         <div className="px-6 py-3 border-t border-gray-200 flex justify-end bg-gray-50 rounded-b-xl no-print">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-semibold rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700">إغلاق</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm font-semibold rounded-md bg-[#8DD8F5] hover:bg-[#7CC0E0] text-gray-700">إغلاق</button>
         </div>
       </div>
     </div>

@@ -494,7 +494,7 @@ function InventoryTab() {
           <CustomPageHeader
             title="إدارة المخزون"
             subtitle="إدارة مخزون المنتجات في المخازن"
-            icon={<CubeIcon className="h-8 w-8 text-white" />}
+            icon={<CubeIcon className="h-8 w-8 text-[#1F2937]" />}
             statValue={totalVariantsCount}
             statLabel="المنتجات"
             statSecondaryValue={totalEntriesCount}

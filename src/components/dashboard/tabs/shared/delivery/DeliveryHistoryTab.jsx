@@ -582,7 +582,7 @@ export default function DeliveryHistoryTab() {
       <CustomPageHeader
         title="تاريخ التسليم"
         subtitle="مراجعة وإدارة عمليات التسليم"
-        icon={<TruckIcon className="h-8 w-8 text-white" />}
+        icon={<TruckIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={serverPagination?.total ?? deliveries.length}
         statLabel="عملية تسليم"
       />

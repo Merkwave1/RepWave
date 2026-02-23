@@ -25,8 +25,7 @@ export async function loginUser(loginUrl, email, password, companyName) {
     localStorage.setItem("userData", JSON.stringify(mockUser));
     localStorage.setItem("companyName", companyName || "demo");
 
-    // preload fake app data
-    preloadMockData();
+    // Mock data is already initialized in main.jsx
 
     return {
       status: "success",
@@ -70,48 +69,6 @@ export function getUserUUID() {
 }
 
 // --------------------
-// MOCK DATA GENERATOR
-// --------------------
-
-function preloadMockData() {
-  localStorage.setItem("appUsers", JSON.stringify([
-    { id: 1, name: "Admin", role: "admin" },
-    { id: 2, name: "Sales", role: "user" }
-  ]));
-
-  localStorage.setItem("appCategories", JSON.stringify([
-    { id: 1, name: "Chemicals" },
-    { id: 2, name: "Packaging" }
-  ]));
-
-  localStorage.setItem("appClients", JSON.stringify([
-    { id: 1, name: "Client A" },
-    { id: 2, name: "Client B" }
-  ]));
-
-  localStorage.setItem("appProducts", JSON.stringify({
-    data: [
-      { id: 1, name: "Product One", price: 50 },
-      { id: 2, name: "Product Two", price: 80 }
-    ]
-  }));
-
-  localStorage.setItem("appWarehouses", JSON.stringify({
-    data: [
-      { id: 1, name: "Main Warehouse" }
-    ]
-  }));
-
-  localStorage.setItem("appInventory", JSON.stringify([
-    { product: "Product One", qty: 100 },
-    { product: "Product Two", qty: 200 }
-  ]));
-
-  localStorage.setItem("appSalesOrders", JSON.stringify([]));
-  localStorage.setItem("appPurchaseOrders", JSON.stringify([]));
-  localStorage.setItem("appNotifications", JSON.stringify([]));
-}
-
 // --------------------
 // GENERIC MOCK FETCHER
 // --------------------
@@ -146,7 +103,27 @@ export async function getAppWarehouses() {
 }
 
 export async function getAppInventory() {
-  return getMock("appInventory", []);
+  const raw = getMock('appInventory', []);
+  const items = Array.isArray(raw) ? raw : [];
+  // Normalize inventory_* prefixed fields to the short names InventoryTab enrichment expects
+  try {
+    const variantsRaw = localStorage.getItem('appProductVariants');
+    const variants = variantsRaw ? JSON.parse(variantsRaw) : [];
+    return items.map(item => {
+      const variantId = item.inventory_variant_id ?? item.variant_id;
+      const variant = variants.find(v => v.product_variants_id === variantId);
+      return {
+        ...item,
+        // Alias fields expected by InventoryTab's enrichedInventory useMemo
+        variant_id: variantId,
+        warehouse_id: item.inventory_warehouse_id ?? item.warehouse_id,
+        packaging_type_id: item.inventory_packaging_type_id ?? item.packaging_type_id,
+        products_id: variant?.product_variants_product_id ?? item.products_id,
+      };
+    });
+  } catch {
+    return items;
+  }
 }
 
 export async function getAppSalesOrders() {
@@ -162,31 +139,54 @@ export async function getAppNotifications() {
 }
 
 // --------------------
-// EMPTY SAFE FALLBACKS
-// (so nothing crashes)
+// MOCK DATA LOADERS (Extended)
 // --------------------
 
-export async function getAppSettings() { return []; }
-export async function getAppSettingsCategorized() { return {}; }
-export async function getAppClientAreaTags() { return []; }
-export async function getAppClientIndustries() { return []; }
-export async function getAppClientTypes() { return []; }
-export async function getAppCountriesWithGovernorates() { return []; }
-export async function getAppProductAttributes() { return []; }
-export async function getAppBaseUnits() { return { data: [] }; }
-export async function getAppPackagingTypes() { return { data: [] }; }
-export async function getAppSuppliers() { return { data: [] }; }
-export async function getAppPurchaseReturns() { return []; }
-export async function getAppVisitPlans() { return []; }
-export async function getAppSalesReturns() { return []; }
-export async function getAppDeliverableSalesOrders() { return []; }
-export async function getAppPaymentMethods() { return []; }
-export async function getAppSafes() { return []; }
-export async function getAppGoodsReceipts() { return { data: [] }; }
+export async function getAppSettings() { return getMock("appSettings", []); }
+export async function getAppSettingsCategorized() { 
+  const settings = getMock("appSettings", []);
+  const categorized = {};
+  settings.forEach(s => {
+    if (!categorized[s.settings_category]) {
+      categorized[s.settings_category] = [];
+    }
+    categorized[s.settings_category].push(s);
+  });
+  return categorized;
+}
+export async function getAppClientAreaTags() { return getMock("appClientAreaTags", []); }
+export async function getAppClientIndustries() { return getMock("appClientIndustries", []); }
+export async function getAppClientTypes() { return getMock("appClientTypes", []); }
+export async function getAppCountriesWithGovernorates() { return getMock("appCountriesWithGovernorates", []); }
+export async function getAppProductAttributes() { return getMock("appProductAttributes", []); }
+export async function getAppBaseUnits() { return getMock("appBaseUnits", { data: [] }); }
+export async function getAppPackagingTypes() { return getMock("appPackagingTypes", { data: [] }); }
+export async function getAppSuppliers() { return getMock("appSuppliers", { data: [] }); }
+export async function getAppPurchaseReturns() { return getMock("appPurchaseReturns", []); }
+export async function getAppVisitPlans() { return getMock("appVisitPlans", []); }
+export async function getAppSalesReturns() { return getMock("appSalesReturns", []); }
+export async function getAppDeliverableSalesOrders() {
+  const orders = getMock('appDeliverableSalesOrders', []);
+  if (Array.isArray(orders) && orders.length > 0) return orders;
+  // Fallback: filter confirmed salesOrders from appSalesOrders
+  const allOrders = getMock('appSalesOrders', []);
+  return Array.isArray(allOrders)
+    ? allOrders.filter(o => o.sales_orders_status === 'مؤكد' && o.sales_orders_delivery_status !== 'تم التسليم')
+    : [];
+}
+export async function getAppPaymentMethods() { return getMock("appPaymentMethods", []); }
+export async function getAppSafes() { return getMock("appSafes", []); }
+export async function getAppGoodsReceipts() { return getMock("appGoodsReceipts", { data: [] }); }
 
 export function invalidateInventoryCache() {}
 export function invalidateInventoryRelatedCaches() {}
 export async function getAppPendingPurchaseOrdersForReceive() {
-  return [];
+  const enriched = getMock('appPendingPurchaseOrdersForReceive', []);
+  if (Array.isArray(enriched) && enriched.length > 0) return enriched;
+  // Fallback: filter pending purchase orders
+  const allOrders = getMock('appPurchaseOrders', []);
+  return Array.isArray(allOrders)
+    ? allOrders.filter(o => o.purchase_orders_status === 'مطلوب')
+    : [];
 }
 

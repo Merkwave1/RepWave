@@ -273,462 +273,507 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
         {/* Modal panel */}
         <div className="inline-block w-full max-w-3xl my-8 overflow-hidden text-right align-middle transition-all transform bg-white shadow-xl rounded-2xl">
           {/* Header */}
-          <div className="px-6 py-4 bg-gradient-to-l from-blue-600 to-blue-700 text-white">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <MapPinIcon className="h-6 w-6" />
-                إعدادات المستخدم
-              </h3>
-              <button
-                onClick={onClose}
-                className="text-white hover:text-gray-200 transition-colors"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
-            </div>
-            {user && (
-              <p className="mt-2 text-sm text-blue-100">
-                المستخدم: <span className="font-semibold">{user.users_name}</span>
-              </p>
-            )}
-          </div>
+{/* Header */}
+<div className="border-b border-[#8DD8F5]/40">
+
+  {/* Strong accent bar */}
+  <div className="h-1.5 bg-[#8DD8F5]" />
+
+  {/* Main header body */}
+  <div className="px-6 py-5 bg-white flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <div className="
+        w-11 h-11
+        rounded-xl
+        bg-[#8DD8F5]/20
+        flex items-center justify-center
+        text-[#8DD8F5]
+      ">
+        <MapPinIcon className="h-6 w-6" />
+      </div>
+
+      <div>
+        <h3 className="text-xl font-extrabold text-[#1F2937]">
+          إعدادات المستخدم
+        </h3>
+        {user && (
+          <p className="text-sm text-[#1F2937]/60 mt-0.5">
+            المستخدم: <span className="font-semibold">{user.users_name}</span>
+          </p>
+        )}
+      </div>
+    </div>
+
+    <button
+      onClick={onClose}
+      className="
+        p-2 rounded-lg
+        text-[#1F2937]/70
+        hover:bg-[#8DD8F5]/15
+        hover:text-[#1F2937]
+        transition
+      "
+    >
+      <XMarkIcon className="h-6 w-6" />
+    </button>
+  </div>
+</div>
 
           {/* Content */}
           <div className="px-6 py-6 max-h-[70vh] overflow-y-auto">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Warehouse Selection Section - Only for store_keeper */}
-                {user?.users_role === 'store_keeper' && (
-                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <div className="flex items-center gap-3 mb-4">
-                      <BuildingStorefrontIcon className="h-6 w-6 text-amber-600" />
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-800">المخازن المتاحة</h4>
-                        <p className="text-xs text-gray-600 mt-0.5">اختر المخازن التي يمكن لأمين المخزن التحكم بها</p>
-                      </div>
-                    </div>
-                    
-                    {warehousesLoading ? (
-                      <div className="flex items-center justify-center py-6">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
-                      </div>
-                    ) : allWarehouses.length === 0 ? (
-                      <p className="text-center text-gray-500 py-4">لا توجد مخازن متاحة</p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
-                        {/* Sort warehouses: Main first, then Van */}
-                        {[...allWarehouses]
-                          .sort((a, b) => {
-                            // Main warehouses first
-                            if (a.warehouse_type === 'Main' && b.warehouse_type !== 'Main') return -1;
-                            if (a.warehouse_type !== 'Main' && b.warehouse_type === 'Main') return 1;
-                            // Then sort by name
-                            return a.warehouse_name.localeCompare(b.warehouse_name, 'ar');
-                          })
-                          .map((warehouse) => {
-                            const warehouseTypeLabel = warehouse.warehouse_type === 'Main' 
-                              ? 'مخزن رئيسي' 
-                              : warehouse.warehouse_type === 'Van'
-                                ? 'مخزن سيارة'
-                                : warehouse.warehouse_type;
-                            
-                            const isMainWarehouse = warehouse.warehouse_type === 'Main';
-                            
-                            return (
-                              <label
-                                key={warehouse.warehouse_id}
-                                className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                                  selectedWarehouseIds.includes(warehouse.warehouse_id)
-                                    ? isMainWarehouse
-                                      ? 'border-blue-500 bg-blue-100'
-                                      : 'border-amber-500 bg-amber-100'
-                                    : isMainWarehouse
-                                      ? 'border-blue-200 bg-blue-50 hover:border-blue-300'
-                                      : 'border-gray-200 bg-white hover:border-amber-300'
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={selectedWarehouseIds.includes(warehouse.warehouse_id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedWarehouseIds(prev => [...prev, warehouse.warehouse_id]);
-                                    } else {
-                                      setSelectedWarehouseIds(prev => prev.filter(id => id !== warehouse.warehouse_id));
-                                    }
-                                  }}
-                                  className={`w-5 h-5 border-gray-300 rounded focus:ring-2 ${
-                                    isMainWarehouse 
-                                      ? 'text-blue-600 focus:ring-blue-500' 
-                                      : 'text-amber-600 focus:ring-amber-500'
-                                  }`}
-                                />
-                                <div className="flex-1">
-                                  <p className="font-semibold text-gray-800 flex items-center gap-2">
-                                    {warehouse.warehouse_name}
-                                    {isMainWarehouse && (
-                                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-600 text-white">
-                                        رئيسي
-                                      </span>
-                                    )}
-                                  </p>
-                                  <p className="text-xs text-gray-600">
-                                    {warehouseTypeLabel} • {warehouse.warehouse_code}
-                                  </p>
-                                </div>
-                              </label>
-                            );
-                          })}
-                      </div>
-                    )}
-                    
-                    <div className="mt-3 text-sm text-gray-600">
-                      <span className="font-semibold">{selectedWarehouseIds.length}</span> مخزن محدد
-                    </div>
-                  </div>
-                )}
-
-                {/* Safe Selection Section - Only for cash role */}
-                {user?.users_role === 'cash' && (
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <div className="flex items-center gap-3 mb-4">
-                      <WalletIcon className="h-6 w-6 text-green-600" />
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-800">الخزن المتاحة</h4>
-                        <p className="text-xs text-gray-600 mt-0.5">اختر الخزن التي يمكن للكاش التحكم بها</p>
-                      </div>
-                    </div>
-                    
-                    {safesLoading ? (
-                      <div className="flex items-center justify-center py-6">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                      </div>
-                    ) : allSafes.length === 0 ? (
-                      <p className="text-center text-gray-500 py-4">لا توجد خزن متاحة</p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
-                        {allSafes
-                          .sort((a, b) => a.safes_name.localeCompare(b.safes_name, 'ar'))
-                          .map((safe) => {
-                            const safeTypeLabel = safe.safes_type === 'company' 
-                              ? 'خزينة شركة' 
-                              : safe.safes_type === 'rep'
-                                ? 'خزينة مندوب'
-                                : safe.safes_type === 'cash'
-                                  ? 'خزينة كاش'
-                                  : safe.safes_type;
-                            
-                            const isCompanySafe = safe.safes_type === 'company';
-                            
-                            return (
-                              <label
-                                key={safe.safes_id}
-                                className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                                  selectedSafeIds.includes(safe.safes_id)
-                                    ? isCompanySafe
-                                      ? 'border-blue-500 bg-blue-100'
-                                      : 'border-green-500 bg-green-100'
-                                    : isCompanySafe
-                                      ? 'border-blue-200 bg-blue-50 hover:border-blue-300'
-                                      : 'border-gray-200 bg-white hover:border-green-300'
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={selectedSafeIds.includes(safe.safes_id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedSafeIds(prev => [...prev, safe.safes_id]);
-                                    } else {
-                                      setSelectedSafeIds(prev => prev.filter(id => id !== safe.safes_id));
-                                    }
-                                  }}
-                                  className={`w-5 h-5 border-gray-300 rounded focus:ring-2 ${
-                                    isCompanySafe 
-                                      ? 'text-blue-600 focus:ring-blue-500' 
-                                      : 'text-green-600 focus:ring-green-500'
-                                  }`}
-                                />
-                                <div className="flex-1">
-                                  <p className="font-semibold text-gray-800 flex items-center gap-2">
-                                    {safe.safes_name}
-                                    {isCompanySafe && (
-                                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-600 text-white">
-                                        شركة
-                                      </span>
-                                    )}
-                                  </p>
-                                  <p className="text-xs text-gray-600">
-                                    {safeTypeLabel} • {safe.safes_balance}
-                                  </p>
-                                </div>
-                              </label>
-                            );
-                          })}
-                      </div>
-                    )}
-                    
-                    <div className="mt-3 text-sm text-gray-600">
-                      <span className="font-semibold">{selectedSafeIds.length}</span> خزينة محددة
-                    </div>
-                  </div>
-                )}
-
-                {/* Work Start Location Section */}
-                <div>
-                  {/* Toggle and Header Row */}
-                  <div className="flex items-center justify-between mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200 border-b pb-6">
-                    <div className="flex items-center gap-3">
-                      <MapPinIcon className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-800">تحديد موقع بداية العمل</h4>
-                        <p className="text-xs text-gray-600 mt-0.5">تفعيل لتحديد موقع محدد لبداية العمل</p>
-                        <p className="text-xs text-gray-500 mt-1">⚠️ إلغاء التفعيل يسمح للمندوب ببدء العمل من أي مكان</p>
-                      </div>
-                    </div>
-                    <ToggleSwitch
-                      checked={!settings.allow_start_work_from_anywhere}
-                      onClick={handleToggleClick('allow_start_work_from_anywhere')}
-                      ariaLabel="تحديد موقع بداية العمل"
-                    />
-                  </div>
-
-                  {/* Location Inputs - show when toggle is ON (false = enabled) */}
-                  {!settings.allow_start_work_from_anywhere && (
-                    <div className="mt-4">
-                        <div className="flex items-center justify-end mb-3">
-                        <button
-                          onClick={() => openMapModal('start')}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                        >
-                          <MapPinIcon className="h-4 w-4" />
-                          اختر من الخريطة
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            خط العرض (Latitude)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.0000001"
-                            value={settings.work_start_latitude}
-                            onChange={(e) => handleInputChange('work_start_latitude', e.target.value)}
-                            placeholder="30.0444"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            خط الطول (Longitude)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.0000001"
-                            value={settings.work_start_longitude}
-                            onChange={(e) => handleInputChange('work_start_longitude', e.target.value)}
-                            placeholder="31.2357"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Work End Location Section */}
-                <div>
-                  {/* Toggle and Header Row */}
-                  <div className="flex items-center justify-between mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200 border-b pb-6">
-                    <div className="flex items-center gap-3">
-                      <MapPinIcon className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-800">تحديد موقع نهاية العمل</h4>
-                        <p className="text-xs text-gray-600 mt-0.5">تفعيل لتحديد موقع محدد لنهاية العمل</p>
-                        <p className="text-xs text-gray-500 mt-1">⚠️ إلغاء التفعيل يسمح للمندوب بإنهاء العمل من أي مكان</p>
-                      </div>
-                    </div>
-                    <ToggleSwitch
-                      checked={!settings.allow_end_work_from_anywhere}
-                      onClick={handleToggleClick('allow_end_work_from_anywhere')}
-                      ariaLabel="تحديد موقع نهاية العمل"
-                    />
-                  </div>
-
-                  {/* Location Inputs - Only show if toggle is ON (false = enabled) */}
-                  {!settings.allow_end_work_from_anywhere && (
-                    <div className="mt-4">
-                        <div className="flex items-center justify-end mb-3">
-                        <button
-                          onClick={() => openMapModal('end')}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                        >
-                          <MapPinIcon className="h-4 w-4" />
-                          اختر من الخريطة
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            خط العرض (Latitude)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.0000001"
-                            value={settings.work_end_latitude}
-                            onChange={(e) => handleInputChange('work_end_latitude', e.target.value)}
-                            placeholder="30.0444"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            خط الطول (Longitude)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.0000001"
-                            value={settings.work_end_longitude}
-                            onChange={(e) => handleInputChange('work_end_longitude', e.target.value)}
-                            placeholder="31.2357"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-
-                {/* Toggles */}
-                <div className="space-y-4">
-
-                  {/* Allow Out of Plan Visits - Hidden for store_keeper and cash */}
-                  {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 border-b pb-6">
-                      <div className="flex items-center gap-3">
-                        <CheckCircleIcon className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-800">السماح بزيارات خارج الخطة</h4>
-                          <p className="text-xs text-gray-600 mt-0.5">إمكانية إضافة زيارات غير مخططة</p>
-                        </div>
-                      </div>
-                      <ToggleSwitch
-                        checked={settings.allow_out_of_plan_visits}
-                        onClick={handleToggleClick('allow_out_of_plan_visits')}
-                        ariaLabel="السماح بزيارات خارج الخطة"
-                      />
-                    </div>
-                  )}
-
-                  {/* Allow Start Visit from Anywhere - Hidden for store_keeper and cash */}
-                  {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 border-b pb-6">
-                      <div className="flex items-center gap-3">
-                        <MapPinIcon className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-800">السماح ببدء الزيارة من أي مكان</h4>
-                          <p className="text-xs text-gray-600 mt-0.5">عدم الالتزام بموقع العميل عند بدء الزيارة</p>
-                        </div>
-                      </div>
-                      <ToggleSwitch
-                        checked={settings.allow_start_visit_from_anywhere}
-                        onClick={handleToggleClick('allow_start_visit_from_anywhere')}
-                        ariaLabel="السماح ببدء الزيارة من أي مكان"
-                      />
-                    </div>
-                  )}
-
-                  {/* Allow End Visit from Anywhere - Hidden for store_keeper and cash */}
-                  {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 border-b pb-6">
-                      <div className="flex items-center gap-3">
-                        <MapPinIcon className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-800">السماح بإنهاء الزيارة من أي مكان</h4>
-                          <p className="text-xs text-gray-600 mt-0.5">عدم الالتزام بموقع العميل عند إنهاء الزيارة</p>
-                        </div>
-                      </div>
-                      <ToggleSwitch
-                        checked={settings.allow_end_visit_from_anywhere}
-                        onClick={handleToggleClick('allow_end_visit_from_anywhere')}
-                        ariaLabel="السماح بإنهاء الزيارة من أي مكان"
-                      />
-                    </div>
-                  )}
-
-                  {/* GPS Tracking Enabled - moved to bottom - Hidden for store_keeper and cash */}
-                  {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 border-b pb-6">
-                      <div className="flex items-center gap-3">
-                        <SignalIcon className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-800">تفعيل تتبع GPS</h4>
-                          <p className="text-xs text-gray-600 mt-0.5">تتبع موقع المندوب في الخلفية</p>
-                        </div>
-                      </div>
-                      <ToggleSwitch
-                        checked={settings.gps_tracking_enabled}
-                        onClick={handleToggleClick('gps_tracking_enabled')}
-                        ariaLabel="تفعيل تتبع GPS"
-                      />
-                    </div>
-                  )}
-
-                  {/* GPS accuracy input moved to its own standalone card below */}
-                </div>
-
-                {/* GPS Accuracy - standalone card (input inside the card) */}
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 border-b pb-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <SignalIcon className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-800">دقة GPS المطلوبة (متر)</h4>
-                      <p className="text-xs text-gray-600 mt-0.5">القيم الأقل تعني دقة أعلى</p>
-                    </div>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={settings.gps_min_acceptable_accuracy_m}
-                    onChange={(e) => handleInputChange('gps_min_acceptable_accuracy_m', e.target.value)}
-                    placeholder="10.00"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-            )}
+  {loading ? (
+    <div className="flex items-center justify-center py-12">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#8DD8F5' }}></div>
+    </div>
+  ) : (
+    <div className="space-y-6">
+      {/* Warehouse Selection Section - Only for store_keeper */}
+      {user?.users_role === 'store_keeper' && (
+        <div className="p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <BuildingStorefrontIcon className="h-6 w-6 text-[#8DD8F5]" />
+            <div>
+              <h4 className="text-lg font-semibold text-[#1F2937]">المخازن المتاحة</h4>
+              <p className="text-xs text-[#1F2937]/60 mt-0.5">اختر المخازن التي يمكن لأمين المخزن التحكم بها</p>
+            </div>
           </div>
+
+          {warehousesLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#8DD8F5' }}></div>
+            </div>
+          ) : allWarehouses.length === 0 ? (
+            <p className="text-center text-[#1F2937]/60 py-4">لا توجد مخازن متاحة</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+              {/* Sort warehouses: Main first, then Van */}
+              {[...allWarehouses]
+                .sort((a, b) => {
+                  // Main warehouses first
+                  if (a.warehouse_type === 'Main' && b.warehouse_type !== 'Main') return -1;
+                  if (a.warehouse_type !== 'Main' && b.warehouse_type === 'Main') return 1;
+                  // Then sort by name
+                  return a.warehouse_name.localeCompare(b.warehouse_name, 'ar');
+                })
+                .map((warehouse) => {
+                  const warehouseTypeLabel = warehouse.warehouse_type === 'Main' 
+                    ? 'مخزن رئيسي' 
+                    : warehouse.warehouse_type === 'Van'
+                      ? 'مخزن سيارة'
+                      : warehouse.warehouse_type;
+                  
+                  const isMainWarehouse = warehouse.warehouse_type === 'Main';
+                  
+                  return (
+                    <label
+                      key={warehouse.warehouse_id}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                        selectedWarehouseIds.includes(warehouse.warehouse_id)
+                          ? isMainWarehouse
+                            ? 'border-[#8DD8F5] bg-[#8DD8F5]/20'
+                            : 'border-[#8DD8F5]/20 bg-white'
+                          : isMainWarehouse
+                            ? 'border-[#8DD8F5]/20 bg-white hover:border-[#8DD8F5]/40'
+                            : 'border-gray-200 bg-white hover:border-[#8DD8F5]/30'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedWarehouseIds.includes(warehouse.warehouse_id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedWarehouseIds(prev => [...prev, warehouse.warehouse_id]);
+                          } else {
+                            setSelectedWarehouseIds(prev => prev.filter(id => id !== warehouse.warehouse_id));
+                          }
+                        }}
+                        className={`w-5 h-5 border-gray-300 rounded focus:ring-2`}
+                        style={isMainWarehouse ? { accentColor: '#8DD8F5' } : { accentColor: '#8DD8F5' }}
+                      />
+                      <div className="flex-1">
+                        <p className="font-semibold text-[#1F2937] flex items-center gap-2">
+                          {warehouse.warehouse_name}
+                          {isMainWarehouse && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#8DD8F5] text-[#1F2937]">
+                              رئيسي
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-[#1F2937]/60">
+                          {warehouseTypeLabel} • {warehouse.warehouse_code}
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })}
+            </div>
+          )}
+
+          <div className="mt-3 text-sm text-[#1F2937]/70">
+            <span className="font-semibold">{selectedWarehouseIds.length}</span> مخزن محدد
+          </div>
+        </div>
+      )}
+
+      {/* Safe Selection Section - Only for cash role */}
+      {user?.users_role === 'cash' && (
+        <div className="p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <WalletIcon className="h-6 w-6 text-[#8DD8F5]" />
+            <div>
+              <h4 className="text-lg font-semibold text-[#1F2937]">الخزن المتاحة</h4>
+              <p className="text-xs text-[#1F2937]/60 mt-0.5">اختر الخزن التي يمكن للكاش التحكم بها</p>
+            </div>
+          </div>
+
+          {safesLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#8DD8F5' }}></div>
+            </div>
+          ) : allSafes.length === 0 ? (
+            <p className="text-center text-[#1F2937]/60 py-4">لا توجد خزن متاحة</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+              {allSafes
+                .sort((a, b) => a.safes_name.localeCompare(b.safes_name, 'ar'))
+                .map((safe) => {
+                  const safeTypeLabel = safe.safes_type === 'company' 
+                    ? 'خزينة شركة' 
+                    : safe.safes_type === 'rep'
+                      ? 'خزينة مندوب'
+                      : safe.safes_type === 'cash'
+                        ? 'خزينة كاش'
+                        : safe.safes_type;
+                  
+                  const isCompanySafe = safe.safes_type === 'company';
+                  
+                  return (
+                    <label
+                      key={safe.safes_id}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                        selectedSafeIds.includes(safe.safes_id)
+                          ? isCompanySafe
+                            ? 'border-[#8DD8F5] bg-[#8DD8F5]/20'
+                            : 'border-[#8DD8F5]/20 bg-white'
+                          : isCompanySafe
+                            ? 'border-[#8DD8F5]/20 bg-white hover:border-[#8DD8F5]/40'
+                            : 'border-gray-200 bg-white hover:border-[#8DD8F5]/30'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSafeIds.includes(safe.safes_id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedSafeIds(prev => [...prev, safe.safes_id]);
+                          } else {
+                            setSelectedSafeIds(prev => prev.filter(id => id !== safe.safes_id));
+                          }
+                        }}
+                        className="w-5 h-5 border-gray-300 rounded focus:ring-2"
+                        style={{ accentColor: '#8DD8F5' }}
+                      />
+                      <div className="flex-1">
+                        <p className="font-semibold text-[#1F2937] flex items-center gap-2">
+                          {safe.safes_name}
+                          {isCompanySafe && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#8DD8F5] text-[#1F2937]">
+                              شركة
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-[#1F2937]/60">
+                          {safeTypeLabel} • {safe.safes_balance}
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })}
+            </div>
+          )}
+
+          <div className="mt-3 text-sm text-[#1F2937]/70">
+            <span className="font-semibold">{selectedSafeIds.length}</span> خزينة محددة
+          </div>
+        </div>
+      )}
+
+      {/* Work Start Location Section */}
+      <div>
+        {/* Toggle and Header Row */}
+        <div className="flex items-center justify-between mb-4 p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
+          <div className="flex items-center gap-3">
+            <MapPinIcon className="h-5 w-5 text-[#8DD8F5]" />
+            <div>
+              <h4 className="text-lg font-semibold text-[#1F2937]">تحديد موقع بداية العمل</h4>
+              <p className="text-xs text-[#1F2937]/60 mt-0.5">تفعيل لتحديد موقع محدد لبداية العمل</p>
+              <p className="text-xs text-[#1F2937]/50 mt-1">⚠️ إلغاء التفعيل يسمح للمندوب ببدء العمل من أي مكان</p>
+            </div>
+          </div>
+          <ToggleSwitch
+            checked={!settings.allow_start_work_from_anywhere}
+            onClick={handleToggleClick('allow_start_work_from_anywhere')}
+            ariaLabel="تحديد موقع بداية العمل"
+          />
+        </div>
+
+        {/* Location Inputs - show when toggle is ON (false = enabled) */}
+        {!settings.allow_start_work_from_anywhere && (
+          <div className="mt-4">
+            <div className="flex items-center justify-end mb-3">
+              <button
+                onClick={() => openMapModal('start')}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style={{ background: '#8DD8F5', color: '#1F2937' }}
+              >
+                <MapPinIcon className="h-4 w-4" />
+                اختر من الخريطة
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-2">
+                  خط العرض (Latitude)
+                </label>
+                <input
+                  type="number"
+                  step="0.0000001"
+                  value={settings.work_start_latitude}
+                  onChange={(e) => handleInputChange('work_start_latitude', e.target.value)}
+                  placeholder="30.0444"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-[#8DD8F5] focus:ring-4 focus:ring-[#8DD8F5]/25 outline-none shadow-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-2">
+                  خط الطول (Longitude)
+                </label>
+                <input
+                  type="number"
+                  step="0.0000001"
+                  value={settings.work_start_longitude}
+                  onChange={(e) => handleInputChange('work_start_longitude', e.target.value)}
+                  placeholder="31.2357"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-[#8DD8F5] focus:ring-4 focus:ring-[#8DD8F5]/25 outline-none shadow-sm"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Work End Location Section */}
+      <div>
+        {/* Toggle and Header Row */}
+        <div className="flex items-center justify-between mb-4 p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
+          <div className="flex items-center gap-3">
+            <MapPinIcon className="h-5 w-5 text-[#8DD8F5]" />
+            <div>
+              <h4 className="text-lg font-semibold text-[#1F2937]">تحديد موقع نهاية العمل</h4>
+              <p className="text-xs text-[#1F2937]/60 mt-0.5">تفعيل لتحديد موقع محدد لنهاية العمل</p>
+              <p className="text-xs text-[#1F2937]/50 mt-1">⚠️ إلغاء التفعيل يسمح للمندوب بإنهاء العمل من أي مكان</p>
+            </div>
+          </div>
+          <ToggleSwitch
+            checked={!settings.allow_end_work_from_anywhere}
+            onClick={handleToggleClick('allow_end_work_from_anywhere')}
+            ariaLabel="تحديد موقع نهاية العمل"
+          />
+        </div>
+
+        {/* Location Inputs - Only show if toggle is ON (false = enabled) */}
+        {!settings.allow_end_work_from_anywhere && (
+          <div className="mt-4">
+            <div className="flex items-center justify-end mb-3">
+              <button
+                onClick={() => openMapModal('end')}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style={{ background: '#8DD8F5', color: '#1F2937' }}
+              >
+                <MapPinIcon className="h-4 w-4" />
+                اختر من الخريطة
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-2">
+                  خط العرض (Latitude)
+                </label>
+                <input
+                  type="number"
+                  step="0.0000001"
+                  value={settings.work_end_latitude}
+                  onChange={(e) => handleInputChange('work_end_latitude', e.target.value)}
+                  placeholder="30.0444"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-[#8DD8F5] focus:ring-4 focus:ring-[#8DD8F5]/25 outline-none shadow-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-2">
+                  خط الطول (Longitude)
+                </label>
+                <input
+                  type="number"
+                  step="0.0000001"
+                  value={settings.work_end_longitude}
+                  onChange={(e) => handleInputChange('work_end_longitude', e.target.value)}
+                  placeholder="31.2357"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-[#8DD8F5] focus:ring-4 focus:ring-[#8DD8F5]/25 outline-none shadow-sm"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Toggles */}
+      <div className="space-y-4">
+
+        {/* Allow Out of Plan Visits - Hidden for store_keeper and cash */}
+        {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
+          <div className="flex items-center justify-between p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
+            <div className="flex items-center gap-3">
+              <CheckCircleIcon className="h-5 w-5 text-[#8DD8F5]" />
+              <div>
+                <h4 className="text-lg font-semibold text-[#1F2937]">السماح بزيارات خارج الخطة</h4>
+                <p className="text-xs text-[#1F2937]/60 mt-0.5">إمكانية إضافة زيارات غير مخططة</p>
+              </div>
+            </div>
+            <ToggleSwitch
+              checked={settings.allow_out_of_plan_visits}
+              onClick={handleToggleClick('allow_out_of_plan_visits')}
+              ariaLabel="السماح بزيارات خارج الخطة"
+            />
+          </div>
+        )}
+
+        {/* Allow Start Visit from Anywhere - Hidden for store_keeper and cash */}
+        {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
+          <div className="flex items-center justify-between p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
+            <div className="flex items-center gap-3">
+              <MapPinIcon className="h-5 w-5 text-[#8DD8F5]" />
+              <div>
+                <h4 className="text-lg font-semibold text-[#1F2937]">السماح ببدء الزيارة من أي مكان</h4>
+                <p className="text-xs text-[#1F2937]/60 mt-0.5">عدم الالتزام بموقع العميل عند بدء الزيارة</p>
+              </div>
+            </div>
+            <ToggleSwitch
+              checked={settings.allow_start_visit_from_anywhere}
+              onClick={handleToggleClick('allow_start_visit_from_anywhere')}
+              ariaLabel="السماح ببدء الزيارة من أي مكان"
+            />
+          </div>
+        )}
+
+        {/* Allow End Visit from Anywhere - Hidden for store_keeper and cash */}
+        {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
+          <div className="flex items-center justify-between p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
+            <div className="flex items-center gap-3">
+              <MapPinIcon className="h-5 w-5 text-[#8DD8F5]" />
+              <div>
+                <h4 className="text-lg font-semibold text-[#1F2937]">السماح بإنهاء الزيارة من أي مكان</h4>
+                <p className="text-xs text-[#1F2937]/60 mt-0.5">عدم الالتزام بموقع العميل عند إنهاء الزيارة</p>
+              </div>
+            </div>
+            <ToggleSwitch
+              checked={settings.allow_end_visit_from_anywhere}
+              onClick={handleToggleClick('allow_end_visit_from_anywhere')}
+              ariaLabel="السماح بإنهاء الزيارة من أي مكان"
+            />
+          </div>
+        )}
+
+        {/* GPS Tracking Enabled - moved to bottom - Hidden for store_keeper and cash */}
+        {user?.users_role !== 'store_keeper' && user?.users_role !== 'cash' && (
+          <div className="flex items-center justify-between p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
+            <div className="flex items-center gap-3">
+              <SignalIcon className="h-5 w-5 text-[#8DD8F5]" />
+              <div>
+                <h4 className="text-lg font-semibold text-[#1F2937]">تفعيل تتبع GPS</h4>
+                <p className="text-xs text-[#1F2937]/60 mt-0.5">تتبع موقع المندوب في الخلفية</p>
+              </div>
+            </div>
+            <ToggleSwitch
+              checked={settings.gps_tracking_enabled}
+              onClick={handleToggleClick('gps_tracking_enabled')}
+              ariaLabel="تفعيل تتبع GPS"
+            />
+          </div>
+        )}
+
+      </div>
+
+      {/* GPS Accuracy - standalone card (input inside the card) */}
+      <div className="p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <SignalIcon className="h-5 w-5 text-[#8DD8F5]" />
+          <div>
+            <h4 className="text-lg font-semibold text-[#1F2937]">دقة GPS المطلوبة (متر)</h4>
+            <p className="text-xs text-[#1F2937]/60 mt-0.5">القيم الأقل تعني دقة أعلى</p>
+          </div>
+        </div>
+        <input
+          type="number"
+          step="0.01"
+          value={settings.gps_min_acceptable_accuracy_m}
+          onChange={(e) => handleInputChange('gps_min_acceptable_accuracy_m', e.target.value)}
+          placeholder="10.00"
+          className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-[#8DD8F5] focus:ring-4 focus:ring-[#8DD8F5]/25 outline-none shadow-sm"
+        />
+      </div>
+    </div>
+  )}
+</div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3">
-            <button
-              onClick={onClose}
-              className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              disabled={saving}
-            >
-              إلغاء
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving || loading}
-              className="px-6 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {saving ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  جاري الحفظ...
-                </>
-              ) : (
-                'حفظ الإعدادات'
-              )}
-            </button>
-          </div>
+{/* Footer */}
+<div className="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-200">
+
+  <button
+    onClick={onClose}
+    disabled={saving}
+    className="
+      px-6 py-2
+      rounded-xl
+      bg-gray-100
+      border border-gray-200
+      text-[#1F2937]
+      hover:bg-gray-200
+      transition
+      disabled:opacity-50
+    "
+  >
+    إلغاء
+  </button>
+
+  <button
+    onClick={handleSave}
+    disabled={saving || loading}
+    className="
+      px-6 py-2
+      rounded-xl
+      bg-[#8DD8F5]
+      hover:bg-[#7ccfee]
+      text-[#1F2937]
+      font-semibold
+      shadow-md
+      transition
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+      flex items-center gap-2
+    "
+  >
+    {saving ? (
+      <>
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1F2937]"></div>
+        جاري الحفظ...
+      </>
+    ) : (
+      'حفظ الإعدادات'
+    )}
+  </button>
+
+</div>
         </div>
       </div>
 

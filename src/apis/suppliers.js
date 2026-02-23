@@ -4,20 +4,25 @@ import { getCompanyName } from '../apis/auth.js';
 
 function buildApiUrl(endpoint) {
   const companyName = getCompanyName();
-  if (!companyName) throw new Error('Company name not found in localStorage. Please log in.');
+  if (!companyName) return endpoint; // mock mode: apiClient ignores the URL
   const API_BASE_URL = import.meta.env.VITE_API_LOGIN_BASE_URL;
-  if (!API_BASE_URL) throw new Error('VITE_API_LOGIN_BASE_URL is not defined.');
+  if (!API_BASE_URL) return endpoint; // mock mode: apiClient ignores the URL
   return `${API_BASE_URL}${companyName}/${endpoint}`;
 }
 
 export const getAllSuppliers = async () => {
   const url = buildApiUrl("suppliers/get_all.php");
   const response = await apiClient.get(url);
-  if (response.status === "success" && Array.isArray(response.data)) {
-    return response.data;
-  } else {
-    throw new Error(response.message || "فشل في جلب الموردين.");
+  if (response.status === "success") {
+    // apiClient mock may wrap as { data: { data: [...] } } or { data: [...] }
+    const list = Array.isArray(response.data)
+      ? response.data
+      : Array.isArray(response.data?.data)
+        ? response.data.data
+        : null;
+    if (list !== null) return list;
   }
+  throw new Error(response.message || "فشل في جلب الموردين.");
 };
 
 export const addSupplier = async (supplierData) => {

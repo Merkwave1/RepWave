@@ -47,7 +47,7 @@ export default function TransferListView({
   return (
     <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden animate-fadeIn">
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm divide-y divide-gray-200">
+        <table className="min-w-full text-sm  divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">

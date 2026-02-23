@@ -98,7 +98,7 @@ export default function ProductInventorySummary({ inventoryItems = [], enrichedI
       render: (item) => {
         const variantId = item.variantId ?? '-';
         return (
-          <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-semibold">{variantId.toLocaleString('en-US')}</span>
+          <span className="bg-[#1F2937] text-[#8DD8F5] text-xs px-2 py-1 rounded-full font-semibold">{variantId.toLocaleString('en-US')}</span>
         );
       },
     },
@@ -159,7 +159,22 @@ export default function ProductInventorySummary({ inventoryItems = [], enrichedI
         <button
           onClick={() => onShowDetails && onShowDetails({ product: item.representativeProduct, variantId: item.variantId })}
           aria-label={`تفاصيل ${item.displayName}`}
-          className="text-indigo-600 font-semibold hover:text-white hover:bg-indigo-600 transition px-3 py-1 rounded-full text-xs border border-indigo-200"
+          className="
+            text-[#1F2937] font-semibold text-xs
+            px-3 py-1 rounded-full
+            border border-[#8DD8F5]
+
+            bg-white
+            transition-all duration-200 ease-out
+
+            hover:text-white
+            hover:bg-[#1F2937]
+
+            hover:scale-110
+            hover:shadow-[0_0_12px_rgba(141,216,245,0.65)]
+
+            active:scale-95
+          "
           disabled={!onShowDetails}
         >
           تفاصيل

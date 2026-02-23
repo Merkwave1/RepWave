@@ -34,7 +34,8 @@ import {
   ClipboardDocumentListIcon,
   BuildingStorefrontIcon,
   MapPinIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 function DashboardLayout({ setGlobalMessage }) {
@@ -208,6 +209,20 @@ function DashboardLayout({ setGlobalMessage }) {
     loadHeaderDataFromStorage(); 
   }, [loadHeaderDataFromStorage]);
 
+  useEffect(() => {
+  const handleResize = () => {
+    if (window.innerWidth < 1024) { 
+      setSidebarOpen(false);
+    }
+  };
+
+  handleResize(); 
+  window.addEventListener("resize", handleResize);
+
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+
   // Listen for settings updates to refresh Odoo enabled status
   useEffect(() => {
     const handleSettingsUpdated = () => {
@@ -288,36 +303,45 @@ function DashboardLayout({ setGlobalMessage }) {
   return (
     <div className="flex h-screen bg-gray-100" dir="rtl">
       <aside
-        className={`bg-gray-800 text-white ${
+        className={`bg-[#1F2937] text-white ${
           sidebarOpen ? 'w-64' : 'w-20'
         } flex-shrink-0 transition-all duration-300 ease-in-out flex flex-col justify-between h-full`}
       >
-        <div className="p-4 flex items-center justify-between h-16 border-b border-gray-700">
+        <div className={`p-4 flex items-center justify-between ${sidebarOpen ? 'flex-row' : 'flex-col-reverse gap-4'} h-18 border-b border-gray-700`}>
           {sidebarOpen ? (
             <div className="flex items-center gap-3">
               <img 
                 src="/logo.png" 
                 alt="RepWave Logo" 
-                className="w-8 h-8 object-contain bg-gray-200 rounded-md p-1 drop-shadow-md"
+                className="w-14 h-14 object-contain bg-white rounded-md p-1 drop-shadow-md"
               />
-              <h1 className="text-2xl font-bold">Rep-WAVE</h1>
+              <div className='flex flex-col pt-4'>
+                <h1 className="text-lg font-bold">REPWAVE</h1>
+                <p className='text-gray-300 text-sm'>نظام تخطيط موارد اساسية</p>
+              </div>
             </div>
           ) : (
             <img 
               src="/logo.png" 
               alt="RepWave Logo" 
-              className="w-8 h-8 object-contain bg-gray-200 rounded-md p-1 drop-shadow-md"
+              className="w-10 h-10 object-contain bg-white rounded-md p-1 drop-shadow-md"
             />
           )}
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 rounded-full p-1 transition-colors duration-200"
+            onClick={() => {
+                if (window.innerWidth >= 1024) {
+                  setSidebarOpen(v => !v);
+                }
+              }}
+              disabled={window.innerWidth < 1024}
+
+            className="text-[#8DD8F5] bg-[#02415A] disabled:bg-gray-500 disabled:text-gray-800   rounded-lg p-1 transition-colors duration-200"
             title={sidebarOpen ? 'طي القائمة الجانبية' : 'فتح القائمة الجانبية'}
           >
             {sidebarOpen ? (
-              <XMarkIcon className="h-6 w-6" />
+              <XMarkIcon className="h-8 w-8" />
             ) : (
-              <Bars3Icon className="h-6 w-6" />
+              <Bars3Icon className="h-8 w-8" />
             )}
           </button>
         </div>
@@ -328,8 +352,8 @@ function DashboardLayout({ setGlobalMessage }) {
                 to="/dashboard"
                 end
                 className={({ isActive }) =>
-                  `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
-                    isActive ? 'bg-blue-600 text-white' : ''
+                  `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                    isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                   } ${!sidebarOpen ? 'justify-center' : ''}`
                 }
                 onClick={() => setOpenSubMenu(null)}
@@ -343,8 +367,8 @@ function DashboardLayout({ setGlobalMessage }) {
               <NavLink
                 to="/dashboard/users"
                 className={({ isActive }) =>
-                  `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
-                    isActive ? 'bg-blue-600 text-white' : ''
+                  `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                    isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                   } ${!sidebarOpen ? 'justify-center' : ''}`
                 }
                 onClick={() => setOpenSubMenu(null)}
@@ -358,8 +382,8 @@ function DashboardLayout({ setGlobalMessage }) {
               <NavLink
                 to="/dashboard/clients"
                 className={({ isActive }) =>
-                  `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
-                    isActive ? 'bg-blue-600 text-white' : ''
+                  `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                    isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                   } ${!sidebarOpen ? 'justify-center' : ''}`
                 }
               >
@@ -373,8 +397,8 @@ function DashboardLayout({ setGlobalMessage }) {
               <NavLink
                 to="/dashboard/suppliers"
                 className={({ isActive }) =>
-                  `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
-                    isActive ? 'bg-blue-600 text-white' : ''
+                  `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                    isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                   } ${!sidebarOpen ? 'justify-center' : ''}`
                 }
               >
@@ -386,8 +410,8 @@ function DashboardLayout({ setGlobalMessage }) {
             <li>
               <div
                 onClick={() => handleMenuItemClick('inventory-management', '/dashboard/inventory-management/warehouses')}
-                className={`flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
-                  location.pathname.startsWith('/dashboard/inventory-management') ? 'bg-blue-600 text-white' : ''
+                className={`flex items-center py-2 px-4 gap-2 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
+                  location.pathname.startsWith('/dashboard/inventory-management') ? 'bg-[#02415A] border-r-4 border-r-[#17BDFF] text-white' : ''
                 } ${!sidebarOpen ? 'justify-center' : ''}`}
               >
                 {renderSectionIcon(CubeIcon, ['inventory_transfers', 'inventory_deliveries'], `h-6 w-6 ${!sidebarOpen ? 'mx-auto' : ''}`)}
@@ -411,13 +435,13 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
               </div>
               {openSubMenu === 'inventory-management' && sidebarOpen && (
-                <ul className="pr-8 mt-1 space-y-1">
+                <ul className="pr-4 mt-1 space-y-1 border-r mr-6 border-[#8DD8F5] ">
                   <li>
                     <NavLink
                       to="/dashboard/inventory-management/warehouses"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -429,8 +453,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/inventory-management/inventory"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -442,8 +466,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/inventory-management/transfers"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -455,8 +479,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/inventory-management/loads"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -468,8 +492,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/inventory-management/receive-products"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -480,8 +504,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/inventory-management/deliver-products"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -493,8 +517,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/inventory-management/receiving-records"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -505,8 +529,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/inventory-management/delivery-records"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -520,8 +544,8 @@ function DashboardLayout({ setGlobalMessage }) {
             <li>
               <div
                 onClick={() => handleMenuItemClick('product-management', '/dashboard/product-management/products')}
-                className={`flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
-                  location.pathname.startsWith('/dashboard/product-management') ? 'bg-blue-600 text-white' : ''
+                className={`flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
+                  location.pathname.startsWith('/dashboard/product-management') ? 'bg-[#02415A] border-r-4 border-r-[#17BDFF] text-white' : ''
                 } ${!sidebarOpen ? 'justify-center' : ''}`}
               >
                 <ShoppingBagIcon className={`h-6 w-6 ${sidebarOpen ? 'ml-3' : ''} ${!sidebarOpen ? 'mx-auto' : ''}`} />
@@ -541,13 +565,13 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
               </div>
               {openSubMenu === 'product-management' && sidebarOpen && (
-                <ul className="pr-8 mt-1 space-y-1">
+                <ul className="pr-4 mt-1 space-y-1 border-r mr-6 border-[#8DD8F5] ">
                   <li>
                     <NavLink
                       to="/dashboard/product-management/products"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -559,8 +583,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/product-management/categories"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -572,8 +596,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/product-management/attributes"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -585,8 +609,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/product-management/units"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -598,8 +622,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/product-management/packaging-types"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 gap-2 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -614,8 +638,8 @@ function DashboardLayout({ setGlobalMessage }) {
             <li>
               <div
                 onClick={() => handleMenuItemClick('purchases-management', '/dashboard/purchases-management/purchase-orders')}
-                className={`flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
-                  location.pathname.startsWith('/dashboard/purchases-management') ? 'bg-blue-600 text-white' : ''
+                className={`flex items-center py-2 px-4 gap-2 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
+                  location.pathname.startsWith('/dashboard/purchases-management') ? 'bg-[#02415A] border-r-4 border-r-[#17BDFF] text-white' : ''
                 } ${!sidebarOpen ? 'justify-center' : ''}`}
               >
                 {renderSectionIcon(ShoppingCartIcon, ['purchase_orders', 'purchase_returns'], `h-6 w-6 ${!sidebarOpen ? 'mx-auto' : ''}`)}
@@ -639,13 +663,13 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
               </div>
               {openSubMenu === 'purchases-management' && sidebarOpen && (
-                <ul className="pr-8 mt-1 space-y-1">
+                <ul className="pr-4 mt-1 space-y-1 border-r mr-6 border-[#8DD8F5]">
                   <li>
                     <NavLink
                       to="/dashboard/purchases-management/purchase-orders"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full  text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -657,8 +681,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/purchases-management/purchase-invoices"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -669,8 +693,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/purchases-management/purchase-returns"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -682,8 +706,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/purchases-management/supplier-payments"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -698,8 +722,8 @@ function DashboardLayout({ setGlobalMessage }) {
             <li>
               <div
                 onClick={() => handleMenuItemClick('sales-management', '/dashboard/sales-management/sales-orders')}
-                className={`flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
-                  location.pathname.startsWith('/dashboard/sales-management') ? 'bg-blue-600 text-white' : ''
+                className={`flex items-center py-2 px-4 gap-2 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
+                  location.pathname.startsWith('/dashboard/sales-management') ? 'bg-[#02415A] border-r-4 border-r-[#17BDFF] text-white' : ''
                 } ${!sidebarOpen ? 'justify-center' : ''}`}
               >
                 {renderSectionIcon(ShoppingBagIcon, ['sales_orders', 'sales_returns'], `h-6 w-6 ${!sidebarOpen ? 'mx-auto' : ''}`)}
@@ -723,13 +747,13 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
               </div>
               {openSubMenu === 'sales-management' && sidebarOpen && (
-                <ul className="pr-8 mt-1 space-y-1">
+                <ul className="pr-4 mt-1 space-y-1 border-r mr-6 border-[#8DD8F5] ">
                   <li>
                     <NavLink
                       to="/dashboard/sales-management/sales-orders"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -741,8 +765,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/sales-management/sales-invoices"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -753,8 +777,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/sales-management/sales-returns"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -766,8 +790,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/sales-management/client-cash"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -782,8 +806,8 @@ function DashboardLayout({ setGlobalMessage }) {
             <li>
               <div
                 onClick={() => handleMenuItemClick('safe-management', '/dashboard/safe-management')}
-                className={`flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
-                  location.pathname.startsWith('/dashboard/safe-management') ? 'bg-blue-600 text-white' : ''
+                className={`flex items-center py-2 px-4 gap-2 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
+                  location.pathname.startsWith('/dashboard/safe-management') ? 'bg-[#02415A] border-r-4 border-r-[#17BDFF] text-white' : ''
                 } ${!sidebarOpen ? 'justify-center' : ''}`}
               >
                 {renderSectionIcon(ArchiveBoxIcon, ['safe_transactions', 'safe_transfers'], `h-6 w-6 ${!sidebarOpen ? 'mx-auto' : ''}`)}
@@ -794,7 +818,7 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
                 {sidebarOpen && (
                   <svg
-                    className={`h-5 w-5 ml-2 transform ${
+                    className={`h-5 w-5 mr-auto transform ${
                       openSubMenu === 'safe-management' ? 'rotate-90' : ''
                     } transition-transform duration-200`}
                     fill="none"
@@ -807,14 +831,14 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
               </div>
               {openSubMenu === 'safe-management' && sidebarOpen && (
-                <ul className="pr-8 mt-1 space-y-1">
+                <ul className="pr-4 mt-1 space-y-1 border-r mr-6 border-[#8DD8F5] ">
                   <li>
                     <NavLink
                       to="/dashboard/safe-management"
                       end
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -825,8 +849,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/safe-management/safe-transactions"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -838,8 +862,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/safe-management/safe-transfers"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -855,8 +879,8 @@ function DashboardLayout({ setGlobalMessage }) {
             <li>
               <div
                 onClick={() => handleMenuItemClick('visit-plans-management', '/dashboard/visit-plans-management/plans')}
-                className={`flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
-                  location.pathname.startsWith('/dashboard/visit-plans-management') ? 'bg-blue-600 text-white' : ''
+                className={`flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
+                  location.pathname.startsWith('/dashboard/visit-plans-management') ? 'bg-[#02415A] border-r-4 border-r-[#17BDFF] text-white' : ''
                 } ${!sidebarOpen ? 'justify-center' : ''}`}
               >
                 <CalendarDaysIcon className={`h-6 w-6 ${sidebarOpen ? 'ml-3' : ''} ${!sidebarOpen ? 'mx-auto' : ''}`} />
@@ -876,13 +900,13 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
               </div>
               {openSubMenu === 'visit-plans-management' && sidebarOpen && (
-                <ul className="pr-8 mt-1 space-y-1">
+                <ul className="pr-4 mt-1 space-y-1 border-r mr-6 border-[#8DD8F5] ">
                   <li>
                     <NavLink
                       to="/dashboard/visit-plans-management/plans"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -893,8 +917,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/visit-plans-management/assignments"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -905,8 +929,8 @@ function DashboardLayout({ setGlobalMessage }) {
                     <NavLink
                       to="/dashboard/visit-plans-management/visits-calendar"
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
+                        `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                          isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                         }`
                       }
                     >
@@ -921,8 +945,8 @@ function DashboardLayout({ setGlobalMessage }) {
             <li>
               <div
                 onClick={() => handleMenuItemClick('reports', '/dashboard/reports')}
-                className={`flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
-                  location.pathname.startsWith('/dashboard/reports') ? 'bg-blue-600 text-white' : ''
+                className={`flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 cursor-pointer ${
+                  location.pathname.startsWith('/dashboard/reports') ? 'bg-[#02415A] border-r-4 border-r-[#17BDFF] text-white' : ''
                 } ${!sidebarOpen ? 'justify-center' : ''}`}
               >
                 <DocumentTextIcon className={`h-6 w-6 ${sidebarOpen ? 'ml-3' : ''} ${!sidebarOpen ? 'mx-auto' : ''}`} />
@@ -942,59 +966,59 @@ function DashboardLayout({ setGlobalMessage }) {
                 )}
               </div>
               {openSubMenu === 'reports' && sidebarOpen && (
-                <ul className="pr-8 mt-1 space-y-1">
-                  <li>
-                    <NavLink
-                      to="/dashboard/reports/clients"
-                      className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
-                        }`
-                      }
-                    >
-                      <UserGroupIcon className="h-5 w-5 ml-2" /> العملاء
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/dashboard/reports/products"
-                      className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
-                        }`
-                      }
-                    >
-                      <CubeIcon className="h-5 w-5 ml-2" /> المنتجات والمخزون
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/dashboard/reports/visits"
-                      className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
-                        }`
-                      }
-                    >
-                      <MapPinIcon className="h-5 w-5 ml-2" /> الزيارات
-                    </NavLink>
-                  </li>
-                  {odooEnabled && (
-                  <li>
-                    <NavLink
-                      to="/dashboard/reports/integration"
-                      className={({ isActive }) =>
-                        `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
-                          isActive ? 'bg-blue-500 text-white' : ''
-                        }`
-                      }
-                    >
-                      <ArrowPathIcon className="h-5 w-5 ml-2" /> التكامل
-                    </NavLink>
-                  </li>
-                  )}
+                  <ul className="pr-4 mt-1 space-y-1 border-r mr-6 border-[#8DD8F5] ">
+                    <li>
+                      <NavLink
+                        to="/dashboard/reports/clients"
+                        className={({ isActive }) =>
+                          `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                            isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
+                          }`
+                        }
+                      >
+                        <UserGroupIcon className="h-5 w-5 ml-2" /> العملاء
+                      </NavLink>
+                    </li>
+                    <li>
+                      <NavLink
+                        to="/dashboard/reports/products"
+                        className={({ isActive }) =>
+                          `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                            isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
+                          }`
+                        }
+                      >
+                        <CubeIcon className="h-5 w-5 ml-2" /> المنتجات والمخزون
+                      </NavLink>
+                    </li>
+                    <li>
+                      <NavLink
+                        to="/dashboard/reports/visits"
+                        className={({ isActive }) =>
+                          `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                            isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
+                          }`
+                        }
+                      >
+                        <MapPinIcon className="h-5 w-5 ml-2" /> الزيارات
+                      </NavLink>
+                    </li>
+                    {odooEnabled && (
+                    <li>
+                      <NavLink
+                        to="/dashboard/reports/integration"
+                        className={({ isActive }) =>
+                          `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-600 hover:text-white transition-colors duration-200 ${
+                            isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
+                          }`
+                        }
+                      >
+                        <ArrowPathIcon className="h-5 w-5 ml-2" /> التكامل
+                      </NavLink>
+                    </li>
+                    )}
 
-                </ul>
+                  </ul>
               )}
             </li>
 
@@ -1002,8 +1026,8 @@ function DashboardLayout({ setGlobalMessage }) {
               <NavLink
                 to="/dashboard/settings"
                 className={({ isActive }) =>
-                  `flex items-center py-2 px-4 rounded-r-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
-                    isActive ? 'bg-blue-600 text-white' : ''
+                  `flex items-center py-2 px-4 rounded-r-full text-[#8DD8F5] hover:bg-gray-700 hover:text-white transition-colors duration-200 ${
+                    isActive ? 'bg-[#02415A] border-r-4 border-r-[#8DD8F5] text-white' : ''
                   }`
                 }
                 onClick={() => setOpenSubMenu(null)}
@@ -1019,11 +1043,13 @@ function DashboardLayout({ setGlobalMessage }) {
 
       <div className="flex-1 flex flex-col overflow-hidden bg">
         <header className="flex-shrink-0 h-16 bg-white shadow p-4 flex justify-between items-center" dir="rtl">
-          <h1 className="text-2xl font-bold text-blue-700">
+          <h1 className="hidden md:block text-2xl font-bold text-blue-700">
             {companyName || 'لوحة التحكم'}
           </h1>
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
-            <NotificationBell />
+            <div className='flex items-center justify-center p-4 rounded-lg w-8 h-8 md:w-12 md:h-12 bg-[#1F2937]  '>
+              <NotificationBell />
+            </div>
             {userName && (
               <span className="text-gray-700 text-sm">
                 المستخدم: <span className="font-semibold text-gray-800">{userName}</span> (
@@ -1031,7 +1057,7 @@ function DashboardLayout({ setGlobalMessage }) {
               </span>
             )}
             {expirationDate && (
-              <span className="text-gray-700 text-sm">
+              <span className="hidden md:block  text-gray-700 text-sm">
                 تاريخ الانتهاء: <span className="font-semibold text-red-600">{expirationDate}</span>
               </span>
             )}
@@ -1040,7 +1066,7 @@ function DashboardLayout({ setGlobalMessage }) {
               onClick={handleLogout}
               className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out"
             >
-              تسجيل الخروج
+              <ArrowRightOnRectangleIcon className="h-5 w-5" />
             </button>
             <ConfirmationDialog
               isOpen={showLogoutConfirm}
@@ -1055,7 +1081,7 @@ function DashboardLayout({ setGlobalMessage }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 bg-gray-100">
+        <main className="flex-1 overflow-y-auto p-2 md:p-4 bg-gray-100">
       <Outlet context={{ 
         setGlobalMessage,
         setChildRefreshHandler, // legacy API used by many existing tabs

@@ -819,7 +819,7 @@ export default function ReceiveProductsTab() {
       <CustomPageHeader
         title="استلام المنتجات"
         subtitle="قائمة أوامر الشراء الجاهزة للاستلام — حدّد الكميات ثم اضغط 'استلام' لتحديث المخزون وطباعة الإيصال"
-        icon={<InboxArrowDownIcon className="h-8 w-8 text-white" />}
+        icon={<InboxArrowDownIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={filteredAndSortedOrders.length}
         statLabel="عدد الأوامر"
       />
