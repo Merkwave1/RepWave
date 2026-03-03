@@ -376,7 +376,7 @@ export default function AttendanceTab({ representatives = [] }) {
         const statusMap = {
           ClockedIn: { label: 'تسجيل دخول', color: 'bg-green-100 text-green-800' },
           Paused: { label: 'متوقف', color: 'bg-yellow-100 text-yellow-800' },
-          ClockedOut: { label: 'تسجيل خروج', color: 'bg-blue-100 text-blue-800' }
+          ClockedOut: { label: 'تسجيل خروج', color: "p-1.5 rounded-full text-sky-700 bg-sky-100 hover:bg-sky-500 hover:text-white hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]transition-all duration-200 hover:scale-110" }
         };
         const status = statusMap[row.attendance_status] || { label: row.attendance_status, color: 'bg-gray-100 text-gray-800' };
         
@@ -402,8 +402,11 @@ export default function AttendanceTab({ representatives = [] }) {
       render: (row) => (
         <button
           onClick={() => handleShowDetails(row)}
-          className="flex items-center justify-center px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
-        >
+                          className="p-1.5 rounded-full flex items-center gap-1
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110"        >
           <ClockIcon className="h-4 w-4 ml-1" />
           التفاصيل
         </button>
@@ -453,7 +456,7 @@ export default function AttendanceTab({ representatives = [] }) {
       <CustomPageHeader
         title="الحضور والانصراف"
         subtitle="سجلات حضور وانصراف المندوبين مع التفاصيل الكاملة"
-        icon={<ClockIcon className="h-8 w-8 text-white" />}
+        icon={<ClockIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={totalRecords}
         statLabel="سجل حضور"
         actionButton={(

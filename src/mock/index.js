@@ -17,12 +17,15 @@ import mockApis, {
   mockInventoryApi,
   mockSalesOrdersApi,
   mockPurchaseOrdersApi,
-  mockOtherApis
+  mockOtherApis,
+  mockBaseUnitsApi,
+  mockPackagingTypesApi,
+  mockAttributesApi,
 } from './mockApiWrapper.js';
 
 // Initialize mock data if needed
 export function initializeMockData() {
-  const isMockSeeded = localStorage.getItem('comprehensiveMockSeeded_v6');
+  const isMockSeeded = localStorage.getItem('comprehensiveMockSeeded_v14');
   
   if (!isMockSeeded) {
     console.log('🎭 Initializing mock data for the first time...');
@@ -43,7 +46,7 @@ export function resetMockData() {
 
 // Check if mock data is available
 export function isMockDataAvailable() {
-  return localStorage.getItem('comprehensiveMockSeeded_v6') === 'true';
+  return localStorage.getItem('comprehensiveMockSeeded_v14') === 'true';
 }
 
 // Get mock data statistics
@@ -52,7 +55,7 @@ export function getMockDataStats() {
     users: JSON.parse(localStorage.getItem('appUsers') || '[]').length,
     categories: JSON.parse(localStorage.getItem('appCategories') || '[]').length,
     clients: JSON.parse(localStorage.getItem('appClients') || '[]').length,
-    products: JSON.parse(localStorage.getItem('appProducts') || '[]').length,
+    products: (() => { const p = JSON.parse(localStorage.getItem('appProducts') || '{"data":[]}'); return (Array.isArray(p) ? p : p.data || []).length; })(),
     warehouses: (JSON.parse(localStorage.getItem('appWarehouses') || '{"data":[]}').data || []).length,
     inventory: JSON.parse(localStorage.getItem('appInventory') || '[]').length,
     salesOrders: JSON.parse(localStorage.getItem('appSalesOrders') || '[]').length,
@@ -81,6 +84,9 @@ export {
   mockSalesOrdersApi,
   mockPurchaseOrdersApi,
   mockOtherApis,
+  mockBaseUnitsApi,
+  mockPackagingTypesApi,
+  mockAttributesApi,
   
   // Configuration
   USE_MOCK_DATA,

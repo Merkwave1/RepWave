@@ -181,7 +181,7 @@ function UsersTab() {
   };
 
   return (
-    <div className="p-4" dir="rtl">
+    <div className="p-2 md:p-4" dir="rtl">
       {localMessage && (<Alert message={localMessage} type={localMessageType} onClose={() => setLocalMessage('')} className="mb-4" />)}
       <div className="mb-6">
         <CustomPageHeader

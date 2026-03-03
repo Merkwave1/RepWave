@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
-import Modal from '../../../../common/Modal/Modal';
-import RepackModal from './RepackModal';
-import DeleteConfirmationModal from '../../../../common/DeleteConfirmationModal';
+import React, { useMemo, useState } from "react";
+import Modal from "../../../../common/Modal/Modal";
+import RepackModal from "./RepackModal";
+import DeleteConfirmationModal from "../../../../common/DeleteConfirmationModal";
 
 export default function ProductInventoryDetailsModal({
   isOpen,
@@ -13,22 +13,33 @@ export default function ProductInventoryDetailsModal({
   baseUnits = [],
   filters = {},
   onRepack,
-  onDeleteInventory
+  onDeleteInventory,
 }) {
-
-  const [repackContext, setRepackContext] = useState({ open: false, item: null, allowedIds: [] });
-  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, label: '' });
+  const [repackContext, setRepackContext] = useState({
+    open: false,
+    item: null,
+    allowedIds: [],
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    id: null,
+    label: "",
+  });
 
   let lowThreshold, outThreshold;
   try {
-    const cached = localStorage.getItem('appSettingsCategorized');
+    const cached = localStorage.getItem("appSettingsCategorized");
     if (cached) {
       const categorized = JSON.parse(cached);
       const inv = categorized?.inventory || [];
-      const low = inv.find(s => s.settings_key === 'low_stock_threshold');
-      const out = inv.find(s => s.settings_key === 'out_of_stock_threshold');
-      lowThreshold = low?.settings_value !== undefined ? parseFloat(low.settings_value) : undefined;
-      outThreshold = out?.settings_value !== undefined ? parseFloat(out.settings_value) : 0;
+      const low = inv.find((s) => s.settings_key === "low_stock_threshold");
+      const out = inv.find((s) => s.settings_key === "out_of_stock_threshold");
+      lowThreshold =
+        low?.settings_value !== undefined
+          ? parseFloat(low.settings_value)
+          : undefined;
+      outThreshold =
+        out?.settings_value !== undefined ? parseFloat(out.settings_value) : 0;
     } else {
       outThreshold = 0;
     }
@@ -41,9 +52,12 @@ export default function ProductInventoryDetailsModal({
 
     const forcedVariantId = product.__selectedVariantId ?? null;
 
-    const itemsForProduct = inventoryItems.filter(i =>
-      i.products_id === product.products_id &&
-      (forcedVariantId ? String(i.variant_id) === String(forcedVariantId) : true)
+    const itemsForProduct = inventoryItems.filter(
+      (i) =>
+        i.products_id === product.products_id &&
+        (forcedVariantId
+          ? String(i.variant_id) === String(forcedVariantId)
+          : true),
     );
 
     const variantGroups = new Map();
@@ -58,9 +72,8 @@ export default function ProductInventoryDetailsModal({
     const variants = [];
 
     for (const [variantId, items] of variantGroups.entries()) {
-
       const variantObj = Array.isArray(product.variants)
-        ? product.variants.find(v => v.variant_id === variantId)
+        ? product.variants.find((v) => v.variant_id === variantId)
         : null;
 
       const variantName = variantObj?.variant_name || product.products_name;
@@ -70,8 +83,8 @@ export default function ProductInventoryDetailsModal({
 
       for (const it of items) {
         const dateKey = it.inventory_production_date
-          ? it.inventory_production_date.split('T')[0]
-          : 'بدون تاريخ إنتاج';
+          ? it.inventory_production_date.split("T")[0]
+          : "بدون تاريخ إنتاج";
 
         if (!byDate.has(dateKey)) byDate.set(dateKey, []);
         byDate.get(dateKey).push(it);
@@ -80,36 +93,42 @@ export default function ProductInventoryDetailsModal({
       const dateBlocks = [];
 
       for (const [dateKey, dateItems] of byDate.entries()) {
+        const rows = dateItems.map((it) => {
+          const warehouse = warehouses.find(
+            (w) => w.warehouse_id === it.warehouse_id,
+          );
+          const packaging = packagingTypes.find(
+            (pt) => pt.packaging_types_id === it.packaging_type_id,
+          );
 
-        const rows = dateItems.map(it => {
-          const warehouse = warehouses.find(w => w.warehouse_id === it.warehouse_id);
-          const packaging = packagingTypes.find(pt => pt.packaging_types_id === it.packaging_type_id);
-
-          const factor = parseFloat(packaging?.packaging_types_default_conversion_factor) || 1;
+          const factor =
+            parseFloat(packaging?.packaging_types_default_conversion_factor) ||
+            1;
           const qty = parseFloat(it.inventory_quantity) || 0;
           const totalBase = qty * factor;
           variantTotalBase += totalBase;
 
           let status = it.inventory_status;
-          const outT = (outThreshold ?? 0);
-          const lowT = (lowThreshold ?? undefined);
+          const outT = outThreshold ?? 0;
+          const lowT = lowThreshold ?? undefined;
 
-          if (totalBase <= outT) status = 'Out of Stock';
-          else if (lowT !== undefined && totalBase <= lowT) status = 'Low Stock';
-          else status = 'In Stock';
+          if (totalBase <= outT) status = "Out of Stock";
+          else if (lowT !== undefined && totalBase <= lowT)
+            status = "Low Stock";
+          else status = "In Stock";
 
           return {
             id: it.inventory_id,
             warehouse: warehouse
               ? `${warehouse.warehouse_name} (${warehouse.warehouse_code})`
-              : 'مخزن غير معروف',
-            packaging: packaging?.packaging_types_name || 'تعبئة غير معروفة',
+              : "مخزن غير معروف",
+            packaging: packaging?.packaging_types_name || "تعبئة غير معروفة",
             productionDate: dateKey,
             quantity: qty,
             factor,
             totalBase,
             status,
-            raw: it
+            raw: it,
           };
         });
 
@@ -117,18 +136,30 @@ export default function ProductInventoryDetailsModal({
       }
 
       grandTotalBase += variantTotalBase;
-      variants.push({ variantId, variantName, totalBase: variantTotalBase, dateBlocks });
+      variants.push({
+        variantId,
+        variantName,
+        totalBase: variantTotalBase,
+        dateBlocks,
+      });
     }
 
     return { variants, totals: { base: grandTotalBase } };
-
-  }, [product, inventoryItems, packagingTypes, warehouses, lowThreshold, outThreshold]);
+  }, [
+    product,
+    inventoryItems,
+    packagingTypes,
+    warehouses,
+    lowThreshold,
+    outThreshold,
+  ]);
 
   if (!isOpen || !product) return null;
 
   const baseUnit =
-    baseUnits.find(u => u.base_units_id === product.products_unit_of_measure_id)?.base_units_name
-    || 'الوحدة';
+    baseUnits.find(
+      (u) => u.base_units_id === product.products_unit_of_measure_id,
+    )?.base_units_name || "الوحدة";
 
   return (
     <Modal
@@ -138,55 +169,55 @@ export default function ProductInventoryDetailsModal({
       dir="rtl"
       modalWidthClass="max-w-6xl"
     >
-      <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto bg-gray-50">
-
-        {data.variants.map(variant => (
-          <div key={variant.variantId} className="bg-white rounded-2xl shadow-sm border">
-
+      <div className="p-3 sm:p-6 space-y-6 bg-gray-50">
+        {data.variants.map((variant) => (
+          <div
+            key={variant.variantId}
+            className="bg-white rounded-2xl shadow-sm border"
+          >
             <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b rounded-t-2xl flex justify-between items-center">
               <h4 className="font-bold text-gray-800 text-sm">
                 الخيار: {variant.variantName}
               </h4>
               <div className="text-sm font-bold text-blue-700">
-                إجمالي: {variant.totalBase.toLocaleString('en-US', {
+                إجمالي:{" "}
+                {variant.totalBase.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} {baseUnit}
+                  maximumFractionDigits: 2,
+                })}{" "}
+                {baseUnit}
               </div>
             </div>
 
             <div className="p-5 space-y-6">
-
-              {variant.dateBlocks.map(block => (
+              {variant.dateBlocks.map((block) => (
                 <div key={block.date} className="bg-gray-50 rounded-xl p-4">
-
                   <div className="text-xs font-bold text-indigo-700 mb-3">
                     تاريخ الإنتاج: {block.date}
                   </div>
 
                   <div className="overflow-x-auto">
-
                     <table className="min-w-full text-[13px] text-gray-700 border-separate border-spacing-y-2">
-
                       <thead>
                         <tr className="text-xs uppercase text-gray-500">
                           <th className="px-3 py-2 text-center">المخزن</th>
                           <th className="px-3 py-2 text-center">التعبئة</th>
                           <th className="px-3 py-2 text-center">الكمية</th>
                           <th className="px-3 py-2 text-center">المعامل</th>
-                          <th className="px-3 py-2 text-center">الإجمالي ({baseUnit})</th>
+                          <th className="px-3 py-2 text-center">
+                            الإجمالي ({baseUnit})
+                          </th>
                           <th className="px-3 py-2 text-center">الحالة</th>
                           <th className="px-3 py-2 text-center">إجراءات</th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {block.rows.map(r => (
+                        {block.rows.map((r) => (
                           <tr
                             key={r.id}
                             className="bg-white hover:bg-blue-50 transition rounded-xl shadow-sm"
                           >
-
                             <td className="px-3 py-3 text-center whitespace-nowrap">
                               {r.warehouse}
                             </td>
@@ -196,9 +227,9 @@ export default function ProductInventoryDetailsModal({
                             </td>
 
                             <td className="px-3 py-3 font-semibold text-center">
-                              {r.quantity.toLocaleString('en-US', {
+                              {r.quantity.toLocaleString("en-US", {
                                 minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
+                                maximumFractionDigits: 2,
                               })}
                             </td>
 
@@ -207,34 +238,44 @@ export default function ProductInventoryDetailsModal({
                             </td>
 
                             <td className="px-3 py-3 font-bold text-blue-700 text-center whitespace-nowrap">
-                              {r.totalBase.toLocaleString('en-US', {
+                              {r.totalBase.toLocaleString("en-US", {
                                 minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
+                                maximumFractionDigits: 2,
                               })}
                             </td>
 
                             <td className="px-3 py-3 text-center whitespace-nowrap">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                                ${r.status === 'In Stock'
-                                  ? 'bg-green-50 text-green-700 ring-1 ring-green-200'
-                                  : r.status === 'Low Stock'
-                                  ? 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200'
-                                  : 'bg-red-50 text-red-700 ring-1 ring-red-200'
-                                }`}>
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                                ${
+                                  r.status === "In Stock"
+                                    ? "bg-green-50 text-green-700 ring-1 ring-green-200"
+                                    : r.status === "Low Stock"
+                                      ? "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200"
+                                      : "bg-red-50 text-red-700 ring-1 ring-red-200"
+                                }`}
+                              >
                                 {r.status}
                               </span>
                             </td>
 
                             <td className="px-3 py-3 text-center">
                               <div className="flex items-center justify-center gap-2">
-
                                 <button
                                   className="px-3 py-1 text-xs rounded-lg bg-[#8DD8F5]  text-black hover:text-white hover:bg-blue-600 shadow-md hover:shadow-md transition disabled:opacity-50"
                                   onClick={() => {
-                                    const preferred = Array.isArray(product?.preferred_packaging)
-                                      ? product.preferred_packaging.map(p => p.packaging_types_id)
+                                    const preferred = Array.isArray(
+                                      product?.preferred_packaging,
+                                    )
+                                      ? product.preferred_packaging.map(
+                                          (p) => p.packaging_types_id,
+                                        )
                                       : [];
-                                    setRepackContext({ open: true, item: r.raw, allowedIds: preferred });
+                                    setRepackContext({
+                                      open: true,
+                                      item: r.raw,
+                                      allowedIds: preferred,
+                                    });
                                   }}
                                   disabled={!onRepack}
                                 >
@@ -248,38 +289,34 @@ export default function ProductInventoryDetailsModal({
                                       setDeleteConfirm({
                                         open: true,
                                         id: r.id,
-                                        label: `${r.warehouse} - ${r.packaging} - ${r.productionDate}`
+                                        label: `${r.warehouse} - ${r.packaging} - ${r.productionDate}`,
                                       })
                                     }
                                   >
                                     حذف
                                   </button>
                                 )}
-
                               </div>
                             </td>
-
                           </tr>
                         ))}
                       </tbody>
-
                     </table>
-
                   </div>
                 </div>
               ))}
-
             </div>
           </div>
         ))}
 
         <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border rounded-2xl text-sm font-bold text-blue-700 text-center">
-          إجمالي المنتج ({product.products_name}): {data.totals.base.toLocaleString('en-US', {
+          إجمالي المنتج ({product.products_name}):{" "}
+          {data.totals.base.toLocaleString("en-US", {
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })} {baseUnit}
+            maximumFractionDigits: 2,
+          })}{" "}
+          {baseUnit}
         </div>
-
       </div>
 
       <div className="p-4 border-t bg-white flex justify-end">
@@ -294,10 +331,12 @@ export default function ProductInventoryDetailsModal({
       {repackContext.open && (
         <RepackModal
           isOpen={repackContext.open}
-          onClose={() => setRepackContext({ open:false, item:null, allowedIds: [] })}
+          onClose={() =>
+            setRepackContext({ open: false, item: null, allowedIds: [] })
+          }
           onRepackConfirm={async (payload) => {
-            if (typeof onRepack === 'function') await onRepack(payload);
-            setRepackContext({ open:false, item:null, allowedIds: [] });
+            if (typeof onRepack === "function") await onRepack(payload);
+            setRepackContext({ open: false, item: null, allowedIds: [] });
           }}
           inventoryItem={repackContext.item}
           packagingTypes={packagingTypes}
@@ -309,17 +348,16 @@ export default function ProductInventoryDetailsModal({
       {deleteConfirm.open && (
         <DeleteConfirmationModal
           isOpen={deleteConfirm.open}
-          onClose={() => setDeleteConfirm({ open: false, id: null, label: '' })}
+          onClose={() => setDeleteConfirm({ open: false, id: null, label: "" })}
           onConfirm={async () => {
             if (onDeleteInventory && deleteConfirm.id)
               await onDeleteInventory(deleteConfirm.id);
-            setDeleteConfirm({ open: false, id: null, label: '' });
+            setDeleteConfirm({ open: false, id: null, label: "" });
           }}
           title="تأكيد الحذف"
           message={`هل أنت متأكد من حذف هذا السطر؟\n${deleteConfirm.label}`}
         />
       )}
-
     </Modal>
   );
 }

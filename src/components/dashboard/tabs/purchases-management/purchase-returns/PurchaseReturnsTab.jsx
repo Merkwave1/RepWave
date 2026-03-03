@@ -1,7 +1,7 @@
 // src/components/dashboard/tabs/purchases-management/purchase-returns/PurchaseReturnsTab.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { MagnifyingGlassIcon, XMarkIcon, FunnelIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon, EyeIcon, PrinterIcon } from '@heroicons/react/24/outline';
+import { ArrowUturnLeftIcon, XMarkIcon, FunnelIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon, EyeIcon, PrinterIcon } from '@heroicons/react/24/outline';
 
 import Loader from '../../../../common/Loader/Loader';
 import Alert from '../../../../common/Alert/Alert';
@@ -356,8 +356,8 @@ export default function PurchaseReturnsTab() {
   }, [selectedStatusFilter, selectedSupplierFilter, searchTerm, suppliers, loadAllPurchaseReturnData]);
 
   const tableColumns = [
-    { key: '__idx', title: '#', headerAlign: 'center', align: 'center', headerClassName: 'w-16', render: (r, i) => (<span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-semibold">{i + 1}</span>) },
-    { key: 'purchase_returns_id', title: 'رقم المرتجع', sortable: true, headerAlign: 'center', render: (r) => (<span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-semibold">#{r.purchase_returns_id}</span>) },
+    { key: '__idx', title: '#', headerAlign: 'center', align: 'center', headerClassName: 'w-16', render: (r, i) => (<span className="bg-indigo-100 text-[#1F2937] text-xs px-2 py-1 rounded-full font-semibold">{i + 1}</span>) },
+    { key: 'purchase_returns_id', title: 'رقم المرتجع', sortable: true, headerAlign: 'center', render: (r) => (<span className="bg-indigo-100 text-[#1F2937] text-xs px-2 py-1 rounded-full font-semibold">#{r.purchase_returns_id}</span>) },
     ...(odooEnabled ? [{ key: 'purchase_returns_odoo_picking_id', title: 'Odoo ID', sortable: true, headerAlign: 'center', align: 'center', headerClassName: 'w-24', render: (r) => r.purchase_returns_odoo_picking_id ? (<span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-semibold">{r.purchase_returns_odoo_picking_id}</span>) : (<span className="text-gray-400">-</span>) }] : []),
     { key: 'supplier_name', title: 'المورد', sortable: true, headerClassName: 'min-w-[150px]', render: (r) => (r.supplier_name || 'غير محدد') },
     { key: 'purchase_returns_date', title: 'التاريخ', sortable: true, headerClassName: 'min-w-[120px]', render: (r) => formatDate(r.purchase_returns_date) },
@@ -365,8 +365,16 @@ export default function PurchaseReturnsTab() {
     { key: 'purchase_returns_reason', title: 'السبب', headerClassName: 'min-w-[200px]', render: (r) => (<div className="line-clamp-2" title={r.purchase_returns_reason}>{r.purchase_returns_reason || 'لا يوجد سبب محدد'}</div>) },
     { key: 'actions', title: 'إجراءات', headerAlign: 'center', align: 'center', className: 'w-32', render: (r) => (
       <div className="flex items-center justify-center gap-2">
-        <button onClick={(e) => { e.stopPropagation(); handleViewDetails(r); }} className="group p-1.5 text-blue-600 hover:text-white hover:bg-blue-600 rounded-full transition-all" title="عرض التفاصيل"><EyeIcon className="h-4 w-4" /></button>
-        <button onClick={(e) => { e.stopPropagation(); handlePrint(r); }} className="group p-1.5 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition-all" title="طباعة"><PrinterIcon className="h-4 w-4" /></button>
+        <button onClick={(e) => { e.stopPropagation(); handleViewDetails(r); }}  className="p-1.5 rounded-full 
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110" title="عرض التفاصيل"><EyeIcon className="h-4 w-4" /></button>
+        <button onClick={(e) => { e.stopPropagation(); handlePrint(r); }} className="p-1.5 rounded-full 
+           text-purple-700 bg-purple-100
+           hover:bg-purple-500 hover:text-white
+           hover:shadow-[0_0_12px_rgba(168,85,247,0.45)]
+           transition-all duration-200 hover:scale-110" title="طباعة"><PrinterIcon className="h-4 w-4" /></button>
       </div>
     ) },
   ];
@@ -401,29 +409,16 @@ export default function PurchaseReturnsTab() {
       );
     }
 
-  if (currentView === 'details' && selectedReturn) {
-      return (
-        <PurchaseReturnDetailsModal
-          purchaseReturn={selectedReturn}
-          suppliers={suppliers}
-          products={products}
-          baseUnits={baseUnits}
-          packagingTypes={packagingTypes}
-          warehouses={warehouses}
-          onClose={handleCancelAction}
-      onPrint={handlePrint}
-        />
-      );
-    }
-
     return (
       <>
         <CustomPageHeader
           title="مرتجعات الشراء"
+          icon={<ArrowUturnLeftIcon className="w-6 h-6 text-[#1F2937]" />}
           subtitle="قائمة مرتجعات الشراء وإدارتها"
           statValue={pagination?.total_items ?? filteredReturns.length}
           statLabel="إجمالي المرتجعات"
-          actionButton={<button onClick={() => setCurrentView('add')} className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md">إضافة مرتجع شراء</button>}
+          actionButton={<button onClick={() => setCurrentView('add')}             className="px-3 py-2 bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] hover:scale-110 rounded-md font-semibold"
+>إضافة مرتجع شراء</button>}
         />
 
         <FilterBar
@@ -501,6 +496,18 @@ export default function PurchaseReturnsTab() {
   return (
     <div className="p-4" dir="rtl">
       {renderContent()}
+      {currentView === 'details' && selectedReturn && (
+        <PurchaseReturnDetailsModal
+          purchaseReturn={selectedReturn}
+          suppliers={suppliers}
+          products={products}
+          baseUnits={baseUnits}
+          packagingTypes={packagingTypes}
+          warehouses={warehouses}
+          onClose={handleCancelAction}
+          onPrint={handlePrint}
+        />
+      )}
     </div>
   );
 }

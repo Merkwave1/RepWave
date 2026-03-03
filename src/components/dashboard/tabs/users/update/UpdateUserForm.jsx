@@ -150,10 +150,10 @@ function UpdateUserForm() {
   }
 
   const premiumInput = `
-w-full px-4 py-3 rounded-xl
+w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
 bg-white
 border border-gray-200
-text-gray-800
+text-gray-800 text-sm sm:text-base
 placeholder:text-gray-400
 
 shadow-sm
@@ -180,48 +180,59 @@ transition-all duration-200
     "
       dir="rtl"
     >
-<div className="
-  px-8 py-7
+      <div
+        className="
+  px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7
   border-b border-gray-200
   bg-gradient-to-r from-[#5BC7F2]/10 via-white to-white
   flex items-center justify-between
-">
-  <div className="flex items-center gap-3">
-    <div className="
-      w-12 h-12
+"
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="
+      w-10 h-10 sm:w-12 sm:h-12
       rounded-xl
       bg-[#5BC7F2]/20
       flex items-center justify-center
       text-[#5BC7F2]
-    ">
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
+    "
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2"
+              />
+            </svg>
+          </div>
+
+          <div>
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+              تعديل المستخدم
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500">
+              تحديث بيانات الحساب والمعلومات الأساسية
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <form
+        onSubmit={handleFormSubmit}
+        className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6"
       >
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3z"
-        />
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2"
-        />
-      </svg>
-    </div>
-
-    <div>
-      <h3 className="text-2xl font-bold text-gray-900">
-        تعديل المستخدم
-      </h3>
-      <p className="text-sm text-gray-500">
-        تحديث بيانات الحساب والمعلومات الأساسية
-      </p>
-    </div>
-  </div>
-</div>
-
-      <form onSubmit={handleFormSubmit} className="p-8 space-y-6">
         {/* INPUT STYLE WRAPPER */}
         {/** reusable input style */}
         {/*
@@ -277,19 +288,19 @@ transition-all duration-200
         </div>
 
         {/* ROLE */}
-<div className="space-y-2">
-  <label className="text-sm font-medium text-gray-600">الدور</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-600">الدور</label>
 
-  <div className="relative">
-    <select
-      name="users_role"
-      value={formData.users_role}
-      onChange={handleChange}
-      className="
-        w-full px-4 py-3 rounded-xl
+          <div className="relative">
+            <select
+              name="users_role"
+              value={formData.users_role}
+              onChange={handleChange}
+              className="
+        w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
         bg-white
         border border-gray-200
-        text-gray-800
+        text-gray-800 text-sm sm:text-base
         shadow-sm
         hover:border-gray-300
         focus:border-[#5BC7F2]
@@ -300,34 +311,34 @@ transition-all duration-200
         appearance-none
         pr-10
       "
-    >
-      <option value="admin">مدير</option>
-      <option value="rep">مسئول مبيعات</option>
-      <option value="store_keeper">أمين مخزن</option>
-      <option value="cash">كاش</option>
-    </select>
+            >
+              <option value="admin">مدير</option>
+              <option value="rep">مسئول مبيعات</option>
+              <option value="store_keeper">أمين مخزن</option>
+              <option value="cash">كاش</option>
+            </select>
 
-    {/* Premium arrow */}
-    <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-      <svg
-        className="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19 9l-7 7-7-7"
-        />
-      </svg>
-    </div>
-  </div>
-</div>
+            {/* Premium arrow */}
+            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
 
         {/* PHONE + NATIONAL ID GRID */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-600">
               رقم الهاتف
@@ -358,19 +369,19 @@ transition-all duration-200
         </div>
 
         {/* STATUS */}
-<div className="space-y-2">
-  <label className="text-sm font-medium text-gray-600">الحالة</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-600">الحالة</label>
 
-  <div className="relative">
-    <select
-      name="users_status"
-      value={formData.users_status}
-      onChange={handleChange}
-      className="
-        w-full px-4 py-3 rounded-xl
+          <div className="relative">
+            <select
+              name="users_status"
+              value={formData.users_status}
+              onChange={handleChange}
+              className="
+        w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
         bg-white
         border border-gray-200
-        text-gray-800
+        text-gray-800 text-sm sm:text-base
         shadow-sm
         hover:border-gray-300
         focus:border-[#5BC7F2]
@@ -381,29 +392,29 @@ transition-all duration-200
         appearance-none
         pr-10
       "
-    >
-      <option value={1}>نشط</option>
-      <option value={0}>غير نشط</option>
-    </select>
+            >
+              <option value={1}>نشط</option>
+              <option value={0}>غير نشط</option>
+            </select>
 
-    {/* Premium arrow */}
-    <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-      <svg
-        className="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19 9l-7 7-7-7"
-        />
-      </svg>
-    </div>
-  </div>
-</div>
+            {/* Premium arrow */}
+            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
 
         {/* IMAGE */}
         <div className="space-y-3">
@@ -458,7 +469,7 @@ transition-all duration-200
         </div>
 
         {/* ACTIONS */}
-        <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 sm:pt-6 border-t border-gray-100">
           <Button
             type="button"
             onClick={() => navigate("/dashboard/users")}

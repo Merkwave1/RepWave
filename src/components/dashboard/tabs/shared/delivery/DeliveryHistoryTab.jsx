@@ -1,24 +1,38 @@
 // src/components/dashboard/tabs/shared/delivery/DeliveryHistoryTab.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/outline';
-import { useOutletContext } from 'react-router-dom';
-import { TruckIcon, EyeIcon, CalendarIcon, PrinterIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { getSalesDeliveryDetails, getSalesDeliveriesPaginated } from '../../../../../apis/sales_deliveries';
-import { getAppWarehouses, getAppClients } from '../../../../../apis/auth';
-import FilterBar from '../../../../common/FilterBar/FilterBar';
-import Loader from '../../../../common/Loader/Loader';
-import Alert from '../../../../common/Alert/Alert';
-import GlobalTable from '../../../../common/GlobalTable/GlobalTable';
-import CustomPageHeader from '../../../../common/CustomPageHeader/CustomPageHeader';
-import PaginationHeaderFooter from '../../../../common/PaginationHeaderFooter/PaginationHeaderFooter';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+} from "@heroicons/react/24/outline";
+import { useOutletContext } from "react-router-dom";
+import {
+  TruckIcon,
+  EyeIcon,
+  CalendarIcon,
+  PrinterIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import {
+  getSalesDeliveryDetails,
+  getSalesDeliveriesPaginated,
+} from "../../../../../apis/sales_deliveries";
+import { getAppWarehouses, getAppClients } from "../../../../../apis/auth";
+import FilterBar from "../../../../common/FilterBar/FilterBar";
+import Loader from "../../../../common/Loader/Loader";
+import Alert from "../../../../common/Alert/Alert";
+import GlobalTable from "../../../../common/GlobalTable/GlobalTable";
+import CustomPageHeader from "../../../../common/CustomPageHeader/CustomPageHeader";
+import PaginationHeaderFooter from "../../../../common/PaginationHeaderFooter/PaginationHeaderFooter";
 
 const normalizeApiList = (payload, extraKeys = []) => {
   if (Array.isArray(payload)) return payload;
-  if (!payload || typeof payload !== 'object') return [];
+  if (!payload || typeof payload !== "object") return [];
 
   const directData = payload.data;
   if (Array.isArray(directData)) return directData;
-  if (directData && typeof directData === 'object') {
+  if (directData && typeof directData === "object") {
     if (Array.isArray(directData.data)) return directData.data;
     if (Array.isArray(directData.items)) return directData.items;
   }
@@ -26,7 +40,7 @@ const normalizeApiList = (payload, extraKeys = []) => {
   for (const key of extraKeys) {
     const value = payload[key];
     if (Array.isArray(value)) return value;
-    if (value && typeof value === 'object') {
+    if (value && typeof value === "object") {
       if (Array.isArray(value.data)) return value.data;
       if (Array.isArray(value.items)) return value.items;
     }
@@ -46,77 +60,97 @@ export default function DeliveryHistoryTab() {
   const [deliveryDetails, setDeliveryDetails] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [filters, setFilters] = useState({ search: '', date_from: '', date_to: '', warehouse_id: '', client_id: '' });
-  const [searchInput, setSearchInput] = useState('');
+  const [filters, setFilters] = useState({
+    search: "",
+    date_from: "",
+    date_to: "",
+    warehouse_id: "",
+    client_id: "",
+  });
+  const [searchInput, setSearchInput] = useState("");
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [serverPagination, setServerPagination] = useState(null);
 
   // Load static data (clients, warehouses) once or on explicit refresh
-  const loadStaticData = useCallback(async (forceRefresh = false) => {
-    try {
-      setError(null);
-      // Try to read clients from localStorage first (developer may cache these)
-      let localClients = null;
+  const loadStaticData = useCallback(
+    async (forceRefresh = false) => {
       try {
-        const raw = localStorage.getItem('app_clients');
-        if (raw) localClients = JSON.parse(raw);
-      } catch {
-        // ignore parse errors
-        localClients = null;
-      }
+        setError(null);
+        // Try to read clients from localStorage first (developer may cache these)
+        let localClients = null;
+        try {
+          const raw = localStorage.getItem("app_clients");
+          if (raw) localClients = JSON.parse(raw);
+        } catch {
+          // ignore parse errors
+          localClients = null;
+        }
 
-      const warehousesData = await getAppWarehouses(forceRefresh);
-      setWarehouses(normalizeApiList(warehousesData, ['warehouses']));
+        const warehousesData = await getAppWarehouses(forceRefresh);
+        setWarehouses(normalizeApiList(warehousesData, ["warehouses"]));
 
-      const localClientsList = normalizeApiList(localClients, ['clients']);
-      if (localClientsList.length > 0) {
-        setClients(localClientsList);
-      } else {
-        const clientsData = await getAppClients(forceRefresh);
-        setClients(normalizeApiList(clientsData, ['clients']));
+        const localClientsList = normalizeApiList(localClients, ["clients"]);
+        if (localClientsList.length > 0) {
+          setClients(localClientsList);
+        } else {
+          const clientsData = await getAppClients(forceRefresh);
+          setClients(normalizeApiList(clientsData, ["clients"]));
+        }
+      } catch (err) {
+        console.error("Error loading static data:", err);
+        setError(err.message || "فشل في تحميل البيانات.");
+        setGlobalMessage({ type: "error", message: "فشل في تحميل البيانات." });
       }
-    } catch (err) {
-      console.error('Error loading static data:', err);
-      setError(err.message || 'فشل في تحميل البيانات.');
-      setGlobalMessage({ type: 'error', message: 'فشل في تحميل البيانات.' });
-    }
-  }, [setGlobalMessage]);
+    },
+    [setGlobalMessage],
+  );
 
   // Refs to keep latest pagination values for refresh handler
   const pageRef = React.useRef(currentPage);
   const limitRef = React.useRef(itemsPerPage);
   const lastFetchKeyRef = React.useRef(null);
-  useEffect(() => { pageRef.current = currentPage; }, [currentPage]);
-  useEffect(() => { limitRef.current = itemsPerPage; }, [itemsPerPage]);
-  useEffect(() => { setSearchInput(filters.search || ''); }, [filters.search]);
+  useEffect(() => {
+    pageRef.current = currentPage;
+  }, [currentPage]);
+  useEffect(() => {
+    limitRef.current = itemsPerPage;
+  }, [itemsPerPage]);
+  useEffect(() => {
+    setSearchInput(filters.search || "");
+  }, [filters.search]);
 
   // Load only the current page of deliveries (optionally for a specific page/limit)
-  const loadDeliveriesPage = useCallback(async (forceRefresh = false, pageArg, limitArg, filtersArg = {}) => {
-    try {
-      setError(null);
-      const page = pageArg ?? pageRef.current;
-      const limit = limitArg ?? limitRef.current;
-      const deliveriesResp = await getSalesDeliveriesPaginated({
-        page,
-        limit,
-        forceRefresh,
-        search: filtersArg.search || undefined,
-        date_from: filtersArg.date_from || undefined,
-        date_to: filtersArg.date_to || undefined,
-        warehouse_id: filtersArg.warehouse_id || undefined,
-        client_id: filtersArg.client_id || undefined,
-      });
-      const sourceArray = Array.isArray(deliveriesResp) ? deliveriesResp : (deliveriesResp?.data || deliveriesResp?.sales_deliveries || []);
-      setDeliveries(sourceArray);
-      setServerPagination(deliveriesResp?.pagination || null);
-    } catch (err) {
-      console.error('Error loading deliveries:', err);
-      setError(err.message || 'فشل في تحميل البيانات.');
-      setGlobalMessage({ type: 'error', message: 'فشل في تحميل البيانات.' });
-    }
-  }, [setGlobalMessage]);
+  const loadDeliveriesPage = useCallback(
+    async (forceRefresh = false, pageArg, limitArg, filtersArg = {}) => {
+      try {
+        setError(null);
+        const page = pageArg ?? pageRef.current;
+        const limit = limitArg ?? limitRef.current;
+        const deliveriesResp = await getSalesDeliveriesPaginated({
+          page,
+          limit,
+          forceRefresh,
+          search: filtersArg.search || undefined,
+          date_from: filtersArg.date_from || undefined,
+          date_to: filtersArg.date_to || undefined,
+          warehouse_id: filtersArg.warehouse_id || undefined,
+          client_id: filtersArg.client_id || undefined,
+        });
+        const sourceArray = Array.isArray(deliveriesResp)
+          ? deliveriesResp
+          : deliveriesResp?.data || deliveriesResp?.sales_deliveries || [];
+        setDeliveries(sourceArray);
+        setServerPagination(deliveriesResp?.pagination || null);
+      } catch (err) {
+        console.error("Error loading deliveries:", err);
+        setError(err.message || "فشل في تحميل البيانات.");
+        setGlobalMessage({ type: "error", message: "فشل في تحميل البيانات." });
+      }
+    },
+    [setGlobalMessage],
+  );
 
   // Removed unused global handlePrint (per design; each row has its own print)
 
@@ -125,12 +159,17 @@ export default function DeliveryHistoryTab() {
       setLoadingDetails(true);
       setSelectedDelivery(delivery);
       setShowDetailModal(true);
-      
-      const details = await getSalesDeliveryDetails(delivery.sales_deliveries_id);
+
+      const details = await getSalesDeliveryDetails(
+        delivery.sales_deliveries_id,
+      );
       setDeliveryDetails(details);
     } catch (err) {
-      console.error('Error loading delivery details:', err);
-      setGlobalMessage({ type: 'error', message: 'فشل في تحميل تفاصيل التسليم.' });
+      console.error("Error loading delivery details:", err);
+      setGlobalMessage({
+        type: "error",
+        message: "فشل في تحميل تفاصيل التسليم.",
+      });
     } finally {
       setLoadingDetails(false);
     }
@@ -139,15 +178,27 @@ export default function DeliveryHistoryTab() {
   const handlePrintDelivery = async (delivery) => {
     try {
       // Get delivery details with items first
-      const details = await getSalesDeliveryDetails(delivery.sales_deliveries_id);
-      
-  const { printHtml } = await import('../../../../../utils/printUtils.js');
-      const warehouseName = warehouses.find(w => w.warehouse_id === delivery.sales_deliveries_warehouse_id)?.warehouse_name || 'غير محدد';
-  const clientId = delivery.sales_deliveries_client_id || delivery.client_id || delivery.clients_id || delivery.sales_orders_client_id;
-  const clientName = clients.find(c => c.client_id === clientId)?.client_name || delivery.clients_company_name || 'غير محدد';
+      const details = await getSalesDeliveryDetails(
+        delivery.sales_deliveries_id,
+      );
+
+      const { printHtml } = await import("../../../../../utils/printUtils.js");
+      const warehouseName =
+        warehouses.find(
+          (w) => w.warehouse_id === delivery.sales_deliveries_warehouse_id,
+        )?.warehouse_name || "غير محدد";
+      const clientId =
+        delivery.sales_deliveries_client_id ||
+        delivery.client_id ||
+        delivery.clients_id ||
+        delivery.sales_orders_client_id;
+      const clientName =
+        clients.find((c) => c.client_id === clientId)?.client_name ||
+        delivery.clients_company_name ||
+        "غير محدد";
       const dateTime = formatDateTime(delivery.sales_deliveries_delivery_date);
-      
-  const html = `
+
+      const html = `
         <html dir="rtl">
           <head>
             <title>إيصال تسليم بضائع</title>
@@ -242,12 +293,12 @@ export default function DeliveryHistoryTab() {
           </head>
           <body>
             <div class="page-header">
-              ${new Date().toLocaleDateString('en-GB', { 
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })} - ${new Date().toLocaleTimeString('en-GB')}
+              ${new Date().toLocaleDateString("en-GB", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })} - ${new Date().toLocaleTimeString("en-GB")}
             </div>
             
             <h1 class="main-title">إيصال تسليم بضائع</h1>
@@ -298,16 +349,23 @@ export default function DeliveryHistoryTab() {
                 </tr>
               </thead>
               <tbody>
-                ${details && details.items ? details.items.map((item, index) => `
+                ${
+                  details && details.items
+                    ? details.items
+                        .map(
+                          (item, index) => `
                   <tr>
                     <td>${index + 1}</td>
-                    <td>${item.variant_name || item.products_name || 'غير محدد'}</td>
-                    <td>${item.variant_sku || item.sales_order_items_variant_id || '-'}</td>
-                    <td>${item.packaging_types_name || 'غير محدد'}</td>
+                    <td>${item.variant_name || item.products_name || "غير محدد"}</td>
+                    <td>${item.variant_sku || item.sales_order_items_variant_id || "-"}</td>
+                    <td>${item.packaging_types_name || "غير محدد"}</td>
                     <td>${parseFloat(item.sales_delivery_items_quantity_delivered || 0).toFixed(2)}</td>
-                    <td>${item.sales_delivery_items_notes || ''}</td>
+                    <td>${item.sales_delivery_items_notes || ""}</td>
                   </tr>
-                `).join('') : `
+                `,
+                        )
+                        .join("")
+                    : `
                   <tr>
                     <td>1</td>
                     <td>لا توجد بيانات تفصيلية</td>
@@ -316,7 +374,8 @@ export default function DeliveryHistoryTab() {
                     <td>-</td>
                     <td></td>
                   </tr>
-                `}
+                `
+                }
               </tbody>
             </table>
             
@@ -335,21 +394,32 @@ export default function DeliveryHistoryTab() {
             </div>
             
             <div class="footer-note">
-              تم إنشاء هذا الإيصال بتاريخ ${new Date().toLocaleDateString('en-GB')} في ${new Date().toLocaleTimeString('en-GB')}
+              تم إنشاء هذا الإيصال بتاريخ ${new Date().toLocaleDateString("en-GB")} في ${new Date().toLocaleTimeString("en-GB")}
             </div>
           </body>
         </html>`;
-      await printHtml(html, { title: 'إيصال تسليم', closeAfter: 700 });
+      await printHtml(html, { title: "إيصال تسليم", closeAfter: 700 });
     } catch (err) {
-      console.error('Error printing delivery:', err);
+      console.error("Error printing delivery:", err);
       // Fallback to basic print without items
-  const { printHtml: printHtmlUtil } = await import('../../../../../utils/printUtils.js');
-      const warehouseName = warehouses.find(w => w.warehouse_id === delivery.sales_deliveries_warehouse_id)?.warehouse_name || 'غير محدد';
-  const clientId2 = delivery.sales_deliveries_client_id || delivery.client_id || delivery.clients_id || delivery.sales_orders_client_id;
-  const clientName = clients.find(c => c.client_id === clientId2)?.client_name || delivery.clients_company_name || 'غير محدد';
+      const { printHtml: printHtmlUtil } =
+        await import("../../../../../utils/printUtils.js");
+      const warehouseName =
+        warehouses.find(
+          (w) => w.warehouse_id === delivery.sales_deliveries_warehouse_id,
+        )?.warehouse_name || "غير محدد";
+      const clientId2 =
+        delivery.sales_deliveries_client_id ||
+        delivery.client_id ||
+        delivery.clients_id ||
+        delivery.sales_orders_client_id;
+      const clientName =
+        clients.find((c) => c.client_id === clientId2)?.client_name ||
+        delivery.clients_company_name ||
+        "غير محدد";
       const dateTime = formatDateTime(delivery.sales_deliveries_delivery_date);
-      
-  const html2 = `
+
+      const html2 = `
         <html dir="rtl">
           <head>
             <title>إيصال تسليم بضائع</title>
@@ -376,17 +446,20 @@ export default function DeliveryHistoryTab() {
             </div>
           </body>
         </html>`;
-      await printHtmlUtil(html2, { title: 'إيصال تسليم', closeAfter: 700 });
+      await printHtmlUtil(html2, { title: "إيصال تسليم", closeAfter: 700 });
     }
   };
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     const date = new Date(dateString);
     return {
-      date: date.toLocaleDateString('en-GB'), // DD/MM/YYYY format
-      time: date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), // 24-hour format
-      full: date.toLocaleString('en-GB') // Full date and time
+      date: date.toLocaleDateString("en-GB"), // DD/MM/YYYY format
+      time: date.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }), // 24-hour format
+      full: date.toLocaleString("en-GB"), // Full date and time
     };
   };
 
@@ -405,15 +478,29 @@ export default function DeliveryHistoryTab() {
         // initial load
         await loadDeliveriesPage(false, currentPage, itemsPerPage, filters);
       } catch (err) {
-        console.error('Error during initial static load:', err);
+        console.error("Error during initial static load:", err);
         if (!cancelled) {
-          setError(err.message || 'فشل في تحميل البيانات.');
-          setGlobalMessage({ type: 'error', message: 'فشل في تحميل البيانات.' });
+          setError(err.message || "فشل في تحميل البيانات.");
+          setGlobalMessage({
+            type: "error",
+            message: "فشل في تحميل البيانات.",
+          });
         }
       }
     })();
-    return () => { cancelled = true; if (setChildRefreshHandler) setChildRefreshHandler(null); };
-  }, [loadStaticData, loadDeliveriesPage, setChildRefreshHandler, setGlobalMessage, currentPage, itemsPerPage, filters]);
+    return () => {
+      cancelled = true;
+      if (setChildRefreshHandler) setChildRefreshHandler(null);
+    };
+  }, [
+    loadStaticData,
+    loadDeliveriesPage,
+    setChildRefreshHandler,
+    setGlobalMessage,
+    currentPage,
+    itemsPerPage,
+    filters,
+  ]);
 
   // When page or page size changes, fetch only deliveries (no clients/warehouses)
   useEffect(() => {
@@ -426,147 +513,237 @@ export default function DeliveryHistoryTab() {
         setLoading(true);
         await loadDeliveriesPage(false, currentPage, itemsPerPage, filters);
       } catch (err) {
-        console.error('Error loading deliveries on page change:', err);
+        console.error("Error loading deliveries on page change:", err);
         if (!cancelled) {
-          setError(err.message || 'فشل في تحميل البيانات.');
-          setGlobalMessage({ type: 'error', message: 'فشل في تحميل البيانات.' });
+          setError(err.message || "فشل في تحميل البيانات.");
+          setGlobalMessage({
+            type: "error",
+            message: "فشل في تحميل البيانات.",
+          });
         }
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
-  }, [currentPage, itemsPerPage, filters.search, filters.date_from, filters.date_to, filters.warehouse_id, filters.client_id, loadDeliveriesPage, setGlobalMessage, filters]);
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    currentPage,
+    itemsPerPage,
+    filters.search,
+    filters.date_from,
+    filters.date_to,
+    filters.warehouse_id,
+    filters.client_id,
+    loadDeliveriesPage,
+    setGlobalMessage,
+    filters,
+  ]);
 
   // Pagination derived values
-  useEffect(() => { setCurrentPage(1); }, [itemsPerPage]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage]);
   const totalPages = useMemo(() => {
-    if (serverPagination?.total_pages) return Number(serverPagination.total_pages);
+    if (serverPagination?.total_pages)
+      return Number(serverPagination.total_pages);
     const tot = Number(serverPagination?.total ?? deliveries.length);
     const per = Number(serverPagination?.per_page ?? itemsPerPage);
-    return Math.max(1, Math.ceil((tot||0)/(per||10)));
+    return Math.max(1, Math.ceil((tot || 0) / (per || 10)));
   }, [serverPagination, deliveries.length, itemsPerPage]);
-  useEffect(() => { if (currentPage > totalPages) setCurrentPage(totalPages); }, [totalPages, currentPage]);
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
   const pagedDeliveries = useMemo(() => deliveries, [deliveries]);
 
-  const handleFilterChange = useCallback((key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value ?? '' }));
-    setCurrentPage(1);
-  }, [setFilters, setCurrentPage]);
+  const handleFilterChange = useCallback(
+    (key, value) => {
+      setFilters((prev) => ({ ...prev, [key]: value ?? "" }));
+      setCurrentPage(1);
+    },
+    [setFilters, setCurrentPage],
+  );
 
-  const handleApplySearch = useCallback((value) => {
-    const userValue = typeof value === 'string' ? value : searchInput;
-    const normalized = userValue.trim();
-    if (normalized === (filters.search || '')) {
-      if (searchInput !== normalized) {
-        setSearchInput(normalized);
+  const handleApplySearch = useCallback(
+    (value) => {
+      const userValue = typeof value === "string" ? value : searchInput;
+      const normalized = userValue.trim();
+      if (normalized === (filters.search || "")) {
+        if (searchInput !== normalized) {
+          setSearchInput(normalized);
+        }
+        return;
       }
-      return;
-    }
-    setSearchInput(normalized);
-    handleFilterChange('search', normalized);
-  }, [filters.search, handleFilterChange, searchInput]);
+      setSearchInput(normalized);
+      handleFilterChange("search", normalized);
+    },
+    [filters.search, handleFilterChange, searchInput],
+  );
 
   const handleClearAllFilters = useCallback(() => {
-    setFilters({ search: '', date_from: '', date_to: '', warehouse_id: '', client_id: '' });
-    setSearchInput('');
+    setFilters({
+      search: "",
+      date_from: "",
+      date_to: "",
+      warehouse_id: "",
+      client_id: "",
+    });
+    setSearchInput("");
     setCurrentPage(1);
   }, [setFilters, setCurrentPage, setSearchInput]);
 
-  const searchConfig = useMemo(() => ({
-    value: searchInput,
-    placeholder: 'ابحث برقم التسليم أو رقم الطلب',
-    onChange: (value) => setSearchInput(value),
-    onClear: () => {
-      setSearchInput('');
-      if (filters.search) {
-        handleFilterChange('search', '');
-      }
-    },
-    onSubmit: handleApplySearch,
-    isDirty: searchInput !== (filters.search || ''),
-    applyLabel: 'تطبيق',
-  }), [filters.search, handleApplySearch, handleFilterChange, searchInput]);
+  const searchConfig = useMemo(
+    () => ({
+      value: searchInput,
+      placeholder: "ابحث برقم التسليم أو رقم الطلب",
+      onChange: (value) => setSearchInput(value),
+      onClear: () => {
+        setSearchInput("");
+        if (filters.search) {
+          handleFilterChange("search", "");
+        }
+      },
+      onSubmit: handleApplySearch,
+      isDirty: searchInput !== (filters.search || ""),
+      applyLabel: "تطبيق",
+    }),
+    [filters.search, handleApplySearch, handleFilterChange, searchInput],
+  );
 
-  const dateRangeConfig = useMemo(() => ({
-    from: filters.date_from,
-    to: filters.date_to,
-    onChange: (fromVal, toVal) => {
-      setFilters((prev) => ({ ...prev, date_from: fromVal || '', date_to: toVal || '' }));
-      setCurrentPage(1);
-    },
-    onClear: () => {
-      setFilters((prev) => ({ ...prev, date_from: '', date_to: '' }));
-      setCurrentPage(1);
-    },
-  }), [filters.date_from, filters.date_to, setFilters, setCurrentPage]);
+  const dateRangeConfig = useMemo(
+    () => ({
+      from: filters.date_from,
+      to: filters.date_to,
+      onChange: (fromVal, toVal) => {
+        setFilters((prev) => ({
+          ...prev,
+          date_from: fromVal || "",
+          date_to: toVal || "",
+        }));
+        setCurrentPage(1);
+      },
+      onClear: () => {
+        setFilters((prev) => ({ ...prev, date_from: "", date_to: "" }));
+        setCurrentPage(1);
+      },
+    }),
+    [filters.date_from, filters.date_to, setFilters, setCurrentPage],
+  );
 
-  const selectFilters = useMemo(() => [
-    {
-      key: 'warehouse',
-      value: filters.warehouse_id,
-      placeholder: 'جميع المستودعات',
-      options: [{ value: '', label: 'جميع المستودعات' }, ...warehouses.map(w => ({ value: String(w.warehouses_id || w.warehouse_id), label: w.warehouses_name || w.warehouse_name }))],
-      onChange: (value) => handleFilterChange('warehouse_id', value),
-      wrapperClassName: 'flex-1 min-w-[160px]',
-    },
-    {
-      key: 'client',
-      value: filters.client_id,
-      placeholder: 'جميع العملاء',
-      options: [{ value: '', label: 'جميع العملاء' }, ...clients.map(u => ({ value: String(u.clients_id || u.client_id || u.id), label: u.clients_company_name || u.client_name || u.name }))],
-      onChange: (value) => handleFilterChange('client_id', value),
-      wrapperClassName: 'flex-1 min-w-[160px]',
-    },
-  ], [filters.warehouse_id, filters.client_id, warehouses, clients, handleFilterChange]);
+  const selectFilters = useMemo(
+    () => [
+      {
+        key: "warehouse",
+        value: filters.warehouse_id,
+        placeholder: "جميع المستودعات",
+        options: [
+          { value: "", label: "جميع المستودعات" },
+          ...warehouses.map((w) => ({
+            value: String(w.warehouses_id || w.warehouse_id),
+            label: w.warehouses_name || w.warehouse_name,
+          })),
+        ],
+        onChange: (value) => handleFilterChange("warehouse_id", value),
+        wrapperClassName: "flex-1 min-w-[160px]",
+      },
+      {
+        key: "client",
+        value: filters.client_id,
+        placeholder: "جميع العملاء",
+        options: [
+          { value: "", label: "جميع العملاء" },
+          ...clients.map((u) => ({
+            value: String(u.clients_id || u.client_id || u.id),
+            label: u.clients_company_name || u.client_name || u.name,
+          })),
+        ],
+        onChange: (value) => handleFilterChange("client_id", value),
+        wrapperClassName: "flex-1 min-w-[160px]",
+      },
+    ],
+    [
+      filters.warehouse_id,
+      filters.client_id,
+      warehouses,
+      clients,
+      handleFilterChange,
+    ],
+  );
 
   const activeChips = useMemo(() => {
     const chips = [];
     if (filters.search) {
       chips.push({
-        key: 'search',
-        label: 'البحث',
+        key: "search",
+        label: "البحث",
         value: filters.search,
-        tone: 'blue',
-        onRemove: () => handleFilterChange('search', ''),
+        tone: "blue",
+        onRemove: () => handleFilterChange("search", ""),
       });
     }
     if (filters.date_from || filters.date_to) {
       chips.push({
-        key: 'date',
-        label: 'التاريخ',
-        value: `${filters.date_from || 'من البداية'} - ${filters.date_to || 'حتى النهاية'}`,
-        tone: 'green',
+        key: "date",
+        label: "التاريخ",
+        value: `${filters.date_from || "من البداية"} - ${filters.date_to || "حتى النهاية"}`,
+        tone: "green",
         onRemove: () => {
-          setFilters((prev) => ({ ...prev, date_from: '', date_to: '' }));
+          setFilters((prev) => ({ ...prev, date_from: "", date_to: "" }));
           setCurrentPage(1);
         },
       });
     }
     if (filters.warehouse_id) {
-      const matchedWarehouse = warehouses.find(w => String(w.warehouse_id || w.warehouses_id) === String(filters.warehouse_id));
-      const warehouseLabel = matchedWarehouse?.warehouse_name || matchedWarehouse?.warehouses_name || 'غير محدد';
+      const matchedWarehouse = warehouses.find(
+        (w) =>
+          String(w.warehouse_id || w.warehouses_id) ===
+          String(filters.warehouse_id),
+      );
+      const warehouseLabel =
+        matchedWarehouse?.warehouse_name ||
+        matchedWarehouse?.warehouses_name ||
+        "غير محدد";
       chips.push({
-        key: 'warehouse',
-        label: 'المستودع',
+        key: "warehouse",
+        label: "المستودع",
         value: warehouseLabel,
-        tone: 'indigo',
-        onRemove: () => handleFilterChange('warehouse_id', ''),
+        tone: "indigo",
+        onRemove: () => handleFilterChange("warehouse_id", ""),
       });
     }
     if (filters.client_id) {
-  const matchedClient = clients.find(c => String(c.client_id || c.clients_id || c.id) === String(filters.client_id));
-  const clientLabel = matchedClient?.client_name || matchedClient?.clients_company_name || matchedClient?.name || 'غير محدد';
+      const matchedClient = clients.find(
+        (c) =>
+          String(c.client_id || c.clients_id || c.id) ===
+          String(filters.client_id),
+      );
+      const clientLabel =
+        matchedClient?.client_name ||
+        matchedClient?.clients_company_name ||
+        matchedClient?.name ||
+        "غير محدد";
       chips.push({
-        key: 'client',
-        label: 'العميل',
+        key: "client",
+        label: "العميل",
         value: clientLabel,
-        tone: 'orange',
-        onRemove: () => handleFilterChange('client_id', ''),
+        tone: "orange",
+        onRemove: () => handleFilterChange("client_id", ""),
       });
     }
     return chips;
-  }, [filters.search, filters.date_from, filters.date_to, filters.warehouse_id, filters.client_id, warehouses, clients, handleFilterChange, setFilters, setCurrentPage]);
+  }, [
+    filters.search,
+    filters.date_from,
+    filters.date_to,
+    filters.warehouse_id,
+    filters.client_id,
+    warehouses,
+    clients,
+    handleFilterChange,
+    setFilters,
+    setCurrentPage,
+  ]);
 
   if (loading) {
     return <Loader />;
@@ -599,60 +776,137 @@ export default function DeliveryHistoryTab() {
       </div>
 
       {/* Pagination header (top) - Sales Orders style */}
-      { (serverPagination?.total ?? deliveries.length) > 0 && (
+      {(serverPagination?.total ?? deliveries.length) > 0 && (
         <PaginationHeaderFooter
           total={serverPagination?.total ?? deliveries.length}
           currentPage={serverPagination?.page || currentPage}
           totalPages={totalPages}
           itemsPerPage={serverPagination?.per_page ?? itemsPerPage}
-          onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }}
+          onItemsPerPageChange={(n) => {
+            setItemsPerPage(n);
+            setCurrentPage(1);
+          }}
           onFirst={() => setCurrentPage(1)}
-          onPrev={() => setCurrentPage(p => Math.max(1, p - 1))}
-          onNext={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          onPrev={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
           onLast={() => setCurrentPage(totalPages)}
         />
       )}
 
-  {/* Deliveries List */}
-  <div className="bg-transparent rounded-lg shadow-md overflow-hidden">
+      {/* Deliveries List */}
+      <div className="bg-transparent rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <GlobalTable
             data={pagedDeliveries}
             loading={loading}
             error={error}
             columns={[
-              { key: 'sales_deliveries_id', title: 'ID', headerClassName: 'w-16 border-r border-gray-200', cellClassName: 'w-16 border-r border-gray-200', sortable: true },
-              { key: 'sales_deliveries_sales_order_id', title: 'رقم الطلب', headerClassName: 'border-r border-gray-200', cellClassName: 'border-r border-gray-200', sortable: true },
-              { key: 'warehouse_name', title: 'المستودع', headerClassName: 'min-w-[140px] border-r border-gray-200', cellClassName: 'border-r border-gray-200', sortable: true },
-              { key: 'client_name', title: 'العميل', headerClassName: 'min-w-[140px] border-r border-gray-200', cellClassName: 'border-r border-gray-200', sortable: true },
-              { key: 'delivery_datetime', title: 'تاريخ / وقت التسليم', headerClassName: 'min-w-[180px] border-r border-gray-200', cellClassName: 'border-r border-gray-200', sortable: true },
-              { key: 'actions', title: 'الإجراءات', headerClassName: 'w-32 text-center border-r border-gray-200', cellClassName: 'text-center border-r border-gray-200', sortable: false, align: 'center' },
+              {
+                key: "sales_deliveries_id",
+                title: "ID",
+                headerClassName: "w-16 border-r border-gray-200",
+                cellClassName: "w-16 border-r border-gray-200",
+                sortable: true,
+              },
+              {
+                key: "sales_deliveries_sales_order_id",
+                title: "رقم الطلب",
+                headerClassName: "border-r border-gray-200",
+                cellClassName: "border-r border-gray-200",
+                sortable: true,
+              },
+              {
+                key: "warehouse_name",
+                title: "المستودع",
+                headerClassName: "min-w-[140px] border-r border-gray-200",
+                cellClassName: "border-r border-gray-200",
+                sortable: true,
+              },
+              {
+                key: "client_name",
+                title: "العميل",
+                headerClassName: "min-w-[140px] border-r border-gray-200",
+                cellClassName: "border-r border-gray-200",
+                sortable: true,
+              },
+              {
+                key: "delivery_datetime",
+                title: "تاريخ / وقت التسليم",
+                headerClassName: "min-w-[180px] border-r border-gray-200",
+                cellClassName: "border-r border-gray-200",
+                sortable: true,
+              },
+              {
+                key: "actions",
+                title: "الإجراءات",
+                headerClassName: "w-32 text-center border-r border-gray-200",
+                cellClassName: "text-center border-r border-gray-200",
+                sortable: false,
+                align: "center",
+              },
             ]}
             rowKey="sales_deliveries_id"
             totalCount={serverPagination?.total ?? deliveries.length}
             searchTerm={filters.search}
-            initialSort={{ key: 'sales_deliveries_id', direction: 'desc' }}
+            initialSort={{ key: "sales_deliveries_id", direction: "desc" }}
             showSummary={false}
             renderRow={(delivery) => {
-              const dateTime = formatDateTime(delivery.sales_deliveries_delivery_date);
+              const dateTime = formatDateTime(
+                delivery.sales_deliveries_delivery_date,
+              );
               return (
                 <>
-                  <td className="px-6 py-4 text-sm font-medium text-blue-600 border-r border-gray-200">#{delivery.sales_deliveries_id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 border-r border-gray-200">#{delivery.sales_deliveries_sales_order_id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 border-r border-gray-200">{warehouses.find(w => w.warehouse_id === delivery.sales_deliveries_warehouse_id)?.warehouse_name || 'غير محدد'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 border-r border-gray-200">{(() => { const id = delivery.sales_deliveries_client_id || delivery.client_id || delivery.clients_id || delivery.sales_orders_client_id; const nm = clients.find(c => c.client_id === id)?.client_name; return nm || delivery.clients_company_name || 'غير محدد'; })()}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 border-r border-gray-200"><div className="flex items-center"><CalendarIcon className="h-4 w-4 ml-1 text-gray-400" />{dateTime.full}</div></td>
-                  <td className="px-6 py-4 text-sm font-medium text-center border-r border-gray-200">
+                  <td className="px-6 py-4 text-sm font-medium text-blue-600 ">
+                    #{delivery.sales_deliveries_id}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 ">
+                    #{delivery.sales_deliveries_sales_order_id}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 ">
+                    {warehouses.find(
+                      (w) =>
+                        w.warehouse_id ===
+                        delivery.sales_deliveries_warehouse_id,
+                    )?.warehouse_name || "غير محدد"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 ">
+                    {(() => {
+                      const id =
+                        delivery.sales_deliveries_client_id ||
+                        delivery.client_id ||
+                        delivery.clients_id ||
+                        delivery.sales_orders_client_id;
+                      const nm = clients.find(
+                        (c) => c.client_id === id,
+                      )?.client_name;
+                      return nm || delivery.clients_company_name || "غير محدد";
+                    })()}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 ">
+                    <div className="flex items-center">
+                      <CalendarIcon className="h-4 w-4 ml-1 text-gray-400" />
+                      {dateTime.full}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-center ">
                     <div className="flex items-center justify-center gap-2">
                       <button
-                        className="group p-1.5 text-blue-600 hover:text-white hover:bg-blue-600 rounded-full transition-all"
+                        className="p-1.5 rounded-full 
+text-amber-700 bg-amber-100
+hover:bg-amber-500 hover:text-white
+hover:shadow-[0_0_12px_rgba(245,158,11,0.45)]
+transition-all duration-200 hover:scale-110"
                         onClick={() => handlePrintDelivery(delivery)}
                         title="طباعة سند التسليم"
                       >
                         <PrinterIcon className="h-4 w-4" />
                       </button>
                       <button
-                        className="group p-1.5 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded-full transition-all"
+                        className="p-1.5 rounded-full 
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110"
                         onClick={() => handleViewDetails(delivery)}
                         title="عرض التفاصيل"
                       >
@@ -668,17 +922,20 @@ export default function DeliveryHistoryTab() {
       </div>
 
       {/* Pagination footer (bottom) */}
-      { (serverPagination?.total ?? deliveries.length) > 0 && (
+      {(serverPagination?.total ?? deliveries.length) > 0 && (
         <div className="mt-4">
           <PaginationHeaderFooter
             total={serverPagination?.total ?? deliveries.length}
             currentPage={serverPagination?.page || currentPage}
             totalPages={totalPages}
             itemsPerPage={serverPagination?.per_page ?? itemsPerPage}
-            onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }}
+            onItemsPerPageChange={(n) => {
+              setItemsPerPage(n);
+              setCurrentPage(1);
+            }}
             onFirst={() => setCurrentPage(1)}
-            onPrev={() => setCurrentPage(p => Math.max(1, p - 1))}
-            onNext={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            onPrev={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             onLast={() => setCurrentPage(totalPages)}
           />
         </div>
@@ -686,71 +943,134 @@ export default function DeliveryHistoryTab() {
 
       {/* Detail Modal */}
       {showDetailModal && selectedDelivery && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 xl:w-2/3 shadow-lg rounded-md bg-white max-h-[80vh] overflow-y-auto">
-            <div className="mt-3">
-              {/* Modal Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <div className="bg-blue-100 rounded-full p-2 ml-3">
-                    <TruckIcon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    تفاصيل التسليم #{selectedDelivery.sales_deliveries_id}
-                  </h3>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm overflow-y-auto p-2 sm:p-0">
+          <div className="mt-4 sm:mt-20 mx-auto w-11/12 md:w-4/5 lg:w-3/4 xl:w-2/3 max-h-[95vh] sm:max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-gray-100">
+            {/* Header */}
+            <div
+              className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b rounded-t-2xl"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(141,216,245,0.08), rgba(31,41,55,0.02))",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-[#8DD8F5] text-[#1F2937] shadow-md">
+                  <TruckIcon className="h-6 w-6" />
                 </div>
-                <button
-                  onClick={() => {
-                    setShowDetailModal(false);
-                    setDeliveryDetails(null);
-                  }}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
+                <h3 className="text-lg font-semibold text-[#1F2937]">
+                  تفاصيل التسليم #{selectedDelivery.sales_deliveries_id}
+                </h3>
               </div>
 
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setDeliveryDetails(null);
+                }}
+                className="p-2 rounded-full hover:bg-gray-100 transition"
+                aria-label="Close details"
+              >
+                <XMarkIcon className="h-6 w-6 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6">
               {loadingDetails ? (
-                <div className="flex justify-center py-8">
+                <div className="flex justify-center py-12">
                   <Loader />
                 </div>
               ) : (
                 <>
-                  {/* Basic Information */}
+                  {/* Basic Info Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">رقم التسليم</label>
-                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">#{selectedDelivery.sales_deliveries_id}</p>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          رقم التسليم
+                        </label>
+                        <div className="bg-gray-50 rounded-xl px-3 py-2 text-sm font-medium text-[#1F2937] shadow-inner">
+                          #{selectedDelivery.sales_deliveries_id}
+                        </div>
                       </div>
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">رقم الطلب</label>
-                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">#{selectedDelivery.sales_deliveries_sales_order_id}</p>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          رقم الطلب
+                        </label>
+                        <div className="bg-gray-50 rounded-xl px-3 py-2 text-sm font-medium text-[#1F2937] shadow-inner">
+                          #{selectedDelivery.sales_deliveries_sales_order_id}
+                        </div>
                       </div>
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">المستودع</label>
-                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">
-                          {warehouses.find(w => w.warehouse_id === selectedDelivery.sales_deliveries_warehouse_id)?.warehouse_name || 'غير محدد'}
-                        </p>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          المستودع
+                        </label>
+                        <div className="bg-gray-50 rounded-xl px-3 py-2 text-sm text-[#1F2937] shadow-inner">
+                          {warehouses.find(
+                            (w) =>
+                              w.warehouse_id ===
+                              selectedDelivery.sales_deliveries_warehouse_id,
+                          )?.warehouse_name || "غير محدد"}
+                        </div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">العميل</label>
-                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">
-                          {(() => { const id = selectedDelivery.sales_deliveries_client_id || selectedDelivery.client_id || selectedDelivery.clients_id || selectedDelivery.sales_orders_client_id; const nm = clients.find(c => c.client_id === id)?.client_name; return nm || selectedDelivery.clients_company_name || 'غير محدد'; })()}
-                        </p>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          العميل
+                        </label>
+                        <div className="bg-gray-50 rounded-xl px-3 py-2 text-sm text-[#1F2937] shadow-inner">
+                          {(() => {
+                            const id =
+                              selectedDelivery.sales_deliveries_client_id ||
+                              selectedDelivery.client_id ||
+                              selectedDelivery.clients_id ||
+                              selectedDelivery.sales_orders_client_id;
+                            const nm = clients.find(
+                              (c) => c.client_id === id,
+                            )?.client_name;
+                            return (
+                              nm ||
+                              selectedDelivery.clients_company_name ||
+                              "غير محدد"
+                            );
+                          })()}
+                        </div>
                       </div>
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ التسليم الكامل</label>
-                        <div className="bg-gray-50 p-2 rounded">
-                          <p className="text-sm text-gray-900">{formatDateTime(selectedDelivery.sales_deliveries_delivery_date).full}</p>
-                          <div className="flex items-center mt-2 text-xs text-gray-500">
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          تاريخ التسليم
+                        </label>
+                        <div className="bg-gray-50 rounded-xl px-3 py-2 text-sm shadow-inner">
+                          <p className="font-medium text-[#1F2937]">
+                            {
+                              formatDateTime(
+                                selectedDelivery.sales_deliveries_delivery_date,
+                              ).full
+                            }
+                          </p>
+                          <div className="flex items-center text-xs text-gray-500 mt-1">
                             <CalendarIcon className="h-4 w-4 ml-1" />
-                            <span>التاريخ: {formatDateTime(selectedDelivery.sales_deliveries_delivery_date).date}</span>
+                            <span>
+                              التاريخ:{" "}
+                              {
+                                formatDateTime(
+                                  selectedDelivery.sales_deliveries_delivery_date,
+                                ).date
+                              }
+                            </span>
                             <span className="mx-2">•</span>
-                            <span>الوقت: {formatDateTime(selectedDelivery.sales_deliveries_delivery_date).time}</span>
+                            <span>
+                              الوقت:{" "}
+                              {
+                                formatDateTime(
+                                  selectedDelivery.sales_deliveries_delivery_date,
+                                ).time
+                              }
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -758,70 +1078,78 @@ export default function DeliveryHistoryTab() {
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">ملاحظات</label>
-                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded min-h-[60px]">
-                          {selectedDelivery.sales_deliveries_notes || 'لا توجد ملاحظات'}
-                        </p>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          ملاحظات
+                        </label>
+                        <div className="bg-gray-50 rounded-xl px-3 py-3 min-h-[80px] text-sm text-[#1F2937] shadow-inner">
+                          {selectedDelivery.sales_deliveries_notes ||
+                            "لا توجد ملاحظات"}
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Delivered Items */}
-                  {deliveryDetails && deliveryDetails.items && (
+                  {deliveryDetails &&
+                  deliveryDetails.items &&
+                  deliveryDetails.items.length > 0 ? (
                     <div className="border-t pt-6">
-                      <h4 className="text-lg font-medium text-gray-800 mb-4">
+                      <h4 className="text-lg font-semibold text-[#1F2937] mb-4">
                         المنتجات المُسلَّمة ({deliveryDetails.items.length})
                       </h4>
-                      
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+
+                      <div className="overflow-hidden rounded-xl border border-gray-100 shadow-sm">
+                        <table className="w-full text-sm">
+                          <thead className="bg-[#f8fcfe] text-gray-500">
                             <tr>
-                              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                #
-                              </th>
-                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                اسم الصنف
-                              </th>
-                              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                كود الصنف
-                              </th>
-                              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                نوع العبوة
-                              </th>
-                              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              <th className="py-3 text-center">#</th>
+                              <th className="py-3 text-right">اسم الصنف</th>
+                              <th className="py-3 text-center">كود الصنف</th>
+                              <th className="py-3 text-center">نوع العبوة</th>
+                              <th className="py-3 text-center">
                                 الكمية المُسلَّمة
                               </th>
-                              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ملاحظات
-                              </th>
+                              <th className="py-3 text-center">ملاحظات</th>
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                          <tbody>
                             {deliveryDetails.items.map((item, index) => (
-                              <tr key={index} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 text-center text-sm text-gray-500">
+                              <tr
+                                key={index}
+                                className="border-t hover:bg-[#f7fdff] transition"
+                              >
+                                <td className="py-3 text-center text-gray-500">
                                   {index + 1}
                                 </td>
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                  {item.variant_name || item.products_name || 'غير محدد'}
-                                  {item.products_name && item.variant_name && item.products_name !== item.variant_name && (
-                                    <span className="text-gray-500 text-xs block">
-                                      ({item.products_name})
-                                    </span>
-                                  )}
+                                <td className="py-3 font-medium text-[#1F2937]">
+                                  {item.variant_name ||
+                                    item.products_name ||
+                                    "غير محدد"}
+                                  {item.products_name &&
+                                    item.variant_name &&
+                                    item.products_name !==
+                                      item.variant_name && (
+                                      <span className="text-gray-500 text-xs block">
+                                        ({item.products_name})
+                                      </span>
+                                    )}
                                 </td>
-                                <td className="px-6 py-4 text-center text-sm text-gray-500">
-                                  {item.variant_sku || item.sales_order_items_variant_id || '-'}
+                                <td className="py-3 text-center text-gray-500">
+                                  {item.variant_sku ||
+                                    item.sales_order_items_variant_id ||
+                                    "-"}
                                 </td>
-                                <td className="px-6 py-4 text-center text-sm text-gray-500">
-                                  {item.packaging_types_name || 'غير محدد'}
+                                <td className="py-3 text-center text-gray-500">
+                                  {item.packaging_types_name || "غير محدد"}
                                 </td>
-                                <td className="px-6 py-4 text-center text-sm font-medium text-green-600">
-                                  {parseFloat(item.sales_delivery_items_quantity_delivered || 0).toFixed(2)}
+                                <td className="py-3 text-center font-semibold text-emerald-600">
+                                  {parseFloat(
+                                    item.sales_delivery_items_quantity_delivered ||
+                                      0,
+                                  ).toFixed(2)}
                                 </td>
-                                <td className="px-6 py-4 text-center text-sm text-gray-500">
-                                  {item.sales_delivery_items_notes || '-'}
+                                <td className="py-3 text-center text-gray-500">
+                                  {item.sales_delivery_items_notes || "-"}
                                 </td>
                               </tr>
                             ))}
@@ -829,33 +1157,35 @@ export default function DeliveryHistoryTab() {
                         </table>
                       </div>
                     </div>
-                  )}
-
-                  {!deliveryDetails && !loadingDetails && (
+                  ) : (
                     <div className="border-t pt-6">
                       <div className="text-center text-gray-500 py-8">
-                        <p>لا توجد تفاصيل إضافية متاحة لهذا التسليم</p>
+                        لا توجد تفاصيل إضافية متاحة لهذا التسليم
                       </div>
                     </div>
                   )}
                 </>
               )}
 
-              {/* Modal Footer */}
+              {/* Footer */}
               <div className="flex justify-between items-center mt-6 pt-4 border-t">
                 <button
                   onClick={() => handlePrintDelivery(selectedDelivery)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-white font-medium shadow-lg transition hover:scale-[1.03]"
+                  style={{
+                    background: "linear-gradient(90deg,#1F2937,#06202a)",
+                  }}
                 >
-                  <PrinterIcon className="h-4 w-4 ml-1" />
+                  <PrinterIcon className="h-4 w-4" />
                   طباعة سند التسليم
                 </button>
+
                 <button
                   onClick={() => {
                     setShowDetailModal(false);
                     setDeliveryDetails(null);
                   }}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                  className="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 transition font-medium"
                 >
                   إغلاق
                 </button>

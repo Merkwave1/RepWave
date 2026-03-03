@@ -33,9 +33,9 @@ const baseUnits = ['كيلوجرام', 'لتر', 'متر', 'قطعة', 'طن', '
 const packagingTypes = ['كيس 25 كجم', 'علبة 1 كجم', 'برميل 200 لتر', 'جركن 25 لتر', 'كرتونة 10 قطعة', 'شيكارة 50 كجم', 'علبة 500 جرام', 'زجاجة 1 لتر'];
 
 // Status options
-const salesOrderStatuses = ['معلق', 'مؤكد', 'تم الفوترة', 'ملغي', 'مكتمل'];
-const deliveryStatuses = ['لم يتم التسليم', 'تسليم جزئي', 'تم التسليم'];
-const purchaseOrderStatuses = ['مطلوب', 'تم الاستلام', 'استلام جزئي', 'ملغي'];
+const salesOrderStatuses = ['Pending', 'Approved', 'Invoiced', 'Cancelled', 'Pending'];
+const deliveryStatuses   = ['Not_Delivered', 'Partially_Delivered', 'Delivered', 'Not_Delivered', 'Not_Delivered'];
+const purchaseOrderStatuses = ['Pending', 'Received', 'Partial Receipt', 'Cancelled'];
 const paymentMethods = ['نقدي', 'شيك', 'تحويل بنكي', 'بطاقة ائتمان', 'آجل'];
 const inventoryStatuses = ['متاح', 'محجوز', 'تالف', 'منتهي'];
 const userRoles = ['admin', 'sales_manager', 'sales_representative', 'warehouse_manager', 'accountant'];
@@ -188,21 +188,23 @@ export function generateComprehensiveMockData() {
   data.packagingTypes = packagingTypes.map((name, i) => ({
     packaging_types_id: i + 1,
     packaging_types_name: name,
-    packaging_types_base_unit_id: randomInt(1, baseUnits.length),
-    packaging_types_quantity_per_unit: randomChoice([1, 5, 10, 25, 50, 100, 200]),
+    packaging_types_description: `وصف نوع التعبئة: ${name}`,
+    packaging_types_compatible_base_unit_id: randomInt(1, baseUnits.length),
+    packaging_types_default_conversion_factor: randomChoice([1, 5, 10, 25, 50, 100, 200]),
     packaging_types_sort_order: i + 1,
   }));
 
   // 11. Product Attributes
+  let attrValueId = 1;
   data.productAttributes = [
     { name: 'اللون', values: ['أبيض', 'أسود', 'أحمر', 'أزرق', 'أخضر', 'أصفر'] },
     { name: 'الحجم', values: ['صغير', 'متوسط', 'كبير', 'كبير جداً'] },
     { name: 'النوع', values: ['نوع أ', 'نوع ب', 'نوع ج'] },
     { name: 'التركيز', values: ['10%', '20%', '30%', '50%', '100%'] },
   ].map((attr, i) => ({
-    product_attributes_id: i + 1,
-    product_attributes_name: attr.name,
-    product_attributes_values: attr.values,
+    attribute_id: i + 1,
+    attribute_name: attr.name,
+    values: attr.values.map(v => ({ attribute_value_id: attrValueId++, attribute_value_value: v })),
   }));
 
   // 12. Products with Variants
@@ -225,6 +227,7 @@ export function generateComprehensiveMockData() {
       products_description: `وصف تفصيلي للمنتج ${productId}`,
       products_notes: i % 5 === 0 ? `ملاحظات المنتج ${productId}` : '',
       products_status: randomChoice(['active', 'inactive']),
+      products_is_active: randomChoice([0, 1]),
       products_tax_rate: randomChoice([0, 5, 10, 14]),
       products_created_at: randomDate(new Date(2022, 0, 1), new Date()),
       products_supplier_id: randomInt(1, 30),
@@ -402,16 +405,22 @@ export function generateComprehensiveMockData() {
       const discount = randomFloat(0, unitPrice * 0.05, 2);
       const lineTotal = (unitPrice - discount) * quantity;
       
+      const poiTaxRate = randomChoice([0, 14]);
       purchaseOrderItems.push({
         purchase_order_items_id: purchaseOrderItemId++,
         purchase_order_items_purchase_order_id: purchaseOrderId,
         purchase_order_items_variant_id: variant.product_variants_id,
         purchase_order_items_packaging_type_id: randomInt(1, data.packagingTypes.length),
         purchase_order_items_quantity: quantity,
+        purchase_order_items_quantity_ordered: quantity,   // alias for detail modal
         purchase_order_items_unit_price: unitPrice,
+        purchase_order_items_unit_cost: unitPrice,         // alias for detail modal
         purchase_order_items_discount: discount,
-        purchase_order_items_tax_rate: randomChoice([0, 14]),
+        purchase_order_items_discount_amount: discount,    // alias for detail modal
+        purchase_order_items_tax_rate: poiTaxRate,
+        purchase_order_items_has_tax: poiTaxRate > 0 ? 1 : 0,
         purchase_order_items_total: lineTotal,
+        purchase_order_items_total_cost: lineTotal,        // alias for detail modal
       });
       subtotal += lineTotal;
     }
@@ -436,11 +445,111 @@ export function generateComprehensiveMockData() {
   }));
 
   // 18. Safes
+  const repUsers = data.users.filter(u => u.users_role === 'sales_rep' || u.users_role === 'representative').slice(0, 4);
+  const pmCash  = data.paymentMethods.find(pm => pm.payment_methods_name === 'كاش') || data.paymentMethods[0];
+  const pmBank  = data.paymentMethods.find(pm => pm.payment_methods_name === 'تحويل بنكي') || data.paymentMethods[1] || data.paymentMethods[0];
+  const pmVodaf = data.paymentMethods.find(pm => pm.payment_methods_name === 'فودافون كاش') || data.paymentMethods[2] || data.paymentMethods[0];
   data.safes = [
-    { safes_id: 1, safes_name: 'الخزينة الرئيسية', safes_balance: randomFloat(50000, 200000, 2), safes_currency: 'EGP', safes_status: 'active' },
-    { safes_id: 2, safes_name: 'خزينة الفرع', safes_balance: randomFloat(20000, 100000, 2), safes_currency: 'EGP', safes_status: 'active' },
-    { safes_id: 3, safes_name: 'خزينة البنك', safes_balance: randomFloat(100000, 500000, 2), safes_currency: 'EGP', safes_status: 'active' },
+    { safes_id: 1, safes_name: 'الخزينة الرئيسية', safes_type: 'company', safes_is_active: 1, safes_balance: randomFloat(80000, 200000, 2), safes_currency: 'EGP', safes_status: 'active', safes_description: 'الخزينة الرئيسية للشركة', payment_method_id: pmCash?.payment_methods_id || 1, payment_method_name: pmCash?.payment_methods_name || 'كاش', payment_method_type: 'cash', pending_transactions_count: randomInt(0, 5) },
+    { safes_id: 2, safes_name: 'خزينة الفرع', safes_type: 'company', safes_is_active: 1, safes_balance: randomFloat(20000, 80000, 2), safes_currency: 'EGP', safes_status: 'active', safes_description: 'خزينة الفرع الرئيسي', payment_method_id: pmBank?.payment_methods_id || 2, payment_method_name: pmBank?.payment_methods_name || 'تحويل بنكي', payment_method_type: 'bank_transfer', pending_transactions_count: randomInt(0, 3) },
+    { safes_id: 3, safes_name: 'خزينة البنك', safes_type: 'company', safes_is_active: 1, safes_balance: randomFloat(150000, 500000, 2), safes_currency: 'EGP', safes_status: 'active', safes_description: 'حساب البنك التجاري', payment_method_id: pmBank?.payment_methods_id || 2, payment_method_name: pmBank?.payment_methods_name || 'تحويل بنكي', payment_method_type: 'bank_transfer', pending_transactions_count: randomInt(0, 2) },
+    { safes_id: 4, safes_name: `خزينة ${repUsers[0]?.users_name || 'مندوب أحمد'}`, safes_type: 'rep', safes_is_active: 1, safes_balance: randomFloat(5000, 30000, 2), safes_currency: 'EGP', safes_status: 'active', safes_description: 'خزينة مندوب المبيعات', rep_user_id: repUsers[0]?.users_id || 2, safes_rep_user_id: repUsers[0]?.users_id || 2, rep_name: repUsers[0]?.users_name || 'أحمد محمد', payment_method_id: pmCash?.payment_methods_id || 1, payment_method_name: pmCash?.payment_methods_name || 'كاش', payment_method_type: 'cash', pending_transactions_count: randomInt(0, 8) },
+    { safes_id: 5, safes_name: `خزينة ${repUsers[1]?.users_name || 'مندوب محمد'}`, safes_type: 'rep', safes_is_active: 1, safes_balance: randomFloat(3000, 20000, 2), safes_currency: 'EGP', safes_status: 'active', safes_description: 'خزينة مندوب المبيعات', rep_user_id: repUsers[1]?.users_id || 3, safes_rep_user_id: repUsers[1]?.users_id || 3, rep_name: repUsers[1]?.users_name || 'محمد علي', payment_method_id: pmVodaf?.payment_methods_id || 3, payment_method_name: pmVodaf?.payment_methods_name || 'فودافون كاش', payment_method_type: 'vodafone_cash', pending_transactions_count: randomInt(0, 6) },
+    { safes_id: 6, safes_name: 'خزينة أمين المخزن', safes_type: 'store_keeper', safes_is_active: 1, safes_balance: randomFloat(2000, 15000, 2), safes_currency: 'EGP', safes_status: 'active', safes_description: 'خزينة أمين المخزن الرئيسي', payment_method_id: pmCash?.payment_methods_id || 1, payment_method_name: pmCash?.payment_methods_name || 'كاش', payment_method_type: 'cash', pending_transactions_count: randomInt(0, 3) },
+    { safes_id: 7, safes_name: 'خزينة فودافون', safes_type: 'company', safes_is_active: 0, safes_balance: randomFloat(1000, 8000, 2), safes_currency: 'EGP', safes_status: 'inactive', safes_description: 'خزينة محفظة فودافون كاش', payment_method_id: pmVodaf?.payment_methods_id || 3, payment_method_name: pmVodaf?.payment_methods_name || 'فودافون كاش', payment_method_type: 'vodafone_cash', pending_transactions_count: 0 },
   ];
+
+  // 18b. Safe Transactions
+  const txnTypes = ['deposit', 'withdrawal', 'transfer_in', 'transfer_out', 'expense', 'supplier_payment', 'sale', 'receipt'];
+  const txnDescriptions = {
+    deposit: ['إيداع نقدي', 'إيداع من العميل', 'إيداع رصيد', 'تحصيل مبيعات'],
+    withdrawal: ['سحب نقدي', 'صرف مصروفات', 'سحب للإدارة'],
+    transfer_in: ['تحويل وارد من خزينة رئيسية', 'استلام تحويل'],
+    transfer_out: ['تحويل صادر', 'تحويل لخزينة أخرى'],
+    expense: ['مصروفات إدارية', 'مصروفات تشغيلية', 'شراء مستلزمات'],
+    supplier_payment: ['دفعة للمورد', 'سداد فاتورة مورد'],
+    sale: ['إيرادات مبيعات', 'تحصيل أوردر مبيعات'],
+    receipt: ['إيصال دفعة عميل', 'استلام دفعة'],
+  };
+  const txnStatuses = ['approved', 'approved', 'approved', 'pending', 'approved', 'approved'];
+  const safeTransactions = [];
+  let txnId = 1;
+  const txnBase = new Date('2025-09-01');
+  data.safes.forEach(safe => {
+    const count = safe.safes_type === 'company' ? 30 : safe.safes_type === 'rep' ? 22 : 15;
+    for (let i = 0; i < count; i++) {
+      const type = randomChoice(txnTypes);
+      const date = new Date(txnBase);
+      date.setDate(date.getDate() + randomInt(0, 170));
+      const user = randomChoice(data.users);
+      const amount = randomFloat(500, 25000, 2);
+      const status = randomChoice(txnStatuses);
+      safeTransactions.push({
+        safe_transactions_id: txnId++,
+        safe_transactions_safe_id: safe.safes_id,
+        safe_transactions_type: type,
+        safe_transactions_amount: amount,
+        safe_transactions_date: date.toISOString().slice(0, 19).replace('T', ' '),
+        safe_transactions_description: randomChoice(txnDescriptions[type] || ['معاملة']),
+        safe_transactions_reference: `TXN-${String(txnId).padStart(5, '0')}`,
+        safe_transactions_user_id: user.users_id,
+        user_name: user.users_name,
+        safe_transactions_status: status,
+        safe_name: safe.safes_name,
+        payment_method_id: safe.payment_method_id,
+        payment_method_name: safe.payment_method_name,
+      });
+    }
+  });
+  data.safeTransactions = safeTransactions;
+
+  // 18c. Safe Transfers
+  const safeTransferStatuses = ['approved', 'approved', 'pending', 'approved', 'approved', 'rejected', 'approved'];
+  const safeTransfers = [];
+  let tfrId = 1;
+  const allActiveSafes = data.safes.filter(s => s.safes_is_active === 1);
+  for (let i = 0; i < 60; i++) {
+    const srcSafe  = randomChoice(allActiveSafes);
+    const dstCandidates = allActiveSafes.filter(s => s.safes_id !== srcSafe.safes_id);
+    const dstSafe  = randomChoice(dstCandidates);
+    const date     = new Date(txnBase);
+    date.setDate(date.getDate() + randomInt(0, 170));
+    const user     = randomChoice(data.users);
+    const amount   = randomFloat(1000, 30000, 2);
+    const outStatus = randomChoice(safeTransferStatuses);
+    const inStatus  = outStatus === 'rejected' ? 'rejected' : outStatus;
+    const approver  = outStatus === 'approved' ? randomChoice(data.users) : null;
+    const approvedDate = outStatus === 'approved' ? date.toISOString().slice(0, 19).replace('T', ' ') : null;
+    const ref = `TRF-${String(tfrId).padStart(5, '0')}`;
+    const dateStr = date.toISOString().slice(0, 19).replace('T', ' ');
+    safeTransfers.push({
+      safe_transactions_id: txnId,
+      transfer_out_id: txnId++,
+      transfer_in_id: txnId++,
+      affected_safe_id:   srcSafe.safes_id,
+      affected_safe_name: srcSafe.safes_name,
+      affected_safe_type: srcSafe.safes_type,
+      safe_transactions_counterpart_safe_id: dstSafe.safes_id,
+      counterpart_safe_name: dstSafe.safes_name,
+      counterpart_safe_type: dstSafe.safes_type,
+      safe_transactions_amount: amount,
+      safe_transactions_reference: ref,
+      safe_transactions_date: dateStr,
+      safe_transactions_user_id: user.users_id,
+      user_name: user.users_name,
+      safe_transactions_status: outStatus,
+      transfer_out_status: outStatus,
+      transfer_in_status: inStatus,
+      transfer_out_approved_by_name: approver?.users_name || null,
+      transfer_in_approved_by_name: approver?.users_name || null,
+      transfer_out_approved_date: approvedDate,
+      transfer_in_approved_date: approvedDate,
+      safe_transactions_notes: `تحويل من ${srcSafe.safes_name} إلى ${dstSafe.safes_name}`,
+      transfer_id: tfrId,
+    });
+    tfrId++;
+  }
+  data.safeTransfers = safeTransfers;
 
   // 19. Client Payments
   const clientPayments = [];
@@ -463,15 +572,29 @@ export function generateComprehensiveMockData() {
   // 20. Supplier Payments
   const supplierPayments = [];
   for (let i = 0; i < 150; i++) {
+    const spSupplierId = randomInt(1, data.suppliers.length);
+    const spSupplier   = data.suppliers.find(s => s.supplier_id === spSupplierId);
+    const spSafeId     = randomInt(1, 3);
+    const spSafe       = data.safes.find(s => s.safes_id === spSafeId);
+    const spMethodId   = randomInt(1, data.paymentMethods.length);
+    const spMethod     = data.paymentMethods.find(m => m.payment_methods_id === spMethodId);
+    const spDate       = randomDate(new Date(2023, 0, 1), new Date());
     supplierPayments.push({
       supplier_payments_id: i + 1,
-      supplier_payments_supplier_id: randomInt(1, data.suppliers.length),
+      supplier_payments_supplier_id: spSupplierId,
+      supplier_name: spSupplier ? spSupplier.supplier_name : `مورد #${spSupplierId}`,
       supplier_payments_amount: randomFloat(1000, 100000, 2),
-      supplier_payments_payment_date: randomDate(new Date(2023, 0, 1), new Date()),
-      supplier_payments_payment_method_id: randomInt(1, data.paymentMethods.length),
+      supplier_payments_payment_date: spDate,
+      supplier_payments_date: spDate,           // alias used by SupplierPaymentsTab
+      supplier_payments_method_id: spMethodId,
+      supplier_payments_payment_method_id: spMethodId,
+      payment_method_name: spMethod ? spMethod.payment_methods_name : '',
       supplier_payments_reference_number: i % 2 === 0 ? `SREF-${randomInt(10000, 99999)}` : null,
-      supplier_payments_safe_id: randomInt(1, 3),
+      supplier_payments_safe_id: spSafeId,
+      safe_name: spSafe ? spSafe.safes_name : `خزينة #${spSafeId}`,
       supplier_payments_notes: i % 6 === 0 ? `ملاحظات دفعة ${i + 1}` : '',
+      supplier_payments_status: randomChoice(['مؤكد', 'معلق', 'ملغي']),
+      supplier_payments_type: randomChoice(['دفعة', 'دفعة جزئية']),
       supplier_payments_created_by: randomInt(1, 25),
       supplier_payments_created_at: randomDate(new Date(2023, 0, 1), new Date()),
     });
@@ -507,14 +630,69 @@ export function generateComprehensiveMockData() {
 
   // 22. Settings
   data.settings = [
-    { settings_id: 1, settings_key: 'company_name', settings_value: 'شركة RepWave', settings_category: 'general' },
-    { settings_id: 2, settings_key: 'company_address', settings_value: 'القاهرة، مصر', settings_category: 'general' },
-    { settings_id: 3, settings_key: 'company_phone', settings_value: '0100000000', settings_category: 'general' },
-    { settings_id: 4, settings_key: 'company_email', settings_value: 'info@repwave.com', settings_category: 'general' },
-    { settings_id: 5, settings_key: 'tax_rate', settings_value: '14', settings_category: 'financial' },
-    { settings_id: 6, settings_key: 'currency', settings_value: 'EGP', settings_category: 'financial' },
-    { settings_id: 7, settings_key: 'low_stock_threshold', settings_value: '10', settings_category: 'inventory' },
-    { settings_id: 8, settings_key: 'enable_notifications', settings_value: 'true', settings_category: 'system' },
+    // ── Company Tab ──────────────────────────────────────────────────────────
+    { settings_id: 1,  settings_key: 'company_name',               settings_value: 'شركة RepWave للتوزيع', settings_category: 'company', settings_type: 'string',   settings_description: 'الاسم التجاري الكامل المعروض في الفواتير' },
+    { settings_id: 2,  settings_key: 'company_description',        settings_value: 'شركة متخصصة في توزيع المنتجات الغذائية والاستهلاكية على مستوى الجمهورية', settings_category: 'company', settings_type: 'string',   settings_description: 'وصف مختصر عن نشاط الشركة' },
+    { settings_id: 3,  settings_key: 'company_address',            settings_value: 'القاهرة، مصر - مدينة نصر، 8 ش الثورة', settings_category: 'company', settings_type: 'string',   settings_description: 'العنوان البريدي الرئيسي' },
+    { settings_id: 4,  settings_key: 'company_phone',              settings_value: '01000000000', settings_category: 'company', settings_type: 'string',   settings_description: 'رقم الهاتف الرئيسي' },
+    { settings_id: 5,  settings_key: 'company_email',              settings_value: 'info@repwave.com', settings_category: 'company', settings_type: 'string',   settings_description: 'البريد الإلكتروني الرسمي' },
+    { settings_id: 6,  settings_key: 'company_website',            settings_value: 'https://www.repwave.com', settings_category: 'company', settings_type: 'string',   settings_description: 'رابط الموقع الإلكتروني' },
+    { settings_id: 7,  settings_key: 'company_vat_number',         settings_value: '300000000000003', settings_category: 'company', settings_type: 'string',   settings_description: 'رقم ضريبة القيمة المضافة' },
+    { settings_id: 8,  settings_key: 'company_commercial_register',settings_value: '123456789', settings_category: 'company', settings_type: 'string',   settings_description: 'رقم السجل التجاري' },
+    { settings_id: 9,  settings_key: 'company_country',            settings_value: 'EG', settings_category: 'company', settings_type: 'string',   settings_description: 'البلد الافتراضي' },
+    { settings_id: 10, settings_key: 'company_currency',           settings_value: 'EGP', settings_category: 'company', settings_type: 'string',   settings_description: 'العملة الافتراضية للشركة' },
+    { settings_id: 11, settings_key: 'company_lat',                settings_value: '30.0444', settings_category: 'company', settings_type: 'string',   settings_description: 'خط عرض موقع الشركة' },
+    { settings_id: 12, settings_key: 'company_lng',                settings_value: '31.2357', settings_category: 'company', settings_type: 'string',   settings_description: 'خط طول موقع الشركة' },
+    { settings_id: 13, settings_key: 'company_logo',               settings_value: '', settings_category: 'company', settings_type: 'string',   settings_description: 'شعار الشركة' },
+
+    // ── Financial Tab ─────────────────────────────────────────────────────────
+    { settings_id: 20, settings_key: 'tax_rate',                   settings_value: '14', settings_category: 'financial', settings_type: 'decimal',  settings_description: 'نسبة ضريبة المبيعات الافتراضية (%)' },
+    { settings_id: 21, settings_key: 'default_currency',           settings_value: 'جنيه مصري', settings_category: 'financial', settings_type: 'string',   settings_description: 'العملة الافتراضية للعرض' },
+    { settings_id: 22, settings_key: 'currency_symbol',            settings_value: 'ج.م', settings_category: 'financial', settings_type: 'string',   settings_description: 'رمز العملة' },
+    { settings_id: 23, settings_key: 'decimal_places',             settings_value: '2', settings_category: 'financial', settings_type: 'integer',  settings_description: 'عدد الخانات العشرية في القيم المالية' },
+    { settings_id: 24, settings_key: 'defult_client_credit_limit', settings_value: '50000', settings_category: 'financial', settings_type: 'integer',  settings_description: 'الحد الائتماني الافتراضي للعميل الجديد' },
+    { settings_id: 25, settings_key: 'payment_terms_days',         settings_value: '30', settings_category: 'financial', settings_type: 'integer',  settings_description: 'شروط الدفع الافتراضية (أيام)' },
+    { settings_id: 26, settings_key: 'invoice_prefix',             settings_value: 'INV-', settings_category: 'financial', settings_type: 'string',   settings_description: 'بادئة رقم الفاتورة' },
+    { settings_id: 27, settings_key: 'order_prefix',               settings_value: 'ORD-', settings_category: 'financial', settings_type: 'string',   settings_description: 'بادئة رقم الطلب' },
+    { settings_id: 28, settings_key: 'purchase_order_prefix',      settings_value: 'PO-', settings_category: 'financial', settings_type: 'string',   settings_description: 'بادئة أمر الشراء' },
+    { settings_id: 29, settings_key: 'return_prefix',              settings_value: 'RET-', settings_category: 'financial', settings_type: 'string',   settings_description: 'بادئة رقم المرتجع' },
+    { settings_id: 30, settings_key: 'max_discount_percentage',    settings_value: '25', settings_category: 'financial', settings_type: 'decimal',  settings_description: 'أقصى نسبة خصم مسموحة للمندوب (%)' },
+    { settings_id: 31, settings_key: 'auto_approve_orders',        settings_value: 'false', settings_category: 'financial', settings_type: 'boolean',  settings_description: 'الموافقة التلقائية على الطلبات' },
+    { settings_id: 32, settings_key: 'auto_approve_threshold',     settings_value: '5000', settings_category: 'financial', settings_type: 'integer',  settings_description: 'حد الموافقة التلقائية (جنيه)' },
+    { settings_id: 33, settings_key: 'return_approval_required',   settings_value: 'true', settings_category: 'financial', settings_type: 'boolean',  settings_description: 'إلزام موافقة المشرف على المرتجعات' },
+    { settings_id: 34, settings_key: 'credit_limit_check',         settings_value: 'true', settings_category: 'financial', settings_type: 'boolean',  settings_description: 'فحص حد الائتمان عند إنشاء الطلب' },
+    { settings_id: 35, settings_key: 'fiscal_year_start',          settings_value: '01-01', settings_category: 'financial', settings_type: 'string',   settings_description: 'بداية السنة المالية (شهر-يوم)' },
+    { settings_id: 36, settings_key: 'sales_report_auto_email',    settings_value: 'false', settings_category: 'financial', settings_type: 'boolean',  settings_description: 'إرسال تقارير المبيعات تلقائياً بالبريد' },
+    { settings_id: 37, settings_key: 'safe_balance_alert_threshold', settings_value: '1000', settings_category: 'financial', settings_type: 'integer',  settings_description: 'الحد الأدنى لتنبيه رصيد الخزينة' },
+    { settings_id: 38, settings_key: 'expense_approval_threshold', settings_value: '2000', settings_category: 'financial', settings_type: 'integer',  settings_description: 'حد قيمة المصروف الذي يحتاج موافقة' },
+
+    // ── Inventory Tab ─────────────────────────────────────────────────────────
+    { settings_id: 50, settings_key: 'low_stock_threshold',        settings_value: '10', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'الكمية التي عندها يظهر تنبيه المخزون المنخفض' },
+    { settings_id: 51, settings_key: 'out_of_stock_threshold',     settings_value: '0', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'الكمية التي تعتبر عندها البضاعة منتهية' },
+    { settings_id: 52, settings_key: 'allow_negative_inventory',   settings_value: 'false', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'السماح بالبيع عند نفاد المخزون' },
+    { settings_id: 53, settings_key: 'require_batch_tracking',     settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إلزام تتبع الدفعات والمجموعات' },
+    { settings_id: 54, settings_key: 'auto_reorder_enabled',       settings_value: 'false', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'تفعيل إعادة الطلب التلقائي عند نفاد المخزون' },
+    { settings_id: 55, settings_key: 'reorder_point_default',      settings_value: '20', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'نقطة إعادة الطلب الافتراضية (وحدة)' },
+    { settings_id: 56, settings_key: 'max_expiry_days_threshold',  settings_value: '30', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'عدد أيام الإنذار المبكر لانتهاء الصلاحية' },
+    { settings_id: 57, settings_key: 'transfer_approval_required', settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إلزام موافقة تحويلات المخزون بين المستودعات' },
+    { settings_id: 58, settings_key: 'goods_receipt_approval',     settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إلزام موافقة استلام البضائع' },
+    { settings_id: 59, settings_key: 'inter_warehouse_transfer_enabled', settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'تفعيل التحويل بين المستودعات' },
+    { settings_id: 60, settings_key: 'gps_tracking_enabled',       settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'تفعيل تتبع موقع المندوب في التطبيق' },
+    { settings_id: 61, settings_key: 'visit_radius_meters',        settings_value: '200', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'نطاق القرب اللازم للتحقق من الزيارة (متر)' },
+    { settings_id: 62, settings_key: 'require_check_in_photo',     settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إلزام التقاط صورة عند بدء الزيارة' },
+    { settings_id: 63, settings_key: 'require_check_out_photo',    settings_value: 'false', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إلزام التقاط صورة عند انهاء الزيارة' },
+    { settings_id: 64, settings_key: 'visit_duration_limit_hours', settings_value: '4', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'الحد الأقصى لمدة الزيارة الواحدة (ساعات)' },
+    { settings_id: 65, settings_key: 'daily_visit_limit',          settings_value: '15', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'الحد الأقصى لعدد الزيارات اليومية للمندوب' },
+    { settings_id: 66, settings_key: 'visit_notes_required',       settings_value: 'false', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إلزام إدخال ملاحظات الزيارة' },
+    { settings_id: 67, settings_key: 'offline_sync_interval',      settings_value: '5', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'الفاصل الزمني للمزامنة في وضع عدم الاتصال (دقائق)' },
+    { settings_id: 68, settings_key: 'email_notifications',        settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إرسال الإشعارات عبر البريد الإلكتروني' },
+    { settings_id: 69, settings_key: 'push_notifications',         settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إرسال الإشعارات الفورية' },
+    { settings_id: 70, settings_key: 'notification_low_stock',     settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إشعار تنبيه المخزون المنخفض' },
+    { settings_id: 71, settings_key: 'notification_overdue_payments', settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'إشعار المدفوعات المتأخرة' },
+    { settings_id: 72, settings_key: 'session_timeout_minutes',    settings_value: '60', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'مدة الجلسة قبل انتهاء الصلاحية (دقائق)' },
+    { settings_id: 73, settings_key: 'items_per_page',             settings_value: '25', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'عدد العناصر الافتراضي في صفحات القوائم' },
+    { settings_id: 74, settings_key: 'auto_backup_enabled',        settings_value: 'true', settings_category: 'inventory', settings_type: 'boolean',  settings_description: 'تفعيل النسخ الاحتياطي التلقائي' },
+    { settings_id: 75, settings_key: 'backup_frequency_days',      settings_value: '7', settings_category: 'inventory', settings_type: 'integer',  settings_description: 'دورية النسخ الاحتياطي (أيام)' },
   ];
 
   // 23. Visit Plans
@@ -533,19 +711,33 @@ export function generateComprehensiveMockData() {
   data.visitPlans = visitPlans;
 
   // 24. Visits (Actual Visits)
+  const visitStatuses = ['Completed', 'Completed', 'Completed', 'Completed', 'Started', 'Started', 'Cancelled'];
   const visits = [];
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 200; i++) {
+    const checkInHour  = randomInt(8, 16);
+    const checkInMin   = randomInt(0, 59);
+    const durationMins = randomInt(15, 90);
+    const checkOutHour = Math.floor((checkInHour * 60 + checkInMin + durationMins) / 60);
+    const checkOutMin  = (checkInHour * 60 + checkInMin + durationMins) % 60;
+    const visitDate    = randomDate(new Date(2024, 0, 1), new Date());
+    const status       = randomChoice(visitStatuses);
+    const checkInStr   = `${String(checkInHour).padStart(2, '0')}:${String(checkInMin).padStart(2, '0')}:00`;
+    const checkOutStr  = `${String(Math.min(checkOutHour, 22)).padStart(2, '0')}:${String(checkOutMin).padStart(2, '0')}:00`;
     visits.push({
       visits_id: i + 1,
       visits_representative_id: randomInt(1, 25),
       visits_client_id: randomInt(1, data.clients.length),
-      visits_visit_date: randomDate(new Date(2023, 0, 1), new Date()),
-      visits_check_in_time: `${String(randomInt(8, 17)).padStart(2, '0')}:${String(randomInt(0, 59)).padStart(2, '0')}:00`,
-      visits_check_out_time: `${String(randomInt(9, 18)).padStart(2, '0')}:${String(randomInt(0, 59)).padStart(2, '0')}:00`,
+      visits_visit_date: visitDate,
+      visits_status: status,
+      visits_check_in_time: checkInStr,
+      visits_check_out_time: status === 'Completed' ? checkOutStr : null,
+      visits_start_time: `${visitDate} ${checkInStr}`,
+      visits_end_time: status === 'Completed' ? `${visitDate} ${checkOutStr}` : null,
+      visit_duration_minutes: status === 'Completed' ? durationMins : null,
       visits_notes: i % 4 === 0 ? `ملاحظات الزيارة ${i + 1}` : '',
       visits_latitude: randomFloat(29.0, 31.5, 6),
       visits_longitude: randomFloat(30.0, 32.5, 6),
-      visits_created_at: randomDate(new Date(2023, 0, 1), new Date()),
+      visits_created_at: visitDate,
     });
   }
   data.visits = visits;
@@ -607,12 +799,17 @@ export function generateComprehensiveMockData() {
   for (let i = 0; i < 20; i++) {
     const purchaseOrder = randomChoice(purchaseOrders);
     const returnDate = randomDate(new Date(purchaseOrder.purchase_orders_order_date), new Date());
+    const prSupplier  = data.suppliers.find(s => s.supplier_id === purchaseOrder.purchase_orders_supplier_id);
     
     const returnObj = {
       purchase_returns_id: purchaseReturnId,
       purchase_returns_purchase_order_id: purchaseOrder.purchase_orders_id,
+      purchase_returns_supplier_id: purchaseOrder.purchase_orders_supplier_id,
+      supplier_name: prSupplier ? prSupplier.supplier_name : `مورد #${purchaseOrder.purchase_orders_supplier_id}`,
       purchase_returns_return_date: returnDate,
+      purchase_returns_date: returnDate,        // alias used by PurchaseReturnListView
       purchase_returns_total_amount: 0,
+      purchase_returns_status: randomChoice(['معالج', 'مكتمل', 'ملغي']),
       purchase_returns_reason: randomChoice(['تالف', 'خطأ في الشحن', 'منتج غير مطابق', 'جودة رديئة']),
       purchase_returns_notes: i % 4 === 0 ? `ملاحظات مرتجع ${purchaseReturnId}` : '',
       purchase_returns_created_at: returnDate,
@@ -649,7 +846,7 @@ export function generateComprehensiveMockData() {
   // 27. Goods Receipts
   const goodsReceipts = [];
   for (let i = 0; i < 80; i++) {
-    const purchaseOrder = randomChoice(purchaseOrders.filter(po => po.purchase_orders_status === 'تم الاستلام' || po.purchase_orders_status === 'استلام جزئي'));
+    const purchaseOrder = randomChoice(purchaseOrders.filter(po => po.purchase_orders_status === 'Received' || po.purchase_orders_status === 'Partial Receipt'));
     goodsReceipts.push({
       goods_receipts_id: i + 1,
       goods_receipts_purchase_order_id: purchaseOrder.purchase_orders_id,
@@ -666,7 +863,7 @@ export function generateComprehensiveMockData() {
   // 28. Sales Deliveries
   const salesDeliveries = [];
   for (let i = 0; i < 100; i++) {
-    const salesOrder = randomChoice(salesOrders.filter(so => so.sales_orders_delivery_status === 'تم التسليم' || so.sales_orders_delivery_status === 'تسليم جزئي'));
+    const salesOrder = randomChoice(salesOrders.filter(so => so.sales_orders_delivery_status === 'Delivered' || so.sales_orders_delivery_status === 'Partially_Delivered'));
     salesDeliveries.push({
       sales_deliveries_id: i + 1,
       sales_deliveries_sales_order_id: salesOrder.sales_orders_id,
@@ -757,7 +954,7 @@ export function generateComprehensiveMockData() {
 
   // 31. Deliverable Sales Orders (confirmed orders not yet fully delivered, with enriched items)
   const confirmedOrders = salesOrders.filter(o =>
-    o.sales_orders_status === 'مؤكد' && o.sales_orders_delivery_status !== 'تم التسليم'
+    o.sales_orders_status === 'Approved' && o.sales_orders_delivery_status !== 'Delivered'
   ).slice(0, 25);
   data.deliverableSalesOrders = confirmedOrders.map(order => {
     const client = data.clients.find(c => c.clients_id === order.sales_orders_client_id);
@@ -787,7 +984,7 @@ export function generateComprehensiveMockData() {
   });
 
   // 32. Pending Purchase Orders for Receive (enriched with items)
-  const pendingPOs = purchaseOrders.filter(o => o.purchase_orders_status === 'مطلوب').slice(0, 20);
+  const pendingPOs = purchaseOrders.filter(o => o.purchase_orders_status === 'Pending').slice(0, 20);
   data.pendingPurchaseOrders = pendingPOs.map(order => {
     const supplier = data.suppliers.find(s => s.supplier_id === order.purchase_orders_supplier_id);
     const warehouse = data.warehouses.find(w => w.warehouse_id === order.purchase_orders_warehouse_id);
@@ -827,18 +1024,45 @@ export function generateComprehensiveMockData() {
       const variant = productVariants.find(v => v.product_variants_id === inv.inventory_variant_id);
       return sum + (variant ? variant.product_variants_purchase_price * inv.inventory_quantity : 0);
     }, 0),
-    pending_orders: salesOrders.filter(o => o.sales_orders_status === 'معلق').length,
-    confirmed_orders: salesOrders.filter(o => o.sales_orders_status === 'مؤكد').length,
+    pending_orders: salesOrders.filter(o => o.sales_orders_status === 'Pending').length,
+    confirmed_orders: salesOrders.filter(o => o.sales_orders_status === 'Approved').length,
     low_stock_items: inventory.filter(i => i.inventory_quantity < 10).length,
     recent_notifications: notifications.filter(n => !n.notifications_is_read).length,
   };
+
+  // Chart of Accounts
+  data.accounts = [
+    // إيرادات (Revenue)
+    { id: 1,  code: '4000', name: 'إيرادات المبيعات',          type: 'إيرادات', sortid: 1 },
+    { id: 2,  code: '4010', name: 'إيرادات الخدمات',          type: 'إيرادات', sortid: 2 },
+    { id: 3,  code: '4020', name: 'إيرادات أخرى',             type: 'إيرادات', sortid: 3 },
+    { id: 4,  code: '4030', name: 'إيرادات العمولات',         type: 'إيرادات', sortid: 4 },
+    // مصروفات (Expenses)
+    { id: 5,  code: '5000', name: 'تكلفة البضائع المبيعة',      type: 'مصروفات', sortid: 5 },
+    { id: 6,  code: '5010', name: 'مصروفات النقل والتوزيع',   type: 'مصروفات', sortid: 6 },
+    { id: 7,  code: '5020', name: 'مصروفات التغليف والتعبئة', type: 'مصروفات', sortid: 7 },
+    { id: 8,  code: '5030', name: 'مصروفات مرتجعات المبيعات', type: 'مصروفات', sortid: 8 },
+    { id: 9,  code: '5040', name: 'مصروفات التخزين والمخازن', type: 'مصروفات', sortid: 9 },
+    { id: 10, code: '5050', name: 'مصروفات الدعاية والتسويق', type: 'مصروفات', sortid: 10 },
+    // مصروفات ادارية (Admin Expenses)
+    { id: 11, code: '6000', name: 'رواتب الموظفين',          type: 'مصروفات ادارية', sortid: 11 },
+    { id: 12, code: '6010', name: 'إيجارات ومصاريف مكتب',    type: 'مصروفات ادارية', sortid: 12 },
+    { id: 13, code: '6020', name: 'فواتير الكهرباء والمياه',  type: 'مصروفات ادارية', sortid: 13 },
+    { id: 14, code: '6030', name: 'مصروفات الاتصالات والإنترنت', type: 'مصروفات ادارية', sortid: 14 },
+    { id: 15, code: '6040', name: 'صيانة وإصلاحات',        type: 'مصروفات ادارية', sortid: 15 },
+    { id: 16, code: '6050', name: 'مستلزمات وأدوات مكتب',      type: 'مصروفات ادارية', sortid: 16 },
+    { id: 17, code: '6060', name: 'مصروفات السيارات والمواصلات', type: 'مصروفات ادارية', sortid: 17 },
+    { id: 18, code: '6070', name: 'تأمينات وتراخيص',        type: 'مصروفات ادارية', sortid: 18 },
+    { id: 19, code: '6080', name: 'رسوم قانونية ومحاسبية',   type: 'مصروفات ادارية', sortid: 19 },
+    { id: 20, code: '6090', name: 'مصروفات إدارية أخرى',     type: 'مصروفات ادارية', sortid: 20 },
+  ];
 
   return data;
 }
 
 // Seed the comprehensive mock data to localStorage
 export function seedComprehensiveMockData() {
-  if (localStorage.getItem('comprehensiveMockSeeded_v6')) {
+  if (localStorage.getItem('comprehensiveMockSeeded_v14')) {
     console.log('Comprehensive mock data already seeded');
     return;
   }
@@ -904,27 +1128,32 @@ export function seedComprehensiveMockData() {
   localStorage.setItem('appDeliverableSalesOrders', JSON.stringify(data.deliverableSalesOrders));
   localStorage.setItem('appPendingPurchaseOrdersForReceive', JSON.stringify(data.pendingPurchaseOrders));
 
-  // Extra keys used by apiClient URL map (seed with empty data so no errors)
-  localStorage.setItem('appSafeTransfers', JSON.stringify([]));
-  localStorage.setItem('appSafeTransactions', JSON.stringify([]));
+  // Extra keys used by apiClient URL map
+  localStorage.setItem('appSafeTransfers', JSON.stringify(data.safeTransfers || []));
+  localStorage.setItem('appSafeTransactions', JSON.stringify(data.safeTransactions || []));
   // appTransfers and appTransferRequests seeded above with real data
   localStorage.setItem('appRepresentativeAttendance', JSON.stringify([]));
   localStorage.setItem('appRepresentativeSettings', JSON.stringify([]));
   localStorage.setItem('appFinancialTransactions', JSON.stringify([]));
-  localStorage.setItem('appAccounts', JSON.stringify([]));
+  localStorage.setItem('appAccounts', JSON.stringify(data.accounts || []));
   localStorage.setItem('appUserSafes', JSON.stringify([]));
   localStorage.setItem('appUserWarehouses', JSON.stringify([]));
   localStorage.setItem('appClientDocuments', JSON.stringify([]));
   localStorage.setItem('appClientPayments', JSON.stringify(data.clientPayments || []));
 
 
-  localStorage.setItem('comprehensiveMockSeeded_v6', 'true');
+  localStorage.setItem('comprehensiveMockSeeded_v14', 'true');
   // Remove old seed flags if present
   localStorage.removeItem('comprehensiveMockSeeded');
   localStorage.removeItem('comprehensiveMockSeeded_v2');
   localStorage.removeItem('comprehensiveMockSeeded_v3');
   localStorage.removeItem('comprehensiveMockSeeded_v4');
   localStorage.removeItem('comprehensiveMockSeeded_v5');
+  localStorage.removeItem('comprehensiveMockSeeded_v6');
+  localStorage.removeItem('comprehensiveMockSeeded_v7');
+  localStorage.removeItem('comprehensiveMockSeeded_v8');
+  localStorage.removeItem('comprehensiveMockSeeded_v9');
+  localStorage.removeItem('comprehensiveMockSeeded_v12');
   console.log('Comprehensive mock data seeded successfully!');
 }
 
@@ -945,7 +1174,7 @@ export function clearMockData() {
     'appRepresentativeAttendance', 'appRepresentativeSettings',
     'appFinancialTransactions', 'appAccounts', 'appUserSafes', 'appUserWarehouses',
     'appClientDocuments',
-    'comprehensiveMockSeeded', 'comprehensiveMockSeeded_v2', 'comprehensiveMockSeeded_v3', 'comprehensiveMockSeeded_v4', 'comprehensiveMockSeeded_v5', 'comprehensiveMockSeeded_v6',
+    'comprehensiveMockSeeded', 'comprehensiveMockSeeded_v2', 'comprehensiveMockSeeded_v3', 'comprehensiveMockSeeded_v4', 'comprehensiveMockSeeded_v5', 'comprehensiveMockSeeded_v6', 'comprehensiveMockSeeded_v7', 'comprehensiveMockSeeded_v8', 'comprehensiveMockSeeded_v9', 'comprehensiveMockSeeded_v10',
     'mockSeeded', 'bigMockSeeded'
   ];
   

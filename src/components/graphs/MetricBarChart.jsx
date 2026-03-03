@@ -45,7 +45,7 @@ const useDebouncedResize = (delay = 1024) => {
 /* Stable mobile breakpoint */
 const useIsMobile = () => {
   const [mobile, setMobile] = useState(
-    window.matchMedia("(max-width: 639px)").matches
+    window.matchMedia("(max-width: 639px)").matches,
   );
 
   useEffect(() => {
@@ -109,7 +109,7 @@ const MetricBarChart = ({
       </div>
 
       {/* Chart */}
-      <div className="flex-1 min-h-[340px] w-full">
+      <div className="flex-1 min-h-[220px] sm:min-h-[340px] w-full">
         <ResponsiveContainer key={resizeTick} width="100%" height="100%">
           <BarChart
             data={data}
@@ -118,14 +118,34 @@ const MetricBarChart = ({
             margin={{ top: 26, right: 0, left: 0, bottom: 12 }}
           >
             <defs>
-              <linearGradient id={`${gradientId}-count`} x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id={`${gradientId}-count`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop offset="0%" stopColor={mergedTheme.countColor} />
-                <stop offset="100%" stopColor={mergedTheme.countColor} stopOpacity={0.65} />
+                <stop
+                  offset="100%"
+                  stopColor={mergedTheme.countColor}
+                  stopOpacity={0.65}
+                />
               </linearGradient>
 
-              <linearGradient id={`${gradientId}-value`} x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id={`${gradientId}-value`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop offset="0%" stopColor={mergedTheme.valueColor} />
-                <stop offset="100%" stopColor={mergedTheme.valueColor} stopOpacity={0.65} />
+                <stop
+                  offset="100%"
+                  stopColor={mergedTheme.valueColor}
+                  stopOpacity={0.65}
+                />
               </linearGradient>
             </defs>
 
@@ -137,7 +157,10 @@ const MetricBarChart = ({
 
             <XAxis
               dataKey="label"
-              tick={{ fill: mergedTheme.axisColor, fontSize: isMobile ? 11 : 13 }}
+              tick={{
+                fill: mergedTheme.axisColor,
+                fontSize: isMobile ? 11 : 13,
+              }}
               axisLine={false}
               tickLine={false}
             />
@@ -185,7 +208,7 @@ const MetricBarChart = ({
             />
 
             <Bar
-              yAxisId="left"
+              {...(!isMobile ? { yAxisId: "left" } : {})}
               dataKey="count"
               name="العدد"
               fill={`url(#${gradientId}-count)`}
@@ -196,7 +219,7 @@ const MetricBarChart = ({
             </Bar>
 
             <Bar
-              yAxisId="right"
+              {...(!isMobile ? { yAxisId: "right" } : {})}
               dataKey="value"
               name="القيمة"
               fill={`url(#${gradientId}-value)`}

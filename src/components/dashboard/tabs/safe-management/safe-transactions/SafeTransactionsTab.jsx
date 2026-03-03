@@ -193,8 +193,11 @@ export default function SafeTransactionsTab() {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => handleViewTransactions(safe)}
-            className="group p-1.5 text-blue-600 hover:text-white hover:bg-blue-600 rounded-full transition relative"
-            title="عرض المعاملات"
+                          className="p-1.5 rounded-full 
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110"            title="عرض المعاملات"
           >
             <EyeIcon className="h-4 w-4" />
             {Number(safe.pending_transactions_count || 0) > 0 && (
@@ -205,8 +208,11 @@ export default function SafeTransactionsTab() {
           </button>
           <button
             onClick={() => handleAddTransaction(safe)}
-            className="group p-1.5 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition"
-            title="إضافة معاملة"
+                            className="p-1.5 rounded-full 
+                   text-emerald-700 bg-emerald-100
+                   hover:bg-emerald-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(16,185,129,0.45)]
+                   transition-all duration-200 hover:scale-110"            title="إضافة معاملة"
           >
             <PlusIcon className="h-4 w-4" />
           </button>
@@ -225,7 +231,7 @@ export default function SafeTransactionsTab() {
       <CustomPageHeader
         title="إدارة معاملات الخزائن"
         subtitle="تحكم كامل في معاملات جميع الخزائن داخل النظام"
-        icon={<BanknotesIcon className="h-8 w-8 text-white" />}
+        icon={<BanknotesIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={formatMoney(totalBalance)}
         statLabel="إجمالي الأرصدة"
         statSecondaryValue={safes.length}
@@ -233,7 +239,7 @@ export default function SafeTransactionsTab() {
         actionButton={(
           <button
             onClick={() => handleAddTransaction()}
-            className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
+            className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
             disabled={loading}
           >
             <PlusIcon className="h-5 w-5" />

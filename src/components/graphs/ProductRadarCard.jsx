@@ -9,7 +9,6 @@ import {
 
 const safeLog = (v) => Math.log10(Number(v || 0) + 1);
 
-
 const ProductRadarCard = ({ title, subtitle, metrics, color = "#22c55e" }) => {
   const rawValues = metrics.map((m) => Number(m.value || 0));
   const maxLog = Math.max(...rawValues.map(safeLog)) || 1;
@@ -21,21 +20,23 @@ const ProductRadarCard = ({ title, subtitle, metrics, color = "#22c55e" }) => {
   }));
 
   return (
-    <div className="bg-[#f7f8fb] rounded-2xl p-3 md:p-6 flex w-full gap-6 items-center">
-            {/* Info */}
-      <div className="bg-gray-100 rounded-2xl px-6 py-5 w-1/2 text-center">
-        <h3 className="lg:text-base font-bold mb-1">{title}</h3>
-        <p className="text-gray-500 text-sm mb-3">{subtitle}</p>
-
+    <div className="bg-[#f7f8fb] rounded-2xl p-3 md:p-6 flex flex-col sm:flex-row w-full gap-4 sm:gap-6 items-center">
+      {/* Info panel */}
+      <div className="bg-gray-100 rounded-2xl px-4 py-4 w-full sm:w-1/2 text-center shrink-0">
+        <h3 className="text-sm sm:text-base font-bold mb-1">{title}</h3>
+        <p className="text-gray-500 text-xs sm:text-sm mb-2 sm:mb-3">
+          {subtitle}
+        </p>
         {metrics.map((m) => (
-          <p key={m.label} className="text-sm font-medium">
+          <p key={m.label} className="text-xs sm:text-sm font-medium">
             {m.label}: {Number(m.value).toLocaleString("ar-EG")}
           </p>
         ))}
       </div>
+
       {/* Radar */}
-      <div style={{ width: "100%", height: 260 }}>
-        <ResponsiveContainer>
+      <div className="w-full h-[190px] sm:h-[260px]">
+        <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data}>
             <defs>
               <filter id="glow">
@@ -51,7 +52,7 @@ const ProductRadarCard = ({ title, subtitle, metrics, color = "#22c55e" }) => {
 
             <PolarAngleAxis
               dataKey="metric"
-              tick={{ fill: "#374151", fontSize: 12 }}
+              tick={{ fill: "#374151", fontSize: 10 }}
             />
 
             <PolarRadiusAxis domain={[0, 100]} tick={false} />
@@ -65,21 +66,16 @@ const ProductRadarCard = ({ title, subtitle, metrics, color = "#22c55e" }) => {
               isAnimationActive
               dot={(props) => {
                 const { cx, cy, payload } = props;
-
                 if (!payload?.raw) return null;
-
                 return (
                   <>
-                    {/* dot circle */}
                     <circle cx={cx} cy={cy} r={4} fill={color} />
-
-                    {/* value text */}
                     <text
                       x={cx}
-                      y={cy - 12}
+                      y={cy - 10}
                       textAnchor="middle"
                       fill="#0f172a"
-                      fontSize={12}
+                      fontSize={10}
                       fontWeight="600"
                     >
                       {payload.raw.toLocaleString("ar-EG")}
@@ -91,8 +87,6 @@ const ProductRadarCard = ({ title, subtitle, metrics, color = "#22c55e" }) => {
           </RadarChart>
         </ResponsiveContainer>
       </div>
-
-
     </div>
   );
 };

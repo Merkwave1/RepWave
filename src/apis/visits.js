@@ -67,12 +67,13 @@ function buildVisitsReportsUrl(params = {}) {
     const API_BASE_URL = import.meta.env.VITE_API_LOGIN_BASE_URL;
     if (!API_BASE_URL) throw new Error('VITE_API_LOGIN_BASE_URL is not defined.');
 
-    const url = new URL(`${API_BASE_URL}${companyName}/reports/visits.php`);
-    url.searchParams.set('users_uuid', users_uuid);
+    const basePath = `${API_BASE_URL}${companyName}/reports/visits.php`;
+    const searchParams = new URLSearchParams();
+    searchParams.set('users_uuid', users_uuid);
     Object.entries(params).forEach(([k, v]) => {
-        if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
+        if (v !== undefined && v !== null && v !== '') searchParams.set(k, v);
     });
-    return url.toString();
+    return `${basePath}?${searchParams.toString()}`;
 }
 
 /**

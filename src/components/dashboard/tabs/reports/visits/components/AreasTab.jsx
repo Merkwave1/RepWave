@@ -68,31 +68,42 @@ const AreasTab = ({ data }) => {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-        <h2 className="text-xl font-semibold text-gray-900">إحصائيات المناطق</h2>
-        
-        <div className="flex items-center space-x-4 space-x-reverse">
-          {/* Sort Options */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="total_visits">إجمالي الزيارات</option>
-            <option value="completed_visits">الزيارات المكتملة</option>
-            <option value="cancelled_visits">الزيارات الملغاة</option>
-            <option value="unique_clients_visited">العملاء المزارين</option>
-            <option value="avg_visit_duration">متوسط المدة</option>
-          </select>
-          
-          <button
-            onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            {sortOrder === 'desc' ? '↓ تنازلي' : '↑ تصاعدي'}
-          </button>
-        </div>
-      </div>
+<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+  {/* Title */}
+  <h2 className="text-2xl font-bold text-gray-900">إحصائيات المناطق</h2>
+
+  {/* Controls */}
+  <div className="flex items-center space-x-3 space-x-reverse">
+    {/* Sort Options */}
+    <select
+      value={sortBy}
+      onChange={(e) => setSortBy(e.target.value)}
+      className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium shadow-sm hover:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200"
+    >
+      <option value="total_visits">إجمالي الزيارات</option>
+      <option value="completed_visits">الزيارات المكتملة</option>
+      <option value="cancelled_visits">الزيارات الملغاة</option>
+      <option value="unique_clients_visited">العملاء المزارين</option>
+      <option value="avg_visit_duration">متوسط المدة</option>
+    </select>
+
+    {/* Sort Order Button */}
+    <button
+      onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+      className="flex items-center px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 font-medium text-gray-700"
+    >
+      {sortOrder === 'desc' ? (
+        <span className="flex items-center gap-1">
+          ↓ تنازلي
+        </span>
+      ) : (
+        <span className="flex items-center gap-1">
+          ↑ تصاعدي
+        </span>
+      )}
+    </button>
+  </div>
+</div>
 
       {/* Overall Statistics */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">

@@ -3,43 +3,43 @@
    ❌ NO LOGIC CHANGED
    ============================ */
 
-import React from 'react';
+import React from "react";
 import {
   MagnifyingGlassIcon,
   XMarkIcon,
   CalendarDaysIcon,
   FunnelIcon,
-} from '@heroicons/react/24/outline';
-import SearchableSelect from '../SearchableSelect/SearchableSelect';
+} from "@heroicons/react/24/outline";
+import SearchableSelect from "../SearchableSelect/SearchableSelect";
 
 const chipToneClasses = {
-  blue: 'bg-blue-100 text-blue-800',
-  green: 'bg-green-100 text-green-800',
-  indigo: 'bg-indigo-100 text-indigo-800',
-  orange: 'bg-orange-100 text-orange-800',
-  purple: 'bg-purple-100 text-purple-800',
-  yellow: 'bg-yellow-100 text-yellow-800',
-  teal: 'bg-teal-100 text-teal-800',
-  red: 'bg-red-100 text-red-800',
-  gray: 'bg-gray-100 text-gray-800',
+  blue: "bg-blue-100 text-blue-800",
+  green: "bg-green-100 text-green-800",
+  indigo: "bg-indigo-100 text-indigo-800",
+  orange: "bg-orange-100 text-orange-800",
+  purple: "bg-purple-100 text-purple-800",
+  yellow: "bg-yellow-100 text-yellow-800",
+  teal: "bg-teal-100 text-teal-800",
+  red: "bg-red-100 text-red-800",
+  gray: "bg-gray-100 text-gray-800",
 };
 
-const mergeClasses = (...classes) => classes.filter(Boolean).join(' ');
+const mergeClasses = (...classes) => classes.filter(Boolean).join(" ");
 
 /* ================= DATE RANGE ================= */
 
 const DateRangePicker = ({
-  from = '',
-  to = '',
-  placeholder = 'اختر فترة التاريخ',
+  from = "",
+  to = "",
+  placeholder = "اختر فترة التاريخ",
   onChange = () => {},
   onClear = () => {},
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = React.useRef(null);
 
-  const dateFrom = from || '';
-  const dateTo = to || '';
+  const dateFrom = from || "";
+  const dateTo = to || "";
 
   React.useEffect(() => {
     const handleClickOutside = (event) => {
@@ -47,19 +47,18 @@ const DateRangePicker = ({
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () =>
-      document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const formatDateForDisplay = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
     if (Number.isNaN(date.getTime())) return dateString;
-    return date.toLocaleDateString('en-GB', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
+    return date.toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
     });
   };
 
@@ -67,7 +66,7 @@ const DateRangePicker = ({
     if (!dateFrom && !dateTo) return placeholder;
     if (dateFrom && dateTo)
       return `${formatDateForDisplay(dateFrom)} - ${formatDateForDisplay(
-        dateTo
+        dateTo,
       )}`;
     if (dateFrom) return `من ${formatDateForDisplay(dateFrom)}`;
     if (dateTo) return `إلى ${formatDateForDisplay(dateTo)}`;
@@ -94,7 +93,7 @@ const DateRangePicker = ({
         <div className="flex items-center justify-between w-full">
           <span
             className={`truncate ${
-              !dateFrom && !dateTo ? 'text-gray-400' : 'text-gray-900'
+              !dateFrom && !dateTo ? "text-gray-400" : "text-gray-900"
             }`}
           >
             {getDisplayText()}
@@ -178,16 +177,16 @@ const getChipToneClass = (tone) =>
 /* ================= FILTER BAR ================= */
 
 export default function FilterBar({
-  title = 'البحث والفلاتر',
+  title = "البحث والفلاتر",
   searchConfig = null,
   dateRangeConfig = null,
   selectFilters = [],
   children = null,
   activeChips = [],
-  activeTitle = 'الفلاتر النشطة:',
-  clearAllLabel = 'مسح جميع الفلاتر',
+  activeTitle = "الفلاتر النشطة:",
+  clearAllLabel = "مسح جميع الفلاتر",
   onClearAll = null,
-  className = '',
+  className = "",
 }) {
   const hasChips = Array.isArray(activeChips) && activeChips.length > 0;
   const hasSearch = !!searchConfig;
@@ -196,13 +195,11 @@ export default function FilterBar({
     ? selectFilters.filter((filter) => !filter?.hidden)
     : [];
   const hasSelects = visibleSelectFilters.length > 0;
-  const showControlsRow =
-    hasSearch || hasDateRange || hasSelects || !!children;
+  const showControlsRow = hasSearch || hasDateRange || hasSelects || !!children;
 
   const searchWhileTyping = Boolean(searchConfig?.searchWhileTyping);
-  const searchValue = searchConfig?.value ?? '';
-  const [searchInputValue, setSearchInputValue] =
-    React.useState(searchValue);
+  const searchValue = searchConfig?.value ?? "";
+  const [searchInputValue, setSearchInputValue] = React.useState(searchValue);
   const prevSearchValueRef = React.useRef(searchValue);
   const [isLocalDirty, setIsLocalDirty] = React.useState(false);
 
@@ -215,16 +212,16 @@ export default function FilterBar({
   }, [searchValue]);
 
   const canTriggerSearch =
-    typeof searchConfig?.onSubmit === 'function' ||
-    typeof searchConfig?.onChange === 'function';
+    typeof searchConfig?.onSubmit === "function" ||
+    typeof searchConfig?.onChange === "function";
 
-  const searchPlaceholder = searchConfig?.placeholder || '';
+  const searchPlaceholder = searchConfig?.placeholder || "";
 
   const shouldShowApplyFromConfig = Boolean(
     searchConfig?.onSubmit &&
-      (searchConfig?.showApplyButton !== undefined
-        ? searchConfig.showApplyButton
-        : searchConfig?.isDirty ?? false)
+    (searchConfig?.showApplyButton !== undefined
+      ? searchConfig.showApplyButton
+      : (searchConfig?.isDirty ?? false)),
   );
 
   const applyButtonPreference =
@@ -233,32 +230,26 @@ export default function FilterBar({
       : true;
 
   const deferredApplyVisibility =
-    applyButtonPreference ||
-    isLocalDirty ||
-    (searchConfig?.isDirty ?? false);
+    applyButtonPreference || isLocalDirty || (searchConfig?.isDirty ?? false);
 
   const showSearchApply = searchWhileTyping
     ? shouldShowApplyFromConfig
     : canTriggerSearch &&
       deferredApplyVisibility &&
-      searchInputValue.trim() !== '';
+      searchInputValue.trim() !== "";
 
-  const applyLabel = searchConfig?.applyLabel || 'تطبيق';
+  const applyLabel = searchConfig?.applyLabel || "تطبيق";
 
   const handleSearchClear = () => {
-    setSearchInputValue('');
+    setSearchInputValue("");
     setIsLocalDirty(false);
 
-    if (typeof searchConfig?.onClear === 'function')
-      searchConfig.onClear();
-    else if (typeof searchConfig?.onChange === 'function')
-      searchConfig.onChange('');
+    if (typeof searchConfig?.onClear === "function") searchConfig.onClear();
+    else if (typeof searchConfig?.onChange === "function")
+      searchConfig.onChange("");
 
-    if (
-      !searchWhileTyping &&
-      typeof searchConfig?.onSubmit === 'function'
-    ) {
-      searchConfig.onSubmit('');
+    if (!searchWhileTyping && typeof searchConfig?.onSubmit === "function") {
+      searchConfig.onSubmit("");
     }
   };
 
@@ -267,14 +258,11 @@ export default function FilterBar({
 
     const valueToUse = searchInputValue;
 
-    if (
-      !searchWhileTyping &&
-      typeof searchConfig?.onChange === 'function'
-    ) {
+    if (!searchWhileTyping && typeof searchConfig?.onChange === "function") {
       searchConfig.onChange(valueToUse);
     }
 
-    if (typeof searchConfig?.onSubmit === 'function') {
+    if (typeof searchConfig?.onSubmit === "function") {
       searchConfig.onSubmit(valueToUse);
     }
 
@@ -297,12 +285,12 @@ export default function FilterBar({
         border border-gray-100
         overflow-hidden
         `,
-        className
+        className,
       )}
     >
       <div className="absolute inset-x-0 top-0 h-1 bg-[#8DD8F5]" />
 
-      <div className="flex mb-4">
+      <div className="flex flex-col md:flex-row mb-4">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1F2937] text-white text-sm font-semibold shadow-sm">
           <FunnelIcon className="h-4 w-4 text-[#8DD8F5]" />
           {title}
@@ -310,9 +298,9 @@ export default function FilterBar({
       </div>
 
       {showControlsRow && (
-        <div className="flex flex-col md:flex-row gap-3 items-center">
+        <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
           {hasSearch && (
-            <div className="flex-[2] relative min-w-0">
+            <div className="w-full md:flex-[2] relative min-w-0">
               <div
                 className="
                 w-full flex items-center gap-2
@@ -334,13 +322,12 @@ export default function FilterBar({
                     const nextValue = e.target.value;
                     setSearchInputValue(nextValue);
 
-                    if (searchWhileTyping)
-                      searchConfig?.onChange?.(nextValue);
+                    if (searchWhileTyping) searchConfig?.onChange?.(nextValue);
                     else setIsLocalDirty(true);
                   }}
                   onKeyDown={(e) => {
                     if (
-                      e.key === 'Enter' &&
+                      e.key === "Enter" &&
                       searchWhileTyping &&
                       canTriggerSearch
                     ) {
@@ -371,32 +358,21 @@ export default function FilterBar({
                     </button>
                   )}
 
-                  <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 pointer-events-none" />
+                  <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 hidden md:block pointer-events-none" />
                 </div>
               </div>
             </div>
           )}
 
           {hasDateRange && (
-            <div className="flex-1 min-w-0">
+            <div className="w-full md:flex-1 min-w-0">
               <DateRangePicker
-                from={
-                  dateRangeConfig?.from ??
-                  dateRangeConfig?.dateFrom ??
-                  ''
-                }
-                to={
-                  dateRangeConfig?.to ??
-                  dateRangeConfig?.dateTo ??
-                  ''
-                }
+                from={dateRangeConfig?.from ?? dateRangeConfig?.dateFrom ?? ""}
+                to={dateRangeConfig?.to ?? dateRangeConfig?.dateTo ?? ""}
                 placeholder={
-                  dateRangeConfig?.placeholder ||
-                  'اختر فترة التاريخ'
+                  dateRangeConfig?.placeholder || "اختر فترة التاريخ"
                 }
-                onChange={(f, t) =>
-                  dateRangeConfig?.onChange?.(f, t)
-                }
+                onChange={(f, t) => dateRangeConfig?.onChange?.(f, t)}
                 onClear={() => dateRangeConfig?.onClear?.()}
               />
             </div>
@@ -407,18 +383,16 @@ export default function FilterBar({
               <div
                 key={filter.key}
                 className={mergeClasses(
-                  'flex-1 min-w-0',
-                  filter.wrapperClassName
+                  "w-full md:flex-1 min-w-0",
+                  filter.wrapperClassName,
                 )}
               >
                 <SearchableSelect
                   options={filter.options || []}
-                  value={filter.value ?? ''}
+                  value={filter.value ?? ""}
                   onChange={(val) => filter.onChange?.(val)}
-                  placeholder={
-                    filter.placeholder || filter.label || ''
-                  }
-                  className={filter.className || 'w-full'}
+                  placeholder={filter.placeholder || filter.label || ""}
+                  className={filter.className || "w-full"}
                 />
               </div>
             ))}
@@ -428,28 +402,21 @@ export default function FilterBar({
       )}
 
       {hasChips && (
-        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
             {activeTitle && (
-              <span className="text-sm text-gray-600">
-                {activeTitle}
-              </span>
+              <span className="text-sm text-gray-600">{activeTitle}</span>
             )}
 
             {activeChips.map((chip) => {
               const toneClass = getChipToneClass(chip.tone);
 
-              const content =
-                chip.render ?? (
-                  <>
-                    <span>{chip.label}</span>
-                    {chip.value && (
-                      <span className="mx-1">
-                        : {chip.value}
-                      </span>
-                    )}
-                  </>
-                );
+              const content = chip.render ?? (
+                <>
+                  <span>{chip.label}</span>
+                  {chip.value && <span className="mx-1">: {chip.value}</span>}
+                </>
+              );
 
               if (chip.onRemove) {
                 return (
@@ -457,15 +424,13 @@ export default function FilterBar({
                     key={chip.key}
                     onClick={chip.onRemove}
                     className={mergeClasses(
-                      'px-3 py-1.5 rounded-full text-sm flex items-center gap-1 transition',
+                      "px-3 py-1.5 rounded-full text-sm flex items-center gap-1 transition",
                       toneClass,
-                      chip.className
+                      chip.className,
                     )}
                   >
                     {content}
-                    <span className="text-lg leading-none">
-                      ×
-                    </span>
+                    <span className="text-lg leading-none">×</span>
                   </button>
                 );
               }
@@ -474,9 +439,9 @@ export default function FilterBar({
                 <span
                   key={chip.key}
                   className={mergeClasses(
-                    'px-3 py-1.5 rounded-full text-sm flex items-center gap-1',
+                    "px-3 py-1.5 rounded-full text-sm flex items-center gap-1",
                     toneClass,
-                    chip.className
+                    chip.className,
                   )}
                 >
                   {content}
@@ -488,7 +453,7 @@ export default function FilterBar({
           {onClearAll && (
             <button
               onClick={onClearAll}
-              className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
+              className="shrink-0 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
             >
               {clearAllLabel}
             </button>

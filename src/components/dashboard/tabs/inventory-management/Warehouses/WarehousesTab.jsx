@@ -558,7 +558,7 @@ function WarehousesTab() {
                   return (
                     <>
                       <td className="text-center px-4 py-3 ">
-                        <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-semibold">
+                        <span className=" text-[#8DD8F5] bg-[#1F2937] text-xs px-2 py-1 rounded-full font-semibold">
                           {warehouse.warehouse_id}
                         </span>
                       </td>

@@ -1,56 +1,62 @@
 // src/components/dashboard/tabs/safe-management/safe-transactions/AddSafeTransactionForm.jsx
-import React, { useState } from 'react';
-import { PlusIcon, XMarkIcon, BanknotesIcon, CreditCardIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
-import PaymentMethodSelector from '../../../../common/PaymentMethodSelector/PaymentMethodSelector';
-import NumberInput from '../../../../common/NumberInput/NumberInput';
-import { addSafeTransaction } from '../../../../../apis/safe_transactions';
-import useCurrency from '../../../../../hooks/useCurrency';
+import React, { useState } from "react";
+import {
+  PlusIcon,
+  XMarkIcon,
+  BanknotesIcon,
+  CreditCardIcon,
+  ArchiveBoxIcon,
+} from "@heroicons/react/24/outline";
+import PaymentMethodSelector from "../../../../common/PaymentMethodSelector/PaymentMethodSelector";
+import NumberInput from "../../../../common/NumberInput/NumberInput";
+import { addSafeTransaction } from "../../../../../apis/safe_transactions";
+import useCurrency from "../../../../../hooks/useCurrency";
 
 const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
   const { symbol, formatCurrency: formatMoney } = useCurrency();
   const [formData, setFormData] = useState({
-    safe_id: safeId || '', // Allow selection if safeId not provided
-    type: 'deposit',
-    amount: '',
-    payment_method_id: '',
-    description: '',
-    reference: ''
+    safe_id: safeId || "", // Allow selection if safeId not provided
+    type: "deposit",
+    amount: "",
+    payment_method_id: "",
+    description: "",
+    reference: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Simplified: only provide Deposit and Withdrawal for quick entry
   const transactionTypes = [
-    { value: 'deposit', label: 'إيداع', icon: '⬆️', color: 'text-green-600' },
-    { value: 'withdrawal', label: 'سحب', icon: '⬇️', color: 'text-red-600' }
+    { value: "deposit", label: "إيداع", icon: "⬆️", color: "text-green-600" },
+    { value: "withdrawal", label: "سحب", icon: "⬇️", color: "text-red-600" },
   ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const handlePaymentMethodChange = (paymentMethodId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      payment_method_id: paymentMethodId
+      payment_method_id: paymentMethodId,
     }));
-    
+
     if (errors.payment_method_id) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        payment_method_id: ''
+        payment_method_id: "",
       }));
     }
   };
@@ -59,21 +65,21 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
     const newErrors = {};
 
     if (!safeId && !formData.safe_id) {
-      newErrors.safe_id = 'الخزنة مطلوبة';
+      newErrors.safe_id = "الخزنة مطلوبة";
     }
 
     if (!formData.type.trim()) {
-      newErrors.type = 'نوع المعاملة مطلوب';
+      newErrors.type = "نوع المعاملة مطلوب";
     }
 
     if (!formData.amount.trim()) {
-      newErrors.amount = 'المبلغ مطلوب';
+      newErrors.amount = "المبلغ مطلوب";
     } else if (isNaN(formData.amount) || parseFloat(formData.amount) <= 0) {
-      newErrors.amount = 'يجب أن يكون المبلغ رقم موجب';
+      newErrors.amount = "يجب أن يكون المبلغ رقم موجب";
     }
 
     if (!formData.payment_method_id) {
-      newErrors.payment_method_id = 'طريقة الدفع مطلوبة';
+      newErrors.payment_method_id = "طريقة الدفع مطلوبة";
     }
 
     setErrors(newErrors);
@@ -82,7 +88,7 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -97,31 +103,39 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
         amount: parseFloat(formData.amount),
         payment_method_id: parseInt(formData.payment_method_id),
         description: formData.description,
-        reference: formData.reference
+        reference: formData.reference,
       };
 
       await addSafeTransaction(transactionData);
       onSubmit?.();
       onClose();
     } catch (error) {
-      console.error('Error adding safe transaction:', error);
+      console.error("Error adding safe transaction:", error);
       setErrors({
-        submit: error.message || 'حدث خطأ أثناء إضافة المعاملة'
+        submit: error.message || "حدث خطأ أثناء إضافة المعاملة",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const selectedTransactionType = transactionTypes.find(type => type.value === formData.type);
+  const selectedTransactionType = transactionTypes.find(
+    (type) => type.value === formData.type,
+  );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden mx-4" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-100 to-emerald-100 px-6 py-4 border-b border-gray-300">
+        <div className="bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-300">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <h3 className="text-base sm:text-xl font-bold text-gray-800 flex items-center gap-2 truncate">
               <PlusIcon className="h-6 w-6 text-green-600" />
               إضافة معاملة جديدة
             </h3>
@@ -135,8 +149,11 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-140px)]" dir="rtl">
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div
+          className="overflow-y-auto max-h-[calc(95vh-110px)] sm:max-h-[calc(90vh-140px)]"
+          dir="rtl"
+        >
+          <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-6">
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 {errors.submit}
@@ -154,23 +171,35 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
                   <button
                     key={type.value}
                     type="button"
-                    onClick={() => handleChange({ target: { name: 'type', value: type.value } })}
+                    onClick={() =>
+                      handleChange({
+                        target: { name: "type", value: type.value },
+                      })
+                    }
                     className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
                       formData.type === type.value
-                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
                     }`}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-xl">{type.icon}</span>
-                      <span className={formData.type === type.value ? 'text-blue-700' : 'text-gray-700'}>
+                      <span
+                        className={
+                          formData.type === type.value
+                            ? "text-blue-700"
+                            : "text-gray-700"
+                        }
+                      >
                         {type.label}
                       </span>
                     </div>
                   </button>
                 ))}
               </div>
-              {errors.type && <p className="mt-2 text-sm text-red-600">{errors.type}</p>}
+              {errors.type && (
+                <p className="mt-2 text-sm text-red-600">{errors.type}</p>
+              )}
             </div>
 
             {/* Safe Selection - Only show if safes array is provided and no safeId */}
@@ -189,7 +218,7 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
                     value={formData.safe_id}
                     onChange={handleChange}
                     className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
-                      errors.safe_id ? 'border-red-500' : 'border-gray-300'
+                      errors.safe_id ? "border-red-500" : "border-gray-300"
                     }`}
                     disabled={isSubmitting}
                     dir="rtl"
@@ -197,11 +226,18 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
                     <option value="">اختر الخزنة</option>
                     {safes.map((safe) => (
                       <option key={safe.safes_id} value={safe.safes_id}>
-                        {safe.safes_name} - {safe.safes_type === 'company' ? 'خزنة الشركة' : 'خزنة مندوب'}
+                        {safe.safes_name} -{" "}
+                        {safe.safes_type === "company"
+                          ? "خزنة الشركة"
+                          : "خزنة مندوب"}
                       </option>
                     ))}
                   </select>
-                  {errors.safe_id && <p className="mt-1 text-sm text-red-600">{errors.safe_id}</p>}
+                  {errors.safe_id && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.safe_id}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -221,8 +257,10 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
                   <div className="relative">
                     <NumberInput
                       value={formData.amount}
-                      onChange={(v) => handleChange({ target: { name: 'amount', value: v } })}
-                      className={`w-full ${errors.amount ? 'border-red-500' : ''}`}
+                      onChange={(v) =>
+                        handleChange({ target: { name: "amount", value: v } })
+                      }
+                      className={`w-full ${errors.amount ? "border-red-500" : ""}`}
                       placeholder="0.00"
                       disabled={isSubmitting}
                     />
@@ -230,7 +268,9 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
                       {symbol}
                     </div>
                   </div>
-                  {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
+                  {errors.amount && (
+                    <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+                  )}
                 </div>
 
                 {/* Payment Method */}
@@ -297,37 +337,47 @@ const AddSafeTransactionForm = ({ safeId, safes, onClose, onSubmit }) => {
                 </h4>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{selectedTransactionType.icon}</span>
-                    <span className={`font-medium ${selectedTransactionType.color}`}>
+                    <span className="text-xl">
+                      {selectedTransactionType.icon}
+                    </span>
+                    <span
+                      className={`font-medium ${selectedTransactionType.color}`}
+                    >
                       {selectedTransactionType.label}
                     </span>
                   </div>
-                  <div className={`text-xl font-bold ${
-                    formData.type === 'deposit' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {formData.type === 'deposit' ? '+' : '-'}
-                    {formatMoney(Math.abs(parseFloat(formData.amount || 0) || 0))}
+                  <div
+                    className={`text-xl font-bold ${
+                      formData.type === "deposit"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {formData.type === "deposit" ? "+" : "-"}
+                    {formatMoney(
+                      Math.abs(parseFloat(formData.amount || 0) || 0),
+                    )}
                   </div>
                 </div>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-4 border-t border-gray-200">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+                className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors text-base sm:text-sm"
                 disabled={isSubmitting}
               >
                 إلغاء
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-sm"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'جاري الحفظ...' : 'إضافة المعاملة'}
+                {isSubmitting ? "جاري الحفظ..." : "إضافة المعاملة"}
               </button>
             </div>
           </form>

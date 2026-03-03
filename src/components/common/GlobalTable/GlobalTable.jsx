@@ -1,10 +1,7 @@
 import React from "react";
 import Loader from "../Loader/Loader";
 import Alert from "../Alert/Alert";
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 
 /* =========================================================
    Helpers
@@ -84,7 +81,7 @@ export default function GlobalTable({
 
   const normalizedColumns = React.useMemo(
     () => (Array.isArray(columns) ? columns : []),
-    [columns]
+    [columns],
   );
 
   const displayedData = React.useMemo(() => {
@@ -98,9 +95,7 @@ export default function GlobalTable({
       const bNum = Number(bVal);
 
       if (!isNaN(aNum) && !isNaN(bNum)) {
-        return sortConfig.direction === "asc"
-          ? aNum - bNum
-          : bNum - aNum;
+        return sortConfig.direction === "asc" ? aNum - bNum : bNum - aNum;
       }
 
       return sortConfig.direction === "asc"
@@ -150,9 +145,7 @@ export default function GlobalTable({
 
     setSortConfig((prev) => {
       const next =
-        prev.key === col.key && prev.direction === "asc"
-          ? "desc"
-          : "asc";
+        prev.key === col.key && prev.direction === "asc" ? "desc" : "asc";
 
       onSort?.(col.key, next);
 
@@ -177,7 +170,7 @@ export default function GlobalTable({
               className={joinClasses(
                 "px-6 py-4 text-xs font-semibold text-[#1F2937] whitespace-nowrap",
                 alignMap[col.align],
-                col.sortable && "cursor-pointer"
+                col.sortable && "cursor-pointer",
               )}
             >
               {col.sortable ? (
@@ -210,7 +203,7 @@ export default function GlobalTable({
         const rowClasses = joinClasses(
           "group transition-all duration-150",
           index % 2 === 0 ? "bg-white" : "bg-gray-50/30",
-          "hover:bg-[#8DD8F5]/10 hover:shadow-[inset_4px_0_0_#8DD8F5]"
+          "hover:bg-[#8DD8F5]/10 hover:shadow-[inset_4px_0_0_#8DD8F5]",
         );
 
         const cells =
@@ -221,41 +214,125 @@ export default function GlobalTable({
                   key={ci}
                   className={joinClasses(
                     "px-6 py-4 text-sm text-gray-700 border-b border-gray-100 whitespace-nowrap",
-                    alignMap[col.align]
+                    alignMap[col.align],
                   )}
                 >
                   {col.render
                     ? col.render(item, index)
-                    : item?.[col.key] ?? "—"}
+                    : (item?.[col.key] ?? "—")}
                 </td>
               ));
 
-        return <tr key={key} className={rowClasses}>{cells}</tr>;
+        return (
+          <tr key={key} className={rowClasses}>
+            {cells}
+          </tr>
+        );
       })}
     </tbody>
   );
+
+  /* =========================================================
+     Mobile Cards
+  ========================================================= */
+
+  const renderMobileCards = () => {
+    // Split columns into regular (paired 2-up) and full-width (actions / explicit flag)
+    const visibleCols = normalizedColumns.filter((c) => !c.hideOnMobile);
+    const isFullWidth = (col) =>
+      col.mobileFullWidth ||
+      col.key === "actions" ||
+      col.key === "action" ||
+      String(col.key).toLowerCase().includes("action");
+
+    return (
+      <div className="flex flex-col gap-2 p-2 w-full">
+        {displayedData.map((item, index) => {
+          const key = item?.[rowKey] ?? index;
+          const regularCols = visibleCols.filter((c) => !isFullWidth(c));
+          const actionCols = visibleCols.filter((c) => isFullWidth(c));
+
+          // Build paired rows from regular columns
+          const pairs = [];
+          for (let i = 0; i < regularCols.length; i += 2) {
+            pairs.push(regularCols.slice(i, i + 2));
+          }
+
+          return (
+            <div
+              key={key}
+              className="w-full bg-white rounded-xl border border-gray-200 shadow-sm"
+            >
+              {/* Regular columns: 2-column grid */}
+              {pairs.map((pair, rowIdx) => (
+                <React.Fragment key={rowIdx}>
+                  {/* Hard separator – never overridden by cell bg */}
+                  {rowIdx !== 0 && <div className="h-px bg-gray-200 w-full" />}
+                  <div
+                    className={joinClasses(
+                      "grid divide-x divide-x-reverse divide-gray-200",
+                      pair.length === 2 ? "grid-cols-2" : "grid-cols-1",
+                    )}
+                  >
+                    {pair.map((col, ci) => (
+                      <div
+                        key={ci}
+                        className="flex flex-col min-w-0 bg-white px-2 pt-1.5 pb-2 gap-1"
+                      >
+                        <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wide leading-normal truncate">
+                          {col.title}
+                        </span>
+                        <div className="flex flex-wrap gap-1 items-start text-[11px] font-medium text-gray-800 leading-snug break-words whitespace-normal min-h-0">
+                          {col.render
+                            ? col.render(item, index)
+                            : (item?.[col.key] ?? "—")}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </React.Fragment>
+              ))}
+
+              {/* Action columns: full-width row, buttons shrunk */}
+              {actionCols.length > 0 && (
+                <div
+                  className="border-t-2 border-gray-100 bg-gray-50/70 px-2 py-2 flex flex-wrap items-center gap-1.5
+                  [&_button]:!text-[10px] [&_button]:!px-2 [&_button]:!py-1 [&_button]:!gap-1
+                  [&_button]:!rounded-md [&_svg]:!h-3.5 [&_svg]:!w-3.5"
+                >
+                  {actionCols.map((col, ci) => (
+                    <React.Fragment key={ci}>
+                      {col.render
+                        ? col.render(item, index)
+                        : (item?.[col.key] ?? null)}
+                    </React.Fragment>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   /* =========================================================
      Footer
   ========================================================= */
 
   const renderFooter = () => {
-    if (!showColumnTotals || !Object.keys(columnTotals).length)
-      return null;
+    if (!showColumnTotals || !Object.keys(columnTotals).length) return null;
 
     return (
       <tfoot className="bg-gray-50/70 border-t border-gray-200">
         <tr>
           {normalizedColumns.map((col, i) => (
-            <td
-              key={i}
-              className="px-6 py-3 text-sm font-bold text-[#1F2937]"
-            >
+            <td key={i} className="px-6 py-3 text-sm font-bold text-[#1F2937]">
               {columnTotals[col.key]
                 ? columnTotals[col.key].toLocaleString("ar-SA")
                 : i === 0
-                ? `Σ ${columnTotalsLabel}`
-                : "—"}
+                  ? `Σ ${columnTotalsLabel}`
+                  : "—"}
             </td>
           ))}
         </tr>
@@ -267,13 +344,12 @@ export default function GlobalTable({
      Render
   ========================================================= */
 
-  const summaryVisible =
-    showSummary && (totalCount !== null || searchTerm);
+  const summaryVisible = showSummary && (totalCount !== null || searchTerm);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
       {summaryVisible && (
-        <div className="px-5 py-3 border-b border-gray-100 text-sm text-gray-700 flex justify-between">
+        <div className="hidden md:flex px-5 py-3 border-b border-gray-100 text-sm text-gray-700 justify-between">
           <div>
             إجمالي العناصر:
             <span className="font-bold text-[#1F2937] mr-2">
@@ -284,9 +360,7 @@ export default function GlobalTable({
           {searchTerm && (
             <div className="text-gray-500">
               نتائج البحث:{" "}
-              <span className="font-medium text-[#1F2937]">
-                {searchTerm}
-              </span>
+              <span className="font-medium text-[#1F2937]">{searchTerm}</span>
             </div>
           )}
         </div>
@@ -313,15 +387,31 @@ export default function GlobalTable({
           </p>
         </div>
       ) : (
-        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300">
-          <div className="min-w-[900px]">
-            <table className="w-full border-separate border-spacing-0 text-sm">
-              {renderHeader()}
-              {renderBody()}
-              {renderFooter()}
-            </table>
+        <>
+          {/* ── Mobile: card stack (hidden on md+) ── */}
+          <div className="md:hidden w-full overflow-hidden">
+            {summaryVisible && (
+              <div className="px-3 pt-3 text-xs text-gray-500">
+                إجمالي:{" "}
+                <span className="font-bold text-[#1F2937]">
+                  {totalCount ?? data.length}
+                </span>
+              </div>
+            )}
+            {renderMobileCards()}
           </div>
-        </div>
+
+          {/* ── Desktop: full table (hidden below md) ── */}
+          <div className="hidden md:block w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300">
+            <div className="min-w-[900px]">
+              <table className="w-full border-separate border-spacing-0 text-sm">
+                {renderHeader()}
+                {renderBody()}
+                {renderFooter()}
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

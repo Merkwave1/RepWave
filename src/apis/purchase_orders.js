@@ -276,25 +276,45 @@ export const getPurchaseOrdersPaginated = async ({ page = 1, limit = 10, status,
     const response = await apiClient.get(url);
     if (response.status === 'success') {
       // Normalize shape to { data, pagination }
+      // Mock apiClient returns response.data as a direct array — handle all shapes:
       const d = response.data || {};
-      const list = Array.isArray(d.purchase_orders) ? d.purchase_orders : Array.isArray(response.purchase_orders) ? response.purchase_orders : [];
-      const total = Number(d.total_count ?? d.total_items ?? d.count ?? 0);
-      const p = d.pagination || null;
-      const normalized = {
-        data: list,
-        pagination: p ? {
-          current_page: Number(p.current_page ?? p.page ?? page),
-          limit: Number(p.limit ?? p.per_page ?? limit),
-          total_items: Number(p.total_items ?? total),
-          total_pages: Number(p.total_pages ?? (Number.isFinite(total) && (limit>0) ? Math.max(1, Math.ceil(total/limit)) : 1))
-        } : {
+      let list = Array.isArray(d.purchase_orders) ? d.purchase_orders
+        : Array.isArray(response.purchase_orders) ? response.purchase_orders
+        : Array.isArray(d) ? d   // direct array from mock
+        : [];
+
+      // Apply client-side filters (mock server doesn't filter)
+      if (status) {
+        const statuses = status.split(',').map(s => s.trim()).filter(Boolean);
+        if (statuses.length) list = list.filter(o => statuses.includes(o.purchase_orders_status));
+      }
+      if (supplier_id) {
+        const sid = Number(supplier_id);
+        list = list.filter(o => o.purchase_orders_supplier_id === sid);
+      }
+      if (search) {
+        const term = search.toLowerCase();
+        list = list.filter(o =>
+          String(o.purchase_orders_id || '').includes(term) ||
+          (o.purchase_orders_order_number || '').toLowerCase().includes(term) ||
+          (o.purchase_orders_notes || '').toLowerCase().includes(term)
+        );
+      }
+
+      // Client-side pagination (mock server returns all rows)
+      const total = list.length;
+      const offset = (Number(page) - 1) * Number(limit);
+      const paginatedList = Number(limit) > 0 ? list.slice(offset, offset + Number(limit)) : list;
+
+      return {
+        data: paginatedList,
+        pagination: {
           current_page: Number(page),
           limit: Number(limit),
-          total_items: total || list.length,
-          total_pages: Number.isFinite(total) && (limit>0) ? Math.max(1, Math.ceil(total/limit)) : 1
-        }
+          total_items: total,
+          total_pages: Math.max(1, Number(limit) > 0 ? Math.ceil(total / Number(limit)) : 1),
+        },
       };
-      return normalized;
     }
     console.error('Purchase orders API error response:', response);
     throw new Error(response.message || 'Failed to fetch purchase orders');

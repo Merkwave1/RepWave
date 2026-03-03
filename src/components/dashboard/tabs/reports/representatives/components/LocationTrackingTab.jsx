@@ -339,15 +339,21 @@ const LocationTrackingTab = () => {
               title: `موقع ${row.users_role === 'store_keeper' ? 'أمين المخزن' : 'المندوب'}: ${row.users_name}`,
               description: `آخر تحديث: ${getTimeAgo(row.tracking_time)}`
             })}
-            className="flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-          >
+                          className="p-1.5 rounded-full  flex items-center gap-1
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110"          >
             <MapPinIcon className="h-4 w-4 ml-1" />
             عرض الموقع
           </button>
           <button
             onClick={() => handleShowDetails(row)}
-            className="flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
-          >
+              className="p-1.5 rounded-full flex items-center gap-1
+                   text-emerald-700 bg-emerald-100
+                   hover:bg-emerald-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(16,185,129,0.45)]
+                   transition-all duration-200 hover:scale-110"          >
             <EyeIcon className="h-4 w-4 ml-1" />
             التفاصيل
           </button>
@@ -362,7 +368,7 @@ const LocationTrackingTab = () => {
       <CustomPageHeader
         title="آخر موقع للمندوبين"
         subtitle="عرض آخر موقع مسجل لكل مندوب مع معلومات البطارية والجهاز"
-        icon={<MapPinIcon className="h-8 w-8 text-white" />}
+        icon={<MapPinIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={locationData.length}
         statLabel="مندوب نشط"
       />

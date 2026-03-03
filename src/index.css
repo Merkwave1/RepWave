@@ -35,3 +35,14 @@ body {
   background-color: #f4f7f6; /* A light, neutral background */
   color: #333;
 }
+
+/* ── Mobile: tighten horizontal padding on page containers ── */
+/* Tailwind's p-4 (16 px) on each side is too wide on small phones (e.g. iPhone X, 375 px).
+   Override only the horizontal padding; keep vertical padding as-is. */
+@media (max-width: 639px) {
+  /* Page-level containers that are direct children of the main content area */
+  main > div {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+}

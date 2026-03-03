@@ -54,50 +54,73 @@ const CategoriesTab = ({ data, loading }) => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900">تفاصيل الفئات</h3>
           </div>
-          <div className="space-y-4">
-            {categories.categories.map((category, index) => (
-              <div key={index} className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-lg font-semibold text-gray-900">{category.category_name}</h4>
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{width: `${category.percentage || 0}%`}}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-600">{category.percentage || 0}%</span>
-                  </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {categories.categories.map((category, index) => (
+            <div
+              key={index}
+              className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              {/* ===== Header ===== */}
+              <div className="flex items-start justify-between mb-4 gap-3">
+                <h4 className="text-base font-semibold text-gray-900 leading-snug">
+                  {category.category_name}
+                </h4>
+
+                <span className="text-xs font-medium text-gray-500">
+                  {category.percentage || 0}%
+                </span>
+              </div>
+
+              {/* ===== Progress Bar ===== */}
+              <div className="w-full bg-gray-100 rounded-full h-2.5 mb-5 overflow-hidden">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                  style={{ width: `${category.percentage || 0}%` }}
+                />
+              </div>
+
+              {/* ===== Stats Grid ===== */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-blue-50 rounded-xl p-3 text-center">
+                  <p className="text-lg font-semibold text-blue-600">
+                    {category.product_count}
+                  </p>
+                  <p className="text-xs text-gray-500">إجمالي المنتجات</p>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-blue-600">{category.product_count}</p>
-                    <p className="text-xs text-gray-500">إجمالي المنتجات</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-green-600">{category.active_count}</p>
-                    <p className="text-xs text-gray-500">منتجات نشطة</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-red-600">{category.inactive_count}</p>
-                    <p className="text-xs text-gray-500">منتجات غير نشطة</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-purple-600">{category.total_inventory}</p>
-                    <p className="text-xs text-gray-500">وحدات المخزون</p>
-                  </div>
+
+                <div className="bg-green-50 rounded-xl p-3 text-center">
+                  <p className="text-lg font-semibold text-green-600">
+                    {category.active_count}
+                  </p>
+                  <p className="text-xs text-gray-500">منتجات نشطة</p>
                 </div>
-                <div className="mt-3 pt-3 border-t">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">إجمالي المخزون:</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {category.total_inventory?.toLocaleString()} وحدة
-                    </span>
-                  </div>
+
+                <div className="bg-red-50 rounded-xl p-3 text-center">
+                  <p className="text-lg font-semibold text-red-600">
+                    {category.inactive_count}
+                  </p>
+                  <p className="text-xs text-gray-500">منتجات غير نشطة</p>
+                </div>
+
+                <div className="bg-purple-50 rounded-xl p-3 text-center">
+                  <p className="text-lg font-semibold text-purple-600">
+                    {category.total_inventory}
+                  </p>
+                  <p className="text-xs text-gray-500">وحدات المخزون</p>
                 </div>
               </div>
-            ))}
-          </div>
+
+              {/* ===== Footer ===== */}
+              <div className="mt-5 pt-4 border-t flex justify-between items-center">
+                <span className="text-sm text-gray-600">إجمالي المخزون</span>
+
+                <span className="text-sm font-semibold text-gray-900">
+                  {category.total_inventory?.toLocaleString()} وحدة
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
         </div>
       )}
 

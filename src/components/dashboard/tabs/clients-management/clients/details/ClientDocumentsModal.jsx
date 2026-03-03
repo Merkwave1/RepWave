@@ -1,21 +1,25 @@
 // src/components/dashboard/tabs/clients-management/clients/details/ClientDocumentsModal.jsx
-import React, { useEffect, useState } from 'react';
-import SharedDetailModalBase from './SharedDetailModalBase.jsx';
-import { getClientDocuments, deleteClientDocument, addClientDocument } from '../../../../../../apis/client_documents.js';
-import { 
-  DocumentTextIcon, 
-  PhotoIcon, 
-  DocumentIcon, 
+import React, { useEffect, useState } from "react";
+import SharedDetailModalBase from "./SharedDetailModalBase.jsx";
+import {
+  getClientDocuments,
+  deleteClientDocument,
+  addClientDocument,
+} from "../../../../../../apis/client_documents.js";
+import {
+  DocumentTextIcon,
+  PhotoIcon,
+  DocumentIcon,
   TrashIcon,
   ArrowDownTrayIcon,
   XMarkIcon,
   PlusIcon,
-  CloudArrowUpIcon
-} from '@heroicons/react/24/outline';
+  CloudArrowUpIcon,
+} from "@heroicons/react/24/outline";
 
 export default function ClientDocumentsModal({ client, open, onClose }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [documents, setDocuments] = useState([]);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -25,16 +29,18 @@ export default function ClientDocumentsModal({ client, open, onClose }) {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      setError('');
+      setError("");
       try {
         const resp = await getClientDocuments(client.clients_id);
         if (!cancelled) {
-          const docs = Array.isArray(resp) ? resp : (resp?.data?.documents || resp?.documents || []);
+          const docs = Array.isArray(resp)
+            ? resp
+            : resp?.data?.documents || resp?.documents || [];
           setDocuments(docs);
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e.message || 'فشل تحميل المستندات');
+          setError(e.message || "فشل تحميل المستندات");
           setDocuments([]);
         }
       } finally {
@@ -47,16 +53,22 @@ export default function ClientDocumentsModal({ client, open, onClose }) {
   }, [open, client]);
 
   const handleDelete = async (doc) => {
-    if (!window.confirm(`هل أنت متأكد من حذف المستند "${doc.client_document_title}"؟`)) {
+    if (
+      !window.confirm(
+        `هل أنت متأكد من حذف المستند "${doc.client_document_title}"؟`,
+      )
+    ) {
       return;
     }
     setDeleteLoading(true);
     try {
       await deleteClientDocument(doc.client_document_id);
-      setDocuments(prev => prev.filter(d => d.client_document_id !== doc.client_document_id));
-      alert('تم حذف المستند بنجاح');
+      setDocuments((prev) =>
+        prev.filter((d) => d.client_document_id !== doc.client_document_id),
+      );
+      alert("تم حذف المستند بنجاح");
     } catch (e) {
-      alert('فشل حذف المستند: ' + (e.message || 'خطأ غير معروف'));
+      alert("فشل حذف المستند: " + (e.message || "خطأ غير معروف"));
     } finally {
       setDeleteLoading(false);
     }
@@ -67,36 +79,38 @@ export default function ClientDocumentsModal({ client, open, onClose }) {
       await addClientDocument(formData);
       // Refresh documents list
       const resp = await getClientDocuments(client.clients_id);
-      const docs = Array.isArray(resp) ? resp : (resp?.data?.documents || resp?.documents || []);
+      const docs = Array.isArray(resp)
+        ? resp
+        : resp?.data?.documents || resp?.documents || [];
       setDocuments(docs);
       setShowAddForm(false);
-      alert('تم إضافة المستند بنجاح');
+      alert("تم إضافة المستند بنجاح");
     } catch (e) {
-      alert('فشل إضافة المستند: ' + (e.message || 'خطأ غير معروف'));
+      alert("فشل إضافة المستند: " + (e.message || "خطأ غير معروف"));
     }
   };
 
   const getFileIcon = (mimeType) => {
     if (!mimeType) return <DocumentIcon className="h-8 w-8" />;
-    if (mimeType.startsWith('image/')) return <PhotoIcon className="h-8 w-8" />;
+    if (mimeType.startsWith("image/")) return <PhotoIcon className="h-8 w-8" />;
     return <DocumentTextIcon className="h-8 w-8" />;
   };
 
   const formatFileSize = (sizeKb) => {
-    if (!sizeKb) return '—';
+    if (!sizeKb) return "—";
     if (sizeKb < 1024) return `${sizeKb} KB`;
     return `${(sizeKb / 1024).toFixed(2)} MB`;
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
+    if (!dateStr) return "—";
     try {
-      return new Date(dateStr).toLocaleDateString('ar-EG', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Date(dateStr).toLocaleDateString("ar-EG", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
       return dateStr;
@@ -105,10 +119,10 @@ export default function ClientDocumentsModal({ client, open, onClose }) {
 
   return (
     <>
-      <SharedDetailModalBase 
-        title="مستندات العميل" 
-        client={client} 
-        open={open} 
+      <SharedDetailModalBase
+        title="مستندات العميل"
+        client={client}
+        open={open}
         onClose={onClose}
         customHeaderButton={
           <button
@@ -120,7 +134,11 @@ export default function ClientDocumentsModal({ client, open, onClose }) {
           </button>
         }
       >
-        {loading && <div className="text-indigo-600 font-semibold">تحميل المستندات...</div>}
+        {loading && (
+          <div className="text-indigo-600 font-semibold">
+            تحميل المستندات...
+          </div>
+        )}
         {error && <div className="text-red-600 font-semibold">{error}</div>}
         {!loading && !error && (
           <>
@@ -132,7 +150,7 @@ export default function ClientDocumentsModal({ client, open, onClose }) {
               <Empty />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                {documents.map(doc => (
+                {documents.map((doc) => (
                   <DocumentCard
                     key={doc.client_document_id}
                     doc={doc}
@@ -161,11 +179,20 @@ export default function ClientDocumentsModal({ client, open, onClose }) {
   );
 }
 
-function DocumentCard({ doc, onDelete, getFileIcon, formatFileSize, formatDate, deleteLoading }) {
+function DocumentCard({
+  doc,
+  onDelete,
+  getFileIcon,
+  formatFileSize,
+  formatDate,
+  deleteLoading,
+}) {
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow bg-white">
       <div className="flex items-start justify-between mb-3">
-        <div className="text-indigo-600">{getFileIcon(doc.client_document_file_mime_type)}</div>
+        <div className="text-indigo-600">
+          {getFileIcon(doc.client_document_file_mime_type)}
+        </div>
         <div className="flex gap-1">
           {doc.client_document_file_path && (
             <>
@@ -191,14 +218,14 @@ function DocumentCard({ doc, onDelete, getFileIcon, formatFileSize, formatDate, 
       </div>
 
       <h4 className="font-bold text-sm text-gray-800 mb-2 line-clamp-2">
-        {doc.client_document_title || 'بدون عنوان'}
+        {doc.client_document_title || "بدون عنوان"}
       </h4>
 
       <div className="space-y-1 text-xs text-gray-600">
         <div className="flex justify-between">
           <span className="font-semibold">النوع:</span>
           <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">
-            {doc.document_type_name || '—'}
+            {doc.document_type_name || "—"}
           </span>
         </div>
         <div className="flex justify-between">
@@ -207,7 +234,9 @@ function DocumentCard({ doc, onDelete, getFileIcon, formatFileSize, formatDate, 
         </div>
         <div className="flex justify-between">
           <span className="font-semibold">تم الرفع:</span>
-          <span className="text-[10px]">{formatDate(doc.client_document_created_at)}</span>
+          <span className="text-[10px]">
+            {formatDate(doc.client_document_created_at)}
+          </span>
         </div>
         {doc.uploaded_by_user_name && (
           <div className="flex justify-between">
@@ -229,10 +258,10 @@ function DocumentCard({ doc, onDelete, getFileIcon, formatFileSize, formatDate, 
 
 function AddDocumentFormModal({ client, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
-    title: '',
-    type: '1', // Default document type ID
-    notes: '',
-    file: null
+    title: "",
+    type: "1", // Default document type ID
+    notes: "",
+    file: null,
   });
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -240,7 +269,7 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData(prev => ({ ...prev, file }));
+      setFormData((prev) => ({ ...prev, file }));
     }
   };
 
@@ -258,55 +287,58 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      setFormData(prev => ({ ...prev, file }));
+      setFormData((prev) => ({ ...prev, file }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
-      alert('الرجاء إدخال عنوان المستند');
+      alert("الرجاء إدخال عنوان المستند");
       return;
     }
-    
+
     if (!formData.file) {
-      alert('الرجاء اختيار ملف');
+      alert("الرجاء اختيار ملف");
       return;
     }
 
     setUploading(true);
     try {
       const data = new FormData();
-      data.append('client_document_client_id', client.clients_id);
-      data.append('client_document_type_id', formData.type);
-      data.append('client_document_title', formData.title);
-      data.append('client_document_notes', formData.notes);
-      data.append('document_file', formData.file);
+      data.append("client_document_client_id", client.clients_id);
+      data.append("client_document_type_id", formData.type);
+      data.append("client_document_title", formData.title);
+      data.append("client_document_notes", formData.notes);
+      data.append("document_file", formData.file);
 
       await onSubmit(data);
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
     } finally {
       setUploading(false);
     }
   };
 
   const formatFileSize = (bytes) => {
-    if (!bytes) return '0 KB';
+    if (!bytes) return "0 KB";
     const kb = bytes / 1024;
     if (kb < 1024) return `${kb.toFixed(2)} KB`;
     return `${(kb / 1024).toFixed(2)} MB`;
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-black/40 p-4"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         dir="rtl"
       >
         {/* Header */}
@@ -322,7 +354,10 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-6 space-y-4"
+        >
           {/* Title */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -331,7 +366,9 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
             <input
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               placeholder="أدخل عنوان المستند..."
               disabled={uploading}
@@ -346,7 +383,9 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
             </label>
             <select
               value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, type: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               disabled={uploading}
             >
@@ -365,9 +404,9 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
             </label>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                dragActive 
-                  ? 'border-green-500 bg-green-50' 
-                  : 'border-gray-300 hover:border-green-400 bg-gray-50'
+                dragActive
+                  ? "border-green-500 bg-green-50"
+                  : "border-gray-300 hover:border-green-400 bg-gray-50"
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -377,11 +416,17 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
               {formData.file ? (
                 <div className="space-y-2">
                   <DocumentTextIcon className="h-12 w-12 mx-auto text-green-600" />
-                  <p className="text-sm font-semibold text-gray-800">{formData.file.name}</p>
-                  <p className="text-xs text-gray-500">{formatFileSize(formData.file.size)}</p>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {formData.file.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {formatFileSize(formData.file.size)}
+                  </p>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, file: null }))}
+                    onClick={() =>
+                      setFormData((prev) => ({ ...prev, file: null }))
+                    }
                     className="text-sm text-red-600 hover:text-red-700 font-semibold"
                     disabled={uploading}
                   >
@@ -391,7 +436,9 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
               ) : (
                 <div className="space-y-2">
                   <CloudArrowUpIcon className="h-12 w-12 mx-auto text-gray-400" />
-                  <p className="text-sm text-gray-600">اسحب وأفلت الملف هنا أو</p>
+                  <p className="text-sm text-gray-600">
+                    اسحب وأفلت الملف هنا أو
+                  </p>
                   <label className="inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer transition-colors">
                     <input
                       type="file"
@@ -417,7 +464,9 @@ function AddDocumentFormModal({ client, onClose, onSubmit }) {
             </label>
             <textarea
               value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, notes: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
               rows="3"
               placeholder="أدخل أي ملاحظات إضافية..."

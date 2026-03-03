@@ -5,6 +5,7 @@ import { useOutletContext } from 'react-router-dom';
 import {
   XMarkIcon,
   CalendarDaysIcon,
+  ArrowPathIcon,
   EyeIcon,
   PencilIcon,
   PrinterIcon
@@ -589,8 +590,11 @@ export default function SalesReturnsTab() {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => handleViewDetails(it)}
-            className="group p-1.5 rounded-full text-blue-600 hover:text-white hover:bg-blue-600 transition-colors"
-            title="عرض"
+                          className="p-1.5 rounded-full 
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110"            title="عرض"
             type="button"
           >
             <EyeIcon className="h-4 w-4" />
@@ -598,7 +602,7 @@ export default function SalesReturnsTab() {
           {(it.returns_status !== 'Processed' && it.returns_status !== 'Cancelled') && (
             <button
               onClick={() => handleEditReturn(it)}
-              className="group p-1.5 rounded-full text-green-600 hover:text-white hover:bg-green-600 transition-colors"
+                          className="group p-1.5 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition-all"
               title="تعديل"
               type="button"
             >
@@ -607,8 +611,11 @@ export default function SalesReturnsTab() {
           )}
           <button
             onClick={() => handlePrintReturnAction(it)}
-            className="group p-1.5 rounded-full text-purple-600 hover:text-white hover:bg-purple-600 transition-colors"
-            title="طباعة"
+            className="p-1.5 rounded-full 
+           text-purple-700 bg-purple-100
+           hover:bg-purple-500 hover:text-white
+           hover:shadow-[0_0_12px_rgba(168,85,247,0.45)]
+           transition-all duration-200 hover:scale-110"            title="طباعة"
             type="button"
           >
             <PrinterIcon className="h-4 w-4" />
@@ -724,10 +731,12 @@ export default function SalesReturnsTab() {
           <>
           <CustomPageHeader
             title="مرتجعات البيع"
+            icon={<ArrowPathIcon className="w-6 h-6 text-[#1F2937]" />}
             subtitle="إدارة وتتبع مرتجعات البيع"
             statValue={serverPagination.total}
             statLabel="إجمالي المرتجعات"
-            actionButton={<button onClick={() => setCurrentView('add')} className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md">إضافة مرتجع بيع</button>}
+            actionButton={<button onClick={() => setCurrentView('add')}             className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
+>إضافة مرتجع بيع</button>}
           />
 
           <FilterBar

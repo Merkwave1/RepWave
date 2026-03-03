@@ -298,7 +298,7 @@ function UsersList() {
           searchConfig={{
             value: searchTerm,
             onChange: setSearchTerm,
-            placeholder: "البحث في المستخدمين (الاسم، الهاتف،)",
+            placeholder: "البحث ب(الاسم، الهاتف)",
             searchWhileTyping: true,
           }}
           selectFilters={[

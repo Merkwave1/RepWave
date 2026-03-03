@@ -191,49 +191,57 @@ export const mockClientsApi = {
 };
 
 // Mock API functions for Products
+// Helper to get the products array from { data: [...] } storage
+const getProductsArray = () => {
+  const raw = getMockData('appProducts', { data: [] });
+  return Array.isArray(raw) ? raw : (raw.data || []);
+};
+const saveProductsArray = (arr) => setMockData('appProducts', { data: arr });
+
 export const mockProductsApi = {
   async getAllProducts() {
     await delay();
-    const products = getMockData('appProducts', []);
+    const products = getProductsArray();
     return { products };
   },
 
   async addProduct(productData) {
     await delay();
-    const products = getMockData('appProducts', []);
+    const products = getProductsArray();
     const newProduct = {
       products_id: getNextId(products, 'products_id'),
       ...productData,
+      products_is_active: 1,
       products_created_at: new Date().toISOString().split('T')[0],
-      products_status: 'active',
+      variants: [],
     };
     products.push(newProduct);
-    setMockData('appProducts', products);
+    saveProductsArray(products);
     return 'تم إضافة المنتج بنجاح';
   },
 
   async updateProduct(productId, productData) {
     await delay();
-    const products = getMockData('appProducts', []);
+    const products = getProductsArray();
     const index = products.findIndex(p => p.products_id === parseInt(productId));
     if (index === -1) throw new Error(`Product with ID ${productId} not found`);
     products[index] = { ...products[index], ...productData };
-    setMockData('appProducts', products);
+    saveProductsArray(products);
     return 'تم تحديث المنتج بنجاح';
   },
 
   async deleteProduct(productId) {
     await delay();
-    const products = getMockData('appProducts', []);
+    const products = getProductsArray();
     const filtered = products.filter(p => p.products_id !== parseInt(productId));
     if (filtered.length === products.length) throw new Error(`Product with ID ${productId} not found`);
-    setMockData('appProducts', filtered);
+    saveProductsArray(filtered);
     return 'تم حذف المنتج بنجاح';
   },
 
   async getProductReports(reportType = 'overview') {
     await delay();
-    const products = getMockData('appProducts', []);
+    const products = getProductsArray();
     return {
       overview: { total_products: products.length, report_type: reportType },
     };
@@ -688,6 +696,121 @@ export const mockPurchaseOrdersApi = {
   },
 };
 
+// Mock API for Base Units
+export const mockBaseUnitsApi = {
+  _getArr() { const r = getMockData('appBaseUnits', { data: [] }); return Array.isArray(r) ? r : (r.data || []); },
+  _save(arr) { setMockData('appBaseUnits', { data: arr }); },
+
+  async getAllBaseUnits() {
+    await delay();
+    return this._getArr();
+  },
+  async addBaseUnit(name) {
+    await delay();
+    const units = this._getArr();
+    units.push({ base_units_id: getNextId(units, 'base_units_id'), base_units_name: name, base_units_symbol: name.substring(0, 3), base_units_sort_order: units.length + 1 });
+    this._save(units);
+    return 'تم إضافة الوحدة بنجاح';
+  },
+  async updateBaseUnit(unitId, name) {
+    await delay();
+    const units = this._getArr();
+    const i = units.findIndex(u => u.base_units_id === parseInt(unitId));
+    if (i === -1) throw new Error(`Unit ${unitId} not found`);
+    units[i] = { ...units[i], base_units_name: name };
+    this._save(units);
+    return 'تم تحديث الوحدة بنجاح';
+  },
+  async deleteBaseUnit(unitId) {
+    await delay();
+    const units = this._getArr();
+    const filtered = units.filter(u => u.base_units_id !== parseInt(unitId));
+    if (filtered.length === units.length) throw new Error(`Unit ${unitId} not found`);
+    this._save(filtered);
+    return 'تم حذف الوحدة بنجاح';
+  },
+};
+
+// Mock API for Packaging Types
+export const mockPackagingTypesApi = {
+  _getArr() { const r = getMockData('appPackagingTypes', { data: [] }); return Array.isArray(r) ? r : (r.data || []); },
+  _save(arr) { setMockData('appPackagingTypes', { data: arr }); },
+
+  async getAllPackagingTypes() {
+    await delay();
+    return this._getArr();
+  },
+  async addPackagingType(data) {
+    await delay();
+    const types = this._getArr();
+    types.push({ packaging_types_id: getNextId(types, 'packaging_types_id'), ...data, packaging_types_sort_order: types.length + 1 });
+    this._save(types);
+    return 'تم إضافة نوع التعبئة بنجاح';
+  },
+  async updatePackagingType(typeId, data) {
+    await delay();
+    const types = this._getArr();
+    const i = types.findIndex(t => t.packaging_types_id === parseInt(typeId));
+    if (i === -1) throw new Error(`Packaging type ${typeId} not found`);
+    types[i] = { ...types[i], ...data };
+    this._save(types);
+    return 'تم تحديث نوع التعبئة بنجاح';
+  },
+  async deletePackagingType(typeId) {
+    await delay();
+    const types = this._getArr();
+    const filtered = types.filter(t => t.packaging_types_id !== parseInt(typeId));
+    if (filtered.length === types.length) throw new Error(`Packaging type ${typeId} not found`);
+    this._save(filtered);
+    return 'تم حذف نوع التعبئة بنجاح';
+  },
+};
+
+// Mock API for Product Attributes
+export const mockAttributesApi = {
+  async getAllAttributes() {
+    await delay();
+    return getMockData('appProductAttributes', []);
+  },
+  async addAttribute(name, values) {
+    await delay();
+    const attrs = getMockData('appProductAttributes', []);
+    let nextVid = attrs.reduce((m, a) => Math.max(m, ...((a.values || []).map(v => v.attribute_value_id || 0)), 0), 0) + 1;
+    attrs.push({
+      attribute_id: getNextId(attrs, 'attribute_id'),
+      attribute_name: name,
+      values: (Array.isArray(values) ? values : []).map(v => ({ attribute_value_id: nextVid++, attribute_value_value: typeof v === 'string' ? v : (v.value || v.attribute_value_value || '') })),
+    });
+    setMockData('appProductAttributes', attrs);
+    return 'تم إضافة الخاصية بنجاح';
+  },
+  async updateAttribute(attributeId, name, values) {
+    await delay();
+    const attrs = getMockData('appProductAttributes', []);
+    const i = attrs.findIndex(a => a.attribute_id === parseInt(attributeId));
+    if (i === -1) throw new Error(`Attribute ${attributeId} not found`);
+    let nextVid = attrs.reduce((m, a) => Math.max(m, ...((a.values || []).map(v => v.attribute_value_id || 0)), 0), 0) + 1;
+    attrs[i] = {
+      ...attrs[i],
+      attribute_name: name,
+      values: (Array.isArray(values) ? values : []).map(v => ({
+        attribute_value_id: v.attribute_value_id || (nextVid++),
+        attribute_value_value: typeof v === 'string' ? v : (v.value || v.attribute_value_value || ''),
+      })),
+    };
+    setMockData('appProductAttributes', attrs);
+    return 'تم تحديث الخاصية بنجاح';
+  },
+  async deleteAttribute(attributeId) {
+    await delay();
+    const attrs = getMockData('appProductAttributes', []);
+    const filtered = attrs.filter(a => a.attribute_id !== parseInt(attributeId));
+    if (filtered.length === attrs.length) throw new Error(`Attribute ${attributeId} not found`);
+    setMockData('appProductAttributes', filtered);
+    return 'تم حذف الخاصية بنجاح';
+  },
+};
+
 // Mock API for other entities
 export const mockOtherApis = {
   async getSuppliers() {
@@ -812,4 +935,7 @@ export default {
   salesOrders: mockSalesOrdersApi,
   purchaseOrders: mockPurchaseOrdersApi,
   other: mockOtherApis,
+  baseUnits: mockBaseUnitsApi,
+  packagingTypes: mockPackagingTypesApi,
+  attributes: mockAttributesApi,
 };

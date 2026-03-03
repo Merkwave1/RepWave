@@ -30,9 +30,21 @@ export default function PackagingTypeListView({
     { key: 'description', title: 'الوصف', headerAlign: 'right', align: 'right', render: (item) => (<div className="line-clamp-2" style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word' }}>{item.packaging_types_description || 'لا يوجد وصف.'}</div>) },
     { key: 'actions', title: 'الإجراءات', headerAlign: 'center', align: 'center', render: (item) => (
       <div className="flex items-center justify-center gap-2">
-        <button onClick={(e) => { e.stopPropagation(); onViewClick(item); }} className="group p-1.5 text-blue-600 hover:text-white hover:bg-blue-600 rounded-full transition-all" title="عرض"><EyeIcon className="h-4 w-4" /></button>
-        <button onClick={(e) => { e.stopPropagation(); onEditClick(item); }} className="group p-1.5 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition-all" title="تعديل"><PencilIcon className="h-4 w-4" /></button>
-        <button onClick={(e) => { e.stopPropagation(); onDeleteClick(item); }} className="group p-1.5 text-red-600 hover:text-white hover:bg-red-600 rounded-full transition-all" title="حذف"><TrashIcon className="h-4 w-4" /></button>
+        <button onClick={(e) => { e.stopPropagation(); onViewClick(item); }}             className="p-1.5 rounded-full 
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110" title="عرض"><EyeIcon className="h-4 w-4" /></button>
+        <button onClick={(e) => { e.stopPropagation(); onEditClick(item); }}             className="p-1.5 rounded-full 
+                   text-emerald-700 bg-emerald-100
+                   hover:bg-emerald-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(16,185,129,0.45)]
+                   transition-all duration-200 hover:scale-110" title="تعديل"><PencilIcon className="h-4 w-4" /></button>
+        <button onClick={(e) => { e.stopPropagation(); onDeleteClick(item); }}             className="p-1.5 rounded-full 
+                   text-red-700 bg-red-100
+                   hover:bg-red-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(239,68,68,0.45)]
+                   transition-all duration-200 hover:scale-110" title="حذف"><TrashIcon className="h-4 w-4" /></button>
       </div>
     ), className: 'w-32' }
   ];

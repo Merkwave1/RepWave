@@ -646,21 +646,21 @@ const ComprehensiveDashboard = () => {
             data.lowStockProducts.map((item) => (
               <div
                 key={item.id}
-                className="p-4 bg-white rounded-xl border border-yellow-200 shadow-sm
+                className="p-3 sm:p-4 bg-white rounded-xl border border-yellow-200 shadow-sm
                    hover:shadow-md transition flex flex-col gap-1"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-semibold text-gray-900 text-sm">
+                <div className="flex flex-wrap justify-between items-start gap-2">
+                  <div className="min-w-0">
+                    <div className="font-semibold text-gray-900 text-sm truncate">
                       {item.variantName}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 truncate">
                       {item.productName}
                     </div>
                   </div>
 
                   {/* Stock badge */}
-                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                  <span className="shrink-0 px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 whitespace-nowrap">
                     {formatCount(item.totalStock)} متبقي
                   </span>
                 </div>
@@ -679,10 +679,13 @@ const ComprehensiveDashboard = () => {
       </div>
 
       {/* Performance & Visits */}
-                  <h3 className="text-xl font-semibold">المناديب</h3>
+      <h3 className="text-xl font-semibold">المناديب</h3>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SectionCard title="أداء المناديب" iconElement={<UserGroupIcon className="h-6 w-6 text-orange-600" />}>
+        <SectionCard
+          title="أداء المناديب"
+          iconElement={<UserGroupIcon className="h-6 w-6 text-orange-600" />}
+        >
           <div className="space-y-3">
             {data?.userPerformance?.length > 0 ? (
               data.userPerformance.map((user) => (
@@ -724,28 +727,31 @@ const ComprehensiveDashboard = () => {
           </div>
         </SectionCard>
 
-        <SectionCard title="الزيارات الأخيرة" iconElement={<CalendarDaysIcon className="h-6 w-6 text-purple-600" />}>
+        <SectionCard
+          title="الزيارات الأخيرة"
+          iconElement={<CalendarDaysIcon className="h-6 w-6 text-purple-600" />}
+        >
           <div className="space-y-3">
             {data?.recentVisits?.length > 0 ? (
               data.recentVisits.map((visit) => (
                 <div
                   key={visit.visitsId}
-                  className="bg-[#f2f2f2] rounded-xl px-4 py-3 flex justify-between items-center"
+                  className="bg-[#f2f2f2] rounded-xl px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2"
                 >
                   {/* Left content */}
-                  <div className="flex flex-col gap-1">
-                    <div className="font-semibold text-gray-900 text-sm">
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <div className="font-semibold text-gray-900 text-sm truncate">
                       {visit.clientCompanyName}
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs">
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
                       {/* Status pill */}
-                      <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
+                      <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium whitespace-nowrap">
                         {visit.visitsStatus}
                       </span>
 
                       {/* Purpose pill */}
-                      <span className="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium">
+                      <span className="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium whitespace-nowrap">
                         الغرض: {visit.visitsPurpose || "غير محدد"}
                       </span>
                     </div>
@@ -756,7 +762,7 @@ const ComprehensiveDashboard = () => {
                   </div>
 
                   {/* Time */}
-                  <div className="text-xs text-gray-400 whitespace-nowrap">
+                  <div className="text-xs text-gray-400 whitespace-nowrap sm:text-right">
                     {formatDateTime(visit.visitsStartTime)}
                   </div>
                 </div>
@@ -771,12 +777,11 @@ const ComprehensiveDashboard = () => {
       </div>
 
       {/* Monthly Comparison */}
-            <h3 className="text-xl font-semibold">مقارنة الاداء</h3>
+      <h3 className="text-xl font-semibold">مقارنة الاداء</h3>
 
-      <SectionCard >
+      <SectionCard>
         <MonthlyComparisonBar data={data.monthlyComparison} />
       </SectionCard>
-
     </div>
   );
 };

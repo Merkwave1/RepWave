@@ -95,19 +95,22 @@ const AnalyticsTab = ({ data, loading }) => {
           </div>
           <div className="space-y-4">
             {analytics.category_analysis.map((category, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div 
+                key={index} 
+                className="flex items-center justify-between p-4 bg-white shadow-md hover:shadow-xl transition-shadow rounded-xl border border-gray-100"
+              >
                 <div>
-                  <h4 className="font-medium text-gray-900">{category.category_name}</h4>
-                  <p className="text-sm text-gray-600">{category.count} منتج</p>
+                  <h4 className="text-gray-900 font-semibold text-lg">{category.category_name}</h4>
+                  <p className="text-sm text-gray-500 mt-1">{category.count} منتج</p>
                 </div>
                 <div className="flex items-center space-x-3 space-x-reverse">
-                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                  <div className="w-28 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
-                      className="bg-orange-600 h-2 rounded-full" 
+                      className="h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
                       style={{width: `${category.percentage}%`}}
                     ></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-600">{category.percentage}%</span>
+                  <span className="text-sm font-medium text-gray-700">{category.percentage}%</span>
                 </div>
               </div>
             ))}
@@ -148,34 +151,42 @@ const AnalyticsTab = ({ data, loading }) => {
 
       {/* Growth Analysis */}
       {analytics.growth_analysis && (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+          {/* Header */}
           <div className="flex items-center space-x-3 space-x-reverse mb-6">
-            <div className="p-2 rounded-lg bg-teal-100 text-teal-600">
-              <CalendarDaysIcon className="w-5 h-5" />
+            <div className="p-3 rounded-lg bg-teal-100 text-teal-600">
+              <CalendarDaysIcon className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900">تحليل النمو</h3>
           </div>
+
+          {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 border rounded-lg">
-              <p className="text-xl font-bold text-blue-600">{analytics.growth_analysis.this_month?.toLocaleString() || 0}</p>
-              <p className="text-sm text-gray-600">منتجات جديدة (آخر 30 يوم)</p>
+            {/* This Month */}
+            <div className="text-center p-5 border rounded-xl hover:shadow-sm transition-shadow">
+              <p className="text-2xl font-extrabold text-blue-600">{analytics.growth_analysis.this_month?.toLocaleString() || 0}</p>
+              <p className="text-sm text-gray-500 mt-1">منتجات جديدة (آخر 30 يوم)</p>
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <p className="text-xl font-bold text-green-600">{analytics.growth_analysis.last_month?.toLocaleString() || 0}</p>
-              <p className="text-sm text-gray-600">منتجات جديدة (الـ30 يوم السابقة)</p>
+
+            {/* Last Month */}
+            <div className="text-center p-5 border rounded-xl hover:shadow-sm transition-shadow">
+              <p className="text-2xl font-extrabold text-green-600">{analytics.growth_analysis.last_month?.toLocaleString() || 0}</p>
+              <p className="text-sm text-gray-500 mt-1">منتجات جديدة (الـ30 يوم السابقة)</p>
             </div>
-            <div className="text-center p-4 border rounded-lg">
+
+            {/* Growth Rate */}
+            <div className="text-center p-5 border rounded-xl hover:shadow-sm transition-shadow">
               <div className="flex items-center justify-center mb-2">
                 {analytics.growth_analysis.growth_rate > 0 ? (
-                  <ArrowUpIcon className="w-5 h-5 text-green-500 ml-2" />
+                  <ArrowUpIcon className="w-6 h-6 text-green-500 ml-2" />
                 ) : analytics.growth_analysis.growth_rate < 0 ? (
-                  <ArrowDownIcon className="w-5 h-5 text-red-500 ml-2" />
+                  <ArrowDownIcon className="w-6 h-6 text-red-500 ml-2" />
                 ) : null}
-                <p className="text-xl font-bold text-teal-600">
+                <p className={`text-2xl font-extrabold ${analytics.growth_analysis.growth_rate > 0 ? 'text-green-600' : analytics.growth_analysis.growth_rate < 0 ? 'text-red-600' : 'text-teal-600'}`}>
                   {analytics.growth_analysis.growth_rate > 0 ? '+' : ''}{analytics.growth_analysis.growth_rate || 0}%
                 </p>
               </div>
-              <p className="text-sm text-gray-600">معدل النمو (30 يوم)</p>
+              <p className="text-sm text-gray-500 mt-1">معدل النمو (30 يوم)</p>
             </div>
           </div>
         </div>

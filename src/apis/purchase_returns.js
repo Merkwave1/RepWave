@@ -199,25 +199,37 @@ export const getPurchaseReturnsPaginated = async ({ page = 1, limit = 10, status
   try {
     const response = await apiClient.get(url);
     if (response.status === 'success') {
+      // Mock apiClient returns response.data as a direct array — handle all shapes:
       const d = response.data || {};
-      const list = Array.isArray(d.purchase_returns) ? d.purchase_returns : Array.isArray(response.purchase_returns) ? response.purchase_returns : [];
-      const total = Number(d.total_count ?? d.total_items ?? d.count ?? 0);
-      const p = d.pagination || null;
-      const normalized = {
-        data: list,
-        pagination: p ? {
-          current_page: Number(p.current_page ?? p.page ?? page),
-          limit: Number(p.limit ?? p.per_page ?? limit),
-          total_items: Number(p.total_items ?? total),
-          total_pages: Number(p.total_pages ?? (Number.isFinite(total) && (limit>0) ? Math.max(1, Math.ceil(total/limit)) : 1))
-        } : {
+      let list = Array.isArray(d.purchase_returns) ? d.purchase_returns
+        : Array.isArray(response.purchase_returns) ? response.purchase_returns
+        : Array.isArray(d) ? d   // direct array from mock
+        : [];
+
+      // Apply client-side filters (mock server doesn't filter)
+      if (status) {
+        const statuses = status.split(',').map(s => s.trim()).filter(Boolean);
+        if (statuses.length) list = list.filter(r => statuses.includes(r.purchase_returns_status));
+      }
+      if (supplier_id) {
+        const sid = Number(supplier_id);
+        list = list.filter(r => r.purchase_returns_supplier_id === sid);
+      }
+
+      // Client-side pagination (mock server returns all rows)
+      const total = list.length;
+      const offset = (Number(page) - 1) * Number(limit);
+      const paginatedList = Number(limit) > 0 ? list.slice(offset, offset + Number(limit)) : list;
+
+      return {
+        data: paginatedList,
+        pagination: {
           current_page: Number(page),
           limit: Number(limit),
-          total_items: total || list.length,
-          total_pages: Number.isFinite(total) && (limit>0) ? Math.max(1, Math.ceil(total/limit)) : 1
-        }
+          total_items: total,
+          total_pages: Math.max(1, Number(limit) > 0 ? Math.ceil(total / Number(limit)) : 1),
+        },
       };
-      return normalized;
     }
     throw new Error(response.message || 'Failed to fetch purchase returns');
   } catch (error) {

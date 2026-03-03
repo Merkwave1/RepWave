@@ -180,7 +180,7 @@ const InterestedProductsTab = ({ data, loading }) => {
               className="w-12 h-12 rounded-lg object-cover border border-gray-200"
             />
           ) : (
-            <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-semibold">
+            <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold">
               {item.products_name?.charAt(0) ?? 'م'}
             </div>
           )}
@@ -219,8 +219,11 @@ const InterestedProductsTab = ({ data, loading }) => {
             event.stopPropagation();
             openDetails(item);
           }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
-        >
+                          className="p-1.5 rounded-full  flex gap-2 items-center 
+                   text-sky-700 bg-sky-100
+                   hover:bg-sky-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                   transition-all duration-200 hover:scale-110"        >
           <EyeIcon className="w-4 h-4" />
           عرض العملاء
         </button>
@@ -292,7 +295,7 @@ const InterestedProductsTab = ({ data, loading }) => {
         subtitle={topProduct
           ? `أكثر منتج اهتماماً: ${topProduct.products_name} (${formatNumber(topProduct.interested_clients_count)} عميل)`
           : 'تعرف على المنتجات الأكثر جذباً لاهتمام العملاء'}
-        icon={<UserGroupIcon className="h-8 w-8 text-white" />}
+        icon={<UserGroupIcon className="h-8 w-8 text-[#1F2937]" />}
         statValue={formatNumber(totalUniqueClients)}
         statLabel="إجمالي العملاء المهتمين"
         statSecondaryValue={formatNumber(totalProducts)}

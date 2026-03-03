@@ -389,15 +389,21 @@ export default function SafesTab() {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => handleEditSafe(safe)}
-            className="group p-1.5 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition"
-            title="تعديل"
+                          className="p-1.5 rounded-full 
+                   text-green-700 bg-green-100
+                   hover:bg-green-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(34,197,94,0.45)]
+                   transition-all duration-200 hover:scale-110"            title="تعديل"
           >
             <PencilIcon className="h-4 w-4" />
           </button>
           <button
             onClick={() => handleDeleteSafe(safe)}
-            className="group p-1.5 text-red-600 hover:text-white hover:bg-red-600 rounded-full transition"
-            title="حذف"
+                            className="p-1.5 rounded-full 
+                   text-red-700 bg-red-100
+                   hover:bg-red-500 hover:text-white
+                   hover:shadow-[0_0_12px_rgba(239,68,68,0.45)]
+                   transition-all duration-200 hover:scale-110"            title="حذف"
           >
             <TrashIcon className="h-4 w-4" />
           </button>
@@ -440,7 +446,7 @@ export default function SafesTab() {
         <CustomPageHeader
           title="إدارة الخزائن"
           subtitle="عرض حالة الخزائن والأرصدة الحالية"
-          icon={<ArchiveBoxIcon className="h-8 w-8 text-white" />}
+          icon={<ArchiveBoxIcon className="h-8 w-8 text-[#1F2937]" />}
           statValue={formatMoney(calculateTotalBalance(), { withSymbol: false, fractionDigits: 0 })}
           statLabel={symbol}
           statSecondaryValue={safes.length}
@@ -448,7 +454,7 @@ export default function SafesTab() {
           actionButton={(
             <button
               onClick={handleAddSafe}
-              className="bg-white text-blue-700 font-bold py-2 px-4 rounded-md shadow-md hover:bg-blue-50 flex items-center gap-2 transition-colors"
+            className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
             >
               <PlusIcon className="h-5 w-5" />
               إضافة خزنة

@@ -1200,9 +1200,9 @@ export default function UpdateSalesOrderForm({
   // Conditional rendering based on warehouses availability
   if (!Array.isArray(warehouses) || warehouses.length === 0 || displayWarehouses.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md max-w-xl mx-auto text-center" dir="rtl">
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md max-w-xl mx-auto text-center" dir="rtl">
         <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-yellow-500" />
-        <h3 className="mt-4 text-2xl font-bold text-gray-800">لا توجد مخازن متاحة</h3>
+        <h3 className="mt-4 text-lg sm:text-2xl font-bold text-gray-800">لا توجد مخازن متاحة</h3>
         <p className="mt-2 text-gray-600">يجب عليك أولاً إضافة مخزن قبل تعديل أمر البيع.</p>
         <div className="mt-6 flex justify-center gap-4">
            <button type="button" onClick={onCancel} className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">رجوع</button>
@@ -1214,17 +1214,17 @@ export default function UpdateSalesOrderForm({
   // Show loading state if clients are not loaded yet
   if (!Array.isArray(clients) || clients.length === 0 || displayClients.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md max-w-xl mx-auto text-center" dir="rtl">
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md max-w-xl mx-auto text-center" dir="rtl">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-        <h3 className="mt-4 text-2xl font-bold text-gray-800">جاري تحميل البيانات...</h3>
+        <h3 className="mt-4 text-lg sm:text-2xl font-bold text-gray-800">جاري تحميل البيانات...</h3>
         <p className="mt-2 text-gray-600">يرجى الانتظار بينما نقوم بتحميل قائمة العملاء.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto" dir="rtl">
-      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">تعديل أمر البيع</h3>
+    <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-md max-w-6xl mx-auto" dir="rtl">
+      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 text-center">تعديل أمر البيع</h3>
       
       {!dataLoaded && (
         <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
@@ -1347,12 +1347,9 @@ export default function UpdateSalesOrderForm({
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-8 gap-2 items-end">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 items-end">
                       {/* Product/Variant */}
-                      <div className="col-span-2">
-                        <label htmlFor={`item_variant_${index}`} className="block text-xs font-medium text-gray-700 mb-1">
-                          المنتج
-                        </label>
+                      <div className="col-span-2 sm:col-span-4 lg:col-span-2">
                         <div className="text-sm">
                           <SearchableSelect
                             options={availableProducts}
@@ -1479,9 +1476,8 @@ export default function UpdateSalesOrderForm({
                     
                     {/* Additional info row - displayed below the main row */}
                     {(item.variant_id || item.packaging_type_id || parseFloat(item.quantity_ordered || 0) > parseFloat(item.available_quantity || 0)) && (
-                      <div className="grid grid-cols-7 gap-2 mt-2 text-xs">
-                        <div className="col-span-2">
-                          {item.variant_id && item.packaging_inventory && item.packaging_inventory.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mt-2 text-xs">
+                        <div className="col-span-2 sm:col-span-2 lg:col-span-2">
                             <p className="text-blue-600">
                               أنواع التعبئة: {item.packaging_inventory.filter(p => p.isAvailable).length} متاح / {item.packaging_inventory.length} إجمالي
                             </p>

@@ -1,33 +1,33 @@
 // src/components/dashboard/tabs/purchases-management/supplier-payments/UpdateSupplierPaymentForm.jsx
-import React, { useState, useEffect } from 'react';
-import { XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
-import Loader from '../../../../common/Loader/Loader';
-import SearchableSelect from '../../../../common/SearchableSelect/SearchableSelect';
-import { updateSupplierPayment } from '../../../../../apis/supplier_payments';
-import NumberInput from '../../../../common/NumberInput/NumberInput';
-import useCurrency from '../../../../../hooks/useCurrency';
-import { formatLocalDateTime } from '../../../../../utils/dateUtils';
+import React, { useState, useEffect } from "react";
+import { XMarkIcon, PencilIcon } from "@heroicons/react/24/outline";
+import Loader from "../../../../common/Loader/Loader";
+import SearchableSelect from "../../../../common/SearchableSelect/SearchableSelect";
+import { updateSupplierPayment } from "../../../../../apis/supplier_payments";
+import NumberInput from "../../../../common/NumberInput/NumberInput";
+import useCurrency from "../../../../../hooks/useCurrency";
+import { formatLocalDateTime } from "../../../../../utils/dateUtils";
 
-const UpdateSupplierPaymentForm = ({ 
+const UpdateSupplierPaymentForm = ({
   payment,
-  onClose, 
-  onSubmit, 
-  paymentMethods = [], 
+  onClose,
+  onSubmit,
+  paymentMethods = [],
   safes = [],
-  purchaseOrders = [] 
+  purchaseOrders = [],
 }) => {
   const { symbol, formatCurrency: formatMoney } = useCurrency();
-  
+
   const [formData, setFormData] = useState({
-    method_id: '',
-    amount: '',
-    date: '',
-    safe_id: '',
-    transaction_id: '',
-    notes: '',
-    purchase_order_id: '',
-    type: '',
-    status: ''
+    method_id: "",
+    amount: "",
+    date: "",
+    safe_id: "",
+    transaction_id: "",
+    notes: "",
+    purchase_order_id: "",
+    type: "",
+    status: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -37,36 +37,40 @@ const UpdateSupplierPaymentForm = ({
   useEffect(() => {
     if (payment) {
       setFormData({
-        method_id: payment.supplier_payments_method_id || '',
-        amount: payment.supplier_payments_amount || '',
-        date: payment.supplier_payments_date ? payment.supplier_payments_date.split(' ')[0] : '',
-        safe_id: payment.supplier_payments_safe_id || '',
-        transaction_id: payment.supplier_payments_transaction_id || '',
-        notes: payment.supplier_payments_notes || '',
-        purchase_order_id: payment.supplier_payments_purchase_order_id || '',
-        type: payment.supplier_payments_type || '',
-        status: payment.supplier_payments_status || ''
+        method_id: payment.supplier_payments_method_id || "",
+        amount: payment.supplier_payments_amount || "",
+        date: payment.supplier_payments_date
+          ? payment.supplier_payments_date.split(" ")[0]
+          : "",
+        safe_id: payment.supplier_payments_safe_id || "",
+        transaction_id: payment.supplier_payments_transaction_id || "",
+        notes: payment.supplier_payments_notes || "",
+        purchase_order_id: payment.supplier_payments_purchase_order_id || "",
+        type: payment.supplier_payments_type || "",
+        status: payment.supplier_payments_status || "",
       });
 
       // Filter purchase orders for this supplier
-      const filtered = purchaseOrders.filter(po => 
-        po.purchase_orders_supplier_id === payment.supplier_payments_supplier_id
+      const filtered = purchaseOrders.filter(
+        (po) =>
+          po.purchase_orders_supplier_id ===
+          payment.supplier_payments_supplier_id,
       );
       setFilteredPurchaseOrders(filtered);
     }
   }, [payment, purchaseOrders]);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear related errors
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: null
+        [field]: null,
       }));
     }
   };
@@ -75,19 +79,19 @@ const UpdateSupplierPaymentForm = ({
     const newErrors = {};
 
     if (!formData.method_id) {
-      newErrors.method_id = 'طريقة الدفع مطلوبة';
+      newErrors.method_id = "طريقة الدفع مطلوبة";
     }
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      newErrors.amount = 'مبلغ صحيح مطلوب';
+      newErrors.amount = "مبلغ صحيح مطلوب";
     }
 
     if (!formData.date) {
-      newErrors.date = 'تاريخ الدفعة مطلوب';
+      newErrors.date = "تاريخ الدفعة مطلوب";
     }
 
     if (!formData.safe_id) {
-      newErrors.safe_id = 'الخزنة مطلوبة';
+      newErrors.safe_id = "الخزنة مطلوبة";
     }
 
     setErrors(newErrors);
@@ -96,7 +100,7 @@ const UpdateSupplierPaymentForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -105,14 +109,16 @@ const UpdateSupplierPaymentForm = ({
     try {
       // Only send fields that have values (partial update)
       const updateData = {};
-      
+
       if (formData.method_id) updateData.method_id = formData.method_id;
       if (formData.amount) updateData.amount = formData.amount;
       if (formData.date) updateData.date = formData.date;
       if (formData.safe_id) updateData.safe_id = formData.safe_id;
-      if (formData.transaction_id !== undefined) updateData.transaction_id = formData.transaction_id;
+      if (formData.transaction_id !== undefined)
+        updateData.transaction_id = formData.transaction_id;
       if (formData.notes !== undefined) updateData.notes = formData.notes;
-      if (formData.purchase_order_id !== undefined) updateData.purchase_order_id = formData.purchase_order_id || null;
+      if (formData.purchase_order_id !== undefined)
+        updateData.purchase_order_id = formData.purchase_order_id || null;
       if (formData.type) updateData.type = formData.type;
       if (formData.status) updateData.status = formData.status;
 
@@ -120,9 +126,9 @@ const UpdateSupplierPaymentForm = ({
       onSubmit?.();
       onClose();
     } catch (error) {
-      console.error('Error updating supplier payment:', error);
+      console.error("Error updating supplier payment:", error);
       setErrors({
-        submit: error.message || 'حدث خطأ أثناء تحديث الدفعة'
+        submit: error.message || "حدث خطأ أثناء تحديث الدفعة",
       });
     } finally {
       setIsSubmitting(false);
@@ -130,21 +136,21 @@ const UpdateSupplierPaymentForm = ({
   };
 
   // Prepare payment method options
-  const paymentMethodOptions = paymentMethods.map(method => ({
+  const paymentMethodOptions = paymentMethods.map((method) => ({
     value: method.payment_methods_id,
-    label: method.payment_methods_name
+    label: method.payment_methods_name,
   }));
 
   // Prepare safe options
-  const safeOptions = safes.map(safe => ({
+  const safeOptions = safes.map((safe) => ({
     value: safe.safes_id,
-    label: safe.safes_name
+    label: safe.safes_name,
   }));
 
   // Prepare purchase order options
-  const purchaseOrderOptions = filteredPurchaseOrders.map(po => ({
+  const purchaseOrderOptions = filteredPurchaseOrders.map((po) => ({
     value: po.purchase_orders_id,
-    label: `أمر #${po.purchase_orders_id} - ${formatMoney(po.purchase_orders_total_amount)}`
+    label: `أمر #${po.purchase_orders_id} - ${formatMoney(po.purchase_orders_total_amount)}`,
   }));
 
   if (!payment) {
@@ -152,12 +158,18 @@ const UpdateSupplierPaymentForm = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-6 py-4 border-b border-gray-300">
+        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-300">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <h3 className="text-base sm:text-xl font-bold text-gray-800 flex items-center gap-2 truncate">
               <PencilIcon className="h-6 w-6 text-blue-600" />
               تعديل دفعة المورد #{payment.supplier_payments_id}
             </h3>
@@ -171,8 +183,11 @@ const UpdateSupplierPaymentForm = ({
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-140px)]" dir="rtl">
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div
+          className="overflow-y-auto max-h-[calc(95vh-110px)] sm:max-h-[calc(90vh-140px)]"
+          dir="rtl"
+        >
+          <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-6">
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 {errors.submit}
@@ -181,7 +196,9 @@ const UpdateSupplierPaymentForm = ({
 
             {/* Supplier Information (Read-only) */}
             <div className="bg-gray-50 p-4 rounded-lg border">
-              <h4 className="text-lg font-semibold text-gray-800 mb-3">معلومات المورد</h4>
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">
+                معلومات المورد
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="font-medium text-gray-600">اسم المورد:</span>
@@ -189,11 +206,17 @@ const UpdateSupplierPaymentForm = ({
                 </div>
                 <div>
                   <span className="font-medium text-gray-600">رقم الدفعة:</span>
-                  <p className="text-gray-900">#{payment.supplier_payments_id}</p>
+                  <p className="text-gray-900">
+                    #{payment.supplier_payments_id}
+                  </p>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-600">تاريخ الإنشاء:</span>
-                  <p className="text-gray-900">{formatLocalDateTime(payment.supplier_payments_created_at)}</p>
+                  <span className="font-medium text-gray-600">
+                    تاريخ الإنشاء:
+                  </span>
+                  <p className="text-gray-900">
+                    {formatLocalDateTime(payment.supplier_payments_created_at)}
+                  </p>
                 </div>
                 <div>
                   <span className="font-medium text-gray-600">المُنشئ:</span>
@@ -204,7 +227,9 @@ const UpdateSupplierPaymentForm = ({
 
             {/* Payment Information */}
             <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="text-lg font-semibold text-gray-800 mb-4">معلومات الدفعة</h4>
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                معلومات الدفعة
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Payment Method */}
                 <div>
@@ -214,12 +239,14 @@ const UpdateSupplierPaymentForm = ({
                   <SearchableSelect
                     options={paymentMethodOptions}
                     value={formData.method_id}
-                    onChange={(value) => handleInputChange('method_id', value)}
+                    onChange={(value) => handleInputChange("method_id", value)}
                     placeholder="اختر طريقة الدفع..."
                     className="w-full"
                   />
                   {errors.method_id && (
-                    <p className="text-red-500 text-sm mt-1">{errors.method_id}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.method_id}
+                    </p>
                   )}
                 </div>
 
@@ -230,7 +257,7 @@ const UpdateSupplierPaymentForm = ({
                   </label>
                   <NumberInput
                     value={formData.amount}
-                    onChange={(v) => handleInputChange('amount', v)}
+                    onChange={(v) => handleInputChange("amount", v)}
                     placeholder="0.00"
                   />
                   {errors.amount && (
@@ -246,7 +273,7 @@ const UpdateSupplierPaymentForm = ({
                   <input
                     type="date"
                     value={formData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
+                    onChange={(e) => handleInputChange("date", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                   {errors.date && (
@@ -262,12 +289,14 @@ const UpdateSupplierPaymentForm = ({
                   <SearchableSelect
                     options={safeOptions}
                     value={formData.safe_id}
-                    onChange={(value) => handleInputChange('safe_id', value)}
+                    onChange={(value) => handleInputChange("safe_id", value)}
                     placeholder="اختر الخزنة..."
                     className="w-full"
                   />
                   {errors.safe_id && (
-                    <p className="text-red-500 text-sm mt-1">{errors.safe_id}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.safe_id}
+                    </p>
                   )}
                 </div>
 
@@ -278,7 +307,7 @@ const UpdateSupplierPaymentForm = ({
                   </label>
                   <select
                     value={formData.type}
-                    onChange={(e) => handleInputChange('type', e.target.value)}
+                    onChange={(e) => handleInputChange("type", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">اختر النوع...</option>
@@ -296,7 +325,9 @@ const UpdateSupplierPaymentForm = ({
                   </label>
                   <select
                     value={formData.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("status", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">اختر الحالة...</option>
@@ -310,7 +341,9 @@ const UpdateSupplierPaymentForm = ({
 
             {/* Optional Information */}
             <div className="bg-green-50 p-4 rounded-lg">
-              <h4 className="text-lg font-semibold text-gray-800 mb-4">معلومات إضافية</h4>
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                معلومات إضافية
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Transaction ID */}
                 <div>
@@ -320,7 +353,9 @@ const UpdateSupplierPaymentForm = ({
                   <input
                     type="text"
                     value={formData.transaction_id}
-                    onChange={(e) => handleInputChange('transaction_id', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("transaction_id", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="رقم المعاملة (اختياري)"
                   />
@@ -334,11 +369,13 @@ const UpdateSupplierPaymentForm = ({
                     </label>
                     <SearchableSelect
                       options={[
-                        { value: '', label: 'لا يوجد' },
-                        ...purchaseOrderOptions
+                        { value: "", label: "لا يوجد" },
+                        ...purchaseOrderOptions,
                       ]}
                       value={formData.purchase_order_id}
-                      onChange={(value) => handleInputChange('purchase_order_id', value)}
+                      onChange={(value) =>
+                        handleInputChange("purchase_order_id", value)
+                      }
                       placeholder="اختر أمر الشراء (اختياري)..."
                       className="w-full"
                     />
@@ -352,7 +389,7 @@ const UpdateSupplierPaymentForm = ({
                   </label>
                   <textarea
                     value={formData.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
+                    onChange={(e) => handleInputChange("notes", e.target.value)}
                     rows={3}
                     className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="ملاحظات إضافية..."
@@ -364,12 +401,12 @@ const UpdateSupplierPaymentForm = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-          <div className="flex justify-end gap-3">
+        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:py-4 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 text-base sm:text-sm"
             >
               إلغاء
             </button>
@@ -377,15 +414,30 @@ const UpdateSupplierPaymentForm = ({
               type="submit"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-sm"
             >
               {isSubmitting && (
-                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
               )}
-              {isSubmitting ? 'جاري التحديث...' : 'تحديث الدفعة'}
+              {isSubmitting ? "جاري التحديث..." : "تحديث الدفعة"}
             </button>
           </div>
         </div>

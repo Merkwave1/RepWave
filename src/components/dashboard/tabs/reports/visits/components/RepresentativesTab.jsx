@@ -84,14 +84,16 @@ const RepresentativesTab = ({ data }) => {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-        <h2 className="text-xl font-semibold text-gray-900">إحصائيات المندوبين</h2>
-        
-        <div className="flex items-center space-x-4 space-x-reverse">
-          {/* Sort Options */}
+        {/* Title */}
+        <h2 className="text-2xl font-bold text-gray-900">إحصائيات المندوبين</h2>
+
+        {/* Controls */}
+        <div className="flex items-center space-x-3 space-x-reverse">
+          {/* Sort Dropdown */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium shadow-sm hover:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200"
           >
             <option value="total_visits">إجمالي الزيارات</option>
             <option value="completed_visits">الزيارات المكتملة</option>
@@ -101,10 +103,11 @@ const RepresentativesTab = ({ data }) => {
             <option value="total_sales_from_visits">المبيعات من الزيارات</option>
             <option value="avg_visit_duration">متوسط المدة</option>
           </select>
-          
+
+          {/* Sort Order Button */}
           <button
             onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 font-medium text-gray-700"
           >
             {sortOrder === 'desc' ? '↓ تنازلي' : '↑ تصاعدي'}
           </button>

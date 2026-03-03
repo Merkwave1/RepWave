@@ -43,7 +43,7 @@ function DetailsModal({ request, warehouses, onClose }) {
     (w) => w.warehouse_id === request.request_destination_warehouse_id,
   );
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/40 flex justify-center items-center p-4 z-50">
       <div
         className="bg-white rounded-xl shadow-2xl p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto"
         dir="rtl"

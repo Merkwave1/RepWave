@@ -55,75 +55,96 @@ const SuppliersTab = ({ data, loading }) => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900">تفاصيل الموردين</h3>
           </div>
-          <div className="space-y-4">
-            {suppliers.suppliers.map((supplier, index) => (
-              <div key={supplier.supplier_id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                      {supplier.supplier_name || 'مورد غير محدد'}
-                    </h4>
-                    <div className="space-y-1">
-                      {supplier.supplier_phone && (
-                        <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
-                          <PhoneIcon className="w-4 h-4" />
-                          <span>{supplier.supplier_phone}</span>
-                        </div>
-                      )}
-                      {supplier.supplier_email && (
-                        <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
-                          <EnvelopeIcon className="w-4 h-4" />
-                          <span>{supplier.supplier_email}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-left">
-                    <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      المرتبة #{index + 1}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <p className="text-lg font-bold text-blue-600">{supplier.product_count}</p>
-                    <p className="text-xs text-gray-500">إجمالي المنتجات</p>
-                  </div>
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <p className="text-lg font-bold text-green-600">{supplier.active_products}</p>
-                    <p className="text-xs text-gray-500">منتجات نشطة</p>
-                  </div>
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <p className="text-lg font-bold text-purple-600">{supplier.total_inventory || 0}</p>
-                    <p className="text-xs text-gray-500">وحدات المخزون</p>
-                  </div>
-                </div>
+<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+  {suppliers.suppliers.map((supplier, index) => {
+    const activePercentage =
+      supplier.product_count > 0
+        ? Math.round(
+            (supplier.active_products / supplier.product_count) * 100
+          )
+        : 0;
 
-                {/* Progress bar for product percentage */}
-                <div className="mt-4">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-gray-600">نسبة المنتجات النشطة</span>
-                    <span className="text-sm font-medium">
-                      {supplier.product_count > 0 
-                        ? Math.round((supplier.active_products / supplier.product_count) * 100) 
-                        : 0}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full" 
-                      style={{
-                        width: `${supplier.product_count > 0 
-                          ? (supplier.active_products / supplier.product_count) * 100 
-                          : 0}%`
-                      }}
-                    ></div>
-                  </div>
+    return (
+      <div
+        key={supplier.supplier_id}
+        className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200"
+      >
+        {/* ===== Header ===== */}
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h4 className="text-base font-semibold text-gray-900">
+              {supplier.supplier_name || "مورد غير محدد"}
+            </h4>
+
+            <div className="mt-2 space-y-1">
+              {supplier.supplier_phone && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <PhoneIcon className="w-4 h-4 text-gray-400" />
+                  <span>{supplier.supplier_phone}</span>
                 </div>
-              </div>
-            ))}
+              )}
+
+              {supplier.supplier_email && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <EnvelopeIcon className="w-4 h-4 text-gray-400" />
+                  <span>{supplier.supplier_email}</span>
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Rank Badge */}
+          <span className="text-xs font-semibold bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
+            #{index + 1}
+          </span>
+        </div>
+
+        {/* ===== Stats ===== */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="bg-blue-50 rounded-xl p-3 text-center">
+            <p className="text-lg font-semibold text-blue-600">
+              {supplier.product_count}
+            </p>
+            <p className="text-xs text-gray-500">إجمالي المنتجات</p>
+          </div>
+
+          <div className="bg-green-50 rounded-xl p-3 text-center">
+            <p className="text-lg font-semibold text-green-600">
+              {supplier.active_products}
+            </p>
+            <p className="text-xs text-gray-500">منتجات نشطة</p>
+          </div>
+
+          <div className="bg-purple-50 rounded-xl p-3 text-center">
+            <p className="text-lg font-semibold text-purple-600">
+              {supplier.total_inventory || 0}
+            </p>
+            <p className="text-xs text-gray-500">وحدات المخزون</p>
+          </div>
+        </div>
+
+        {/* ===== Progress ===== */}
+        <div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-600">
+              نسبة المنتجات النشطة
+            </span>
+            <span className="font-semibold text-gray-900">
+              {activePercentage}%
+            </span>
+          </div>
+
+          <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+            <div
+              className="bg-green-600 h-2.5 rounded-full transition-all duration-500"
+              style={{ width: `${activePercentage}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  })}
+</div>
         </div>
       )}
 

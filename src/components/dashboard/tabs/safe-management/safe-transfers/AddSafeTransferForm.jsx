@@ -1,18 +1,22 @@
 // src/components/dashboard/tabs/safe-management/safe-transfers/AddSafeTransferForm.jsx
-import React, { useState, useEffect } from 'react';
-import { ArrowsRightLeftIcon, XMarkIcon, BanknotesIcon } from '@heroicons/react/24/outline';
-import { addSafeTransfer } from '../../../../../apis/safe_transfers';
-import NumberInput from '../../../../common/NumberInput/NumberInput';
-import { getSafes } from '../../../../../apis/safes';
-import useCurrency from '../../../../../hooks/useCurrency';
+import React, { useState, useEffect } from "react";
+import {
+  ArrowsRightLeftIcon,
+  XMarkIcon,
+  BanknotesIcon,
+} from "@heroicons/react/24/outline";
+import { addSafeTransfer } from "../../../../../apis/safe_transfers";
+import NumberInput from "../../../../common/NumberInput/NumberInput";
+import { getSafes } from "../../../../../apis/safes";
+import useCurrency from "../../../../../hooks/useCurrency";
 
 const AddSafeTransferForm = ({ onClose, onSubmit }) => {
   const { symbol, formatCurrency: formatMoney } = useCurrency();
   const [formData, setFormData] = useState({
-    source_safe_id: '',
-    destination_safe_id: '',
-    transfer_amount: '',
-    transfer_notes: ''
+    source_safe_id: "",
+    destination_safe_id: "",
+    transfer_amount: "",
+    transfer_notes: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,76 +29,80 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
         const response = await getSafes();
         setSafes(response.safes || []);
       } catch (error) {
-        console.error('Error loading safes:', error);
-        setErrors({ safes: 'فشل في تحميل الخزائن' });
+        console.error("Error loading safes:", error);
+        setErrors({ safes: "فشل في تحميل الخزائن" });
       } finally {
         setLoading(false);
       }
     };
-    
+
     loadSafes();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.source_safe_id) {
-      newErrors.source_safe_id = 'يجب اختيار الخزنة المصدر';
+      newErrors.source_safe_id = "يجب اختيار الخزنة المصدر";
     }
-    
+
     if (!formData.destination_safe_id) {
-      newErrors.destination_safe_id = 'يجب اختيار الخزنة الوجهة';
+      newErrors.destination_safe_id = "يجب اختيار الخزنة الوجهة";
     }
-    
+
     if (formData.source_safe_id === formData.destination_safe_id) {
-      newErrors.destination_safe_id = 'لا يمكن أن تكون الخزنة المصدر والوجهة نفسها';
+      newErrors.destination_safe_id =
+        "لا يمكن أن تكون الخزنة المصدر والوجهة نفسها";
     }
-    
-    if (!formData.transfer_amount || parseFloat(formData.transfer_amount) <= 0) {
-      newErrors.transfer_amount = 'يجب إدخال مبلغ صحيح أكبر من صفر';
+
+    if (
+      !formData.transfer_amount ||
+      parseFloat(formData.transfer_amount) <= 0
+    ) {
+      newErrors.transfer_amount = "يجب إدخال مبلغ صحيح أكبر من صفر";
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     setIsSubmitting(true);
     setErrors({});
-    
+
     try {
       // Get user role from localStorage
       let userRole = null;
-      const userDataString = localStorage.getItem('userData');
+      const userDataString = localStorage.getItem("userData");
       if (userDataString) {
         try {
           const userData = JSON.parse(userDataString);
           userRole = userData.users_role;
         } catch (e) {
-          console.error('Failed to parse userData:', e);
+          console.error("Failed to parse userData:", e);
         }
       }
 
@@ -103,24 +111,28 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
         destination_safe_id: parseInt(formData.destination_safe_id),
         transfer_amount: parseFloat(formData.transfer_amount),
         transfer_notes: formData.transfer_notes || null,
-        user_role: userRole // Send user role to backend
+        user_role: userRole, // Send user role to backend
       };
 
       await addSafeTransfer(transferData);
       onSubmit?.();
       onClose();
     } catch (error) {
-      console.error('Error adding safe transfer:', error);
+      console.error("Error adding safe transfer:", error);
       setErrors({
-        submit: error.message || 'حدث خطأ أثناء إضافة التحويل'
+        submit: error.message || "حدث خطأ أثناء إضافة التحويل",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const sourceSafe = safes.find(safe => safe.safes_id === parseInt(formData.source_safe_id));
-  const destinationSafe = safes.find(safe => safe.safes_id === parseInt(formData.destination_safe_id));
+  const sourceSafe = safes.find(
+    (safe) => safe.safes_id === parseInt(formData.source_safe_id),
+  );
+  const destinationSafe = safes.find(
+    (safe) => safe.safes_id === parseInt(formData.destination_safe_id),
+  );
 
   const formatBalance = (value) => {
     const formatted = formatMoney(value || 0, { withSymbol: false });
@@ -128,12 +140,18 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden mx-4" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-6 py-4 border-b border-gray-300">
+        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-300">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <h3 className="text-base sm:text-xl font-bold text-gray-800 flex items-center gap-2 truncate">
               <ArrowsRightLeftIcon className="h-6 w-6 text-blue-600" />
               تحويل بين الخزائن
             </h3>
@@ -147,8 +165,11 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-140px)]" dir="rtl">
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div
+          className="overflow-y-auto max-h-[calc(95vh-110px)] sm:max-h-[calc(90vh-140px)]"
+          dir="rtl"
+        >
+          <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-6">
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 {errors.submit}
@@ -167,7 +188,7 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                 <ArrowsRightLeftIcon className="h-5 w-5 text-blue-600" />
                 اختيار الخزائن
               </h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Source Safe */}
                 <div>
@@ -179,7 +200,9 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                     value={formData.source_safe_id}
                     onChange={handleChange}
                     className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                      errors.source_safe_id ? 'border-red-500' : 'border-gray-300'
+                      errors.source_safe_id
+                        ? "border-red-500"
+                        : "border-gray-300"
                     }`}
                     disabled={isSubmitting || loading}
                     dir="rtl"
@@ -187,15 +210,25 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                     <option value="">اختر الخزنة المصدر</option>
                     {safes.map((safe) => (
                       <option key={safe.safes_id} value={safe.safes_id}>
-                        {safe.safes_name} - {safe.safes_type === 'company' ? 'خزنة الشركة' : 'خزنة مندوب'} 
+                        {safe.safes_name} -{" "}
+                        {safe.safes_type === "company"
+                          ? "خزنة الشركة"
+                          : "خزنة مندوب"}
                         (رصيد: {formatBalance(safe.safes_balance)})
                       </option>
                     ))}
                   </select>
-                  {errors.source_safe_id && <p className="mt-1 text-sm text-red-600">{errors.source_safe_id}</p>}
+                  {errors.source_safe_id && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.source_safe_id}
+                    </p>
+                  )}
                   {sourceSafe && (
                     <div className="mt-2 text-sm text-gray-600">
-                      الرصيد الحالي: <span className="font-semibold text-green-600">{formatBalance(sourceSafe.safes_balance)}</span>
+                      الرصيد الحالي:{" "}
+                      <span className="font-semibold text-green-600">
+                        {formatBalance(sourceSafe.safes_balance)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -210,23 +243,40 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                     value={formData.destination_safe_id}
                     onChange={handleChange}
                     className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                      errors.destination_safe_id ? 'border-red-500' : 'border-gray-300'
+                      errors.destination_safe_id
+                        ? "border-red-500"
+                        : "border-gray-300"
                     }`}
                     disabled={isSubmitting || loading}
                     dir="rtl"
                   >
                     <option value="">اختر الخزنة الوجهة</option>
-                    {safes.filter(safe => safe.safes_id !== parseInt(formData.source_safe_id)).map((safe) => (
-                      <option key={safe.safes_id} value={safe.safes_id}>
-                        {safe.safes_name} - {safe.safes_type === 'company' ? 'خزنة الشركة' : 'خزنة مندوب'}
-                        (رصيد: {formatBalance(safe.safes_balance)})
-                      </option>
-                    ))}
+                    {safes
+                      .filter(
+                        (safe) =>
+                          safe.safes_id !== parseInt(formData.source_safe_id),
+                      )
+                      .map((safe) => (
+                        <option key={safe.safes_id} value={safe.safes_id}>
+                          {safe.safes_name} -{" "}
+                          {safe.safes_type === "company"
+                            ? "خزنة الشركة"
+                            : "خزنة مندوب"}
+                          (رصيد: {formatBalance(safe.safes_balance)})
+                        </option>
+                      ))}
                   </select>
-                  {errors.destination_safe_id && <p className="mt-1 text-sm text-red-600">{errors.destination_safe_id}</p>}
+                  {errors.destination_safe_id && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.destination_safe_id}
+                    </p>
+                  )}
                   {destinationSafe && (
                     <div className="mt-2 text-sm text-gray-600">
-                      الرصيد الحالي: <span className="font-semibold text-blue-600">{formatBalance(destinationSafe.safes_balance)}</span>
+                      الرصيد الحالي:{" "}
+                      <span className="font-semibold text-blue-600">
+                        {formatBalance(destinationSafe.safes_balance)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -239,7 +289,7 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                 <BanknotesIcon className="h-5 w-5 text-green-600" />
                 مبلغ التحويل
               </h4>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   المبلغ *
@@ -247,8 +297,12 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                 <div className="relative">
                   <NumberInput
                     value={formData.transfer_amount}
-                    onChange={(v) => handleChange({ target: { name: 'transfer_amount', value: v } })}
-                    className={`w-full ${errors.transfer_amount ? 'border-red-500' : ''}`}
+                    onChange={(v) =>
+                      handleChange({
+                        target: { name: "transfer_amount", value: v },
+                      })
+                    }
+                    className={`w-full ${errors.transfer_amount ? "border-red-500" : ""}`}
                     placeholder="0.00"
                     disabled={isSubmitting}
                   />
@@ -256,14 +310,21 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                     {symbol}
                   </div>
                 </div>
-                {errors.transfer_amount && <p className="mt-1 text-sm text-red-600">{errors.transfer_amount}</p>}
-                
-                {/* Balance validation */}
-                {sourceSafe && formData.transfer_amount && parseFloat(formData.transfer_amount) > parseFloat(sourceSafe.safes_balance || 0) && (
-                  <div className="mt-2 text-sm text-red-600">
-                    ⚠️ المبلغ المطلوب أكبر من الرصيد المتاح في الخزنة المصدر
-                  </div>
+                {errors.transfer_amount && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.transfer_amount}
+                  </p>
                 )}
+
+                {/* Balance validation */}
+                {sourceSafe &&
+                  formData.transfer_amount &&
+                  parseFloat(formData.transfer_amount) >
+                    parseFloat(sourceSafe.safes_balance || 0) && (
+                    <div className="mt-2 text-sm text-red-600">
+                      ⚠️ المبلغ المطلوب أكبر من الرصيد المتاح في الخزنة المصدر
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -284,11 +345,18 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t">
               <button
                 type="submit"
-                disabled={isSubmitting || loading || (sourceSafe && formData.transfer_amount && parseFloat(formData.transfer_amount) > parseFloat(sourceSafe.safes_balance || 0))}
-                className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                disabled={
+                  isSubmitting ||
+                  loading ||
+                  (sourceSafe &&
+                    formData.transfer_amount &&
+                    parseFloat(formData.transfer_amount) >
+                      parseFloat(sourceSafe.safes_balance || 0))
+                }
+                className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-sm"
               >
                 {isSubmitting ? (
                   <>
@@ -306,7 +374,7 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="bg-gray-500 text-white py-3 px-6 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
+                className="w-full sm:w-auto bg-gray-500 text-white py-3 px-6 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 text-base sm:text-sm"
               >
                 إلغاء
               </button>

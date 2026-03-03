@@ -1,7 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { XMarkIcon, MapPinIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  XMarkIcon,
+  MapPinIcon,
+  ArrowPathIcon,
+} from "@heroicons/react/24/outline";
 
-function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefresh }) {
+function MultiLocationMapModal({
+  isOpen,
+  onClose,
+  locations = [],
+  title,
+  onRefresh,
+}) {
   const mapRef = useRef(null);
   const leafletMapRef = useRef(null);
   const markersRef = useRef([]);
@@ -20,20 +30,22 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
 
         // Load CSS
         if (!document.querySelector('link[href*="leaflet.css"]')) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-          link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-          link.crossOrigin = '';
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+          link.integrity =
+            "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
+          link.crossOrigin = "";
           document.head.appendChild(link);
         }
 
         // Load JS
         if (!document.querySelector('script[src*="leaflet.js"]')) {
-          const script = document.createElement('script');
-          script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-          script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
-          script.crossOrigin = '';
+          const script = document.createElement("script");
+          script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+          script.integrity =
+            "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
+          script.crossOrigin = "";
           script.onload = () => resolve();
           document.head.appendChild(script);
         } else {
@@ -55,15 +67,22 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
       markersRef.current = [];
 
       // Calculate center point
-      const centerLat = locations.reduce((sum, loc) => sum + parseFloat(loc.latitude), 0) / locations.length;
-      const centerLng = locations.reduce((sum, loc) => sum + parseFloat(loc.longitude), 0) / locations.length;
+      const centerLat =
+        locations.reduce((sum, loc) => sum + parseFloat(loc.latitude), 0) /
+        locations.length;
+      const centerLng =
+        locations.reduce((sum, loc) => sum + parseFloat(loc.longitude), 0) /
+        locations.length;
 
       // Create map
-      const map = window.L.map(mapRef.current).setView([centerLat, centerLng], 10);
+      const map = window.L.map(mapRef.current).setView(
+        [centerLat, centerLng],
+        10,
+      );
 
       // Add OpenStreetMap tiles
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
         maxZoom: 19,
       }).addTo(map);
 
@@ -71,62 +90,62 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
 
       // Helper function to get color based on time difference
       const getMarkerColor = (dateTimeStr) => {
-        if (!dateTimeStr) return { bg: '#d1d5db', text: '#000000' }; // light grey
-        
+        if (!dateTimeStr) return { bg: "#d1d5db", text: "#000000" }; // light grey
+
         const now = new Date();
         const past = new Date(dateTimeStr);
         const diffMs = now - past;
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMins / 60);
         const diffDays = Math.floor(diffHours / 24);
-        
+
         // More than 1 day: light gray
-        if (diffDays >= 1) return { bg: '#d1d5db', text: '#000000' };
-        
+        if (diffDays >= 1) return { bg: "#d1d5db", text: "#000000" };
+
         // 1 hour to 1 day (< 24 hours): red
-        if (diffMins >= 60) return { bg: '#ef4444', text: '#ffffff' };
-        
+        if (diffMins >= 60) return { bg: "#ef4444", text: "#ffffff" };
+
         // 10 minutes to 1 hour: green gradient (light to dark)
         if (diffMins >= 10) {
           const ratio = (diffMins - 10) / 50; // 0 to 1 over 50 minutes
-          if (ratio < 0.25) return { bg: '#86efac', text: '#000000' }; // light green
-          if (ratio < 0.5) return { bg: '#4ade80', text: '#000000' };
-          if (ratio < 0.75) return { bg: '#22c55e', text: '#ffffff' };
-          return { bg: '#16a34a', text: '#ffffff' }; // dark green
+          if (ratio < 0.25) return { bg: "#86efac", text: "#000000" }; // light green
+          if (ratio < 0.5) return { bg: "#4ade80", text: "#000000" };
+          if (ratio < 0.75) return { bg: "#22c55e", text: "#ffffff" };
+          return { bg: "#16a34a", text: "#ffffff" }; // dark green
         }
-        
+
         // 0-10 minutes: light green with black text
-        return { bg: '#86efac', text: '#000000' };
+        return { bg: "#86efac", text: "#000000" };
       };
 
       // Helper function to get time ago
       const getTimeAgo = (dateTimeStr) => {
-        if (!dateTimeStr) return '-';
+        if (!dateTimeStr) return "-";
         const now = new Date();
         const past = new Date(dateTimeStr);
         const diffMs = now - past;
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMins / 60);
         const diffDays = Math.floor(diffHours / 24);
-        
-        if (diffMins < 1) return 'الآن';
+
+        if (diffMins < 1) return "الآن";
         if (diffMins < 60) return `منذ ${diffMins} د`;
         if (diffHours < 24) return `منذ ${diffHours} س`;
         return `منذ ${diffDays} ي`;
       };
 
       // Create custom icon with name
-      const createNameIcon = (name, trackingTime, userRole = 'rep') => {
+      const createNameIcon = (name, trackingTime, userRole = "rep") => {
         const colors = getMarkerColor(trackingTime);
         const timeAgo = getTimeAgo(trackingTime);
-        
+
         // Determine shape based on user role
-        const isStoreKeeper = userRole === 'store_keeper';
-        const borderRadius = isStoreKeeper ? '50%' : '8px'; // Circle for store_keeper, rounded square for rep
-        const roleEmoji = isStoreKeeper ? '📦' : '👤'; // Box emoji for store keeper, person for rep
-        
+        const isStoreKeeper = userRole === "store_keeper";
+        const borderRadius = isStoreKeeper ? "50%" : "8px"; // Circle for store_keeper, rounded square for rep
+        const roleEmoji = isStoreKeeper ? "📦" : "👤"; // Box emoji for store keeper, person for rep
+
         return window.L.divIcon({
-          className: 'custom-marker-icon',
+          className: "custom-marker-icon",
           html: `
             <div style="
               background-color: ${colors.bg};
@@ -155,7 +174,7 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
           `,
           iconSize: [100, 40],
           iconAnchor: [50, 20],
-          popupAnchor: [0, -20]
+          popupAnchor: [0, -20],
         });
       };
 
@@ -164,39 +183,43 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
       locations.forEach((location) => {
         const lat = parseFloat(location.latitude);
         const lng = parseFloat(location.longitude);
-        
+
         bounds.push([lat, lng]);
 
         const marker = window.L.marker([lat, lng], {
-          icon: createNameIcon(location.users_name, location.tracking_time, location.users_role)
+          icon: createNameIcon(
+            location.users_name,
+            location.tracking_time,
+            location.users_role,
+          ),
         }).addTo(map);
 
         // Create popup content
         const getTimeAgo = (dateTimeStr) => {
-          if (!dateTimeStr) return '-';
+          if (!dateTimeStr) return "-";
           const now = new Date();
           const past = new Date(dateTimeStr);
           const diffMs = now - past;
           const diffMins = Math.floor(diffMs / 60000);
           const diffHours = Math.floor(diffMins / 60);
           const diffDays = Math.floor(diffHours / 24);
-          
-          if (diffMins < 1) return 'الآن';
+
+          if (diffMins < 1) return "الآن";
           if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
           if (diffHours < 24) return `منذ ${diffHours} ساعة`;
           return `منذ ${diffDays} يوم`;
         };
 
         const getBatteryColor = (level) => {
-          if (!level) return '#9ca3af';
-          if (level >= 50) return '#16a34a';
-          if (level >= 20) return '#eab308';
-          return '#dc2626';
+          if (!level) return "#9ca3af";
+          if (level >= 50) return "#16a34a";
+          if (level >= 20) return "#eab308";
+          return "#dc2626";
         };
 
         const getRoleLabel = (role) => {
-          if (role === 'store_keeper') return '📦 أمين مخزن';
-          return '👤 مندوب مبيعات';
+          if (role === "store_keeper") return "📦 أمين مخزن";
+          return "👤 مندوب مبيعات";
         };
 
         const popupContent = `
@@ -209,25 +232,25 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
                 <strong>👔 الوظيفة:</strong> ${getRoleLabel(location.users_role)}
               </p>
               <p style="margin: 4px 0;">
-                <strong>📧 البريد:</strong> ${location.users_email || '-'}
+                <strong>📧 البريد:</strong> ${location.users_email || "-"}
               </p>
               <p style="margin: 4px 0;">
-                <strong>📱 الهاتف:</strong> ${location.users_phone || '-'}
+                <strong>📱 الهاتف:</strong> ${location.users_phone || "-"}
               </p>
               <p style="margin: 4px 0;">
                 <strong style="color: ${getBatteryColor(location.battery_level)};">🔋 البطارية:</strong> 
                 <span style="color: ${getBatteryColor(location.battery_level)}; font-weight: bold;">
-                  ${location.battery_level ? location.battery_level + '%' : '-'}
+                  ${location.battery_level ? location.battery_level + "%" : "-"}
                 </span>
               </p>
               <p style="margin: 4px 0;">
-                <strong>📱 الجهاز:</strong> ${location.phone_info || '-'}
+                <strong>📱 الجهاز:</strong> ${location.phone_info || "-"}
               </p>
               <p style="margin: 4px 0; font-size: 12px; color: #6b7280;">
                 <strong>🕒 آخر تحديث:</strong> ${getTimeAgo(location.tracking_time)}
               </p>
               <p style="margin: 4px 0; font-size: 11px; color: #9ca3af;">
-                ${new Date(location.tracking_time).toLocaleString('ar-EG')}
+                ${new Date(location.tracking_time).toLocaleString("ar-EG")}
               </p>
             </div>
           </div>
@@ -235,7 +258,7 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
 
         marker.bindPopup(popupContent, {
           maxWidth: 300,
-          className: 'custom-popup'
+          className: "custom-popup",
         });
 
         markersRef.current.push(marker);
@@ -245,16 +268,16 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
       if (bounds.length > 1) {
         map.fitBounds(bounds, {
           padding: [50, 50],
-          maxZoom: 15
+          maxZoom: 15,
         });
       } else if (bounds.length === 1) {
         map.setView(bounds[0], 13);
       }
 
       // Add custom CSS for popup
-      if (!document.querySelector('#leaflet-custom-popup-style')) {
-        const style = document.createElement('style');
-        style.id = 'leaflet-custom-popup-style';
+      if (!document.querySelector("#leaflet-custom-popup-style")) {
+        const style = document.createElement("style");
+        style.id = "leaflet-custom-popup-style";
         style.innerHTML = `
           .custom-popup .leaflet-popup-content-wrapper {
             border-radius: 8px;
@@ -287,7 +310,7 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
       <div className="flex items-center justify-center min-h-screen px-4 py-8">
         {/* Background overlay */}
         <div
-          className="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75"
+          className="fixed inset-0 transition-opacity backdrop-blur-sm bg-black/40"
           onClick={onClose}
         ></div>
 
@@ -298,7 +321,7 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <MapPinIcon className="h-6 w-6" />
-                {title || 'عرض جميع المواقع'}
+                {title || "عرض جميع المواقع"}
               </h3>
               <button
                 onClick={onClose}
@@ -312,9 +335,9 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
           {/* Content - scrollable */}
           <div className="px-6 py-6 overflow-y-auto flex-1">
             {/* Map Container - responsive height */}
-            <div 
+            <div
               ref={mapRef}
-              style={{ height: 'min(500px, 50vh)', width: '100%' }}
+              style={{ height: "min(500px, 50vh)", width: "100%" }}
               className="rounded-lg overflow-hidden border-2 border-gray-200 shadow-lg"
             />
 
@@ -343,8 +366,10 @@ function MultiLocationMapModal({ isOpen, onClose, locations = [], title, onRefre
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center gap-2"
                 title="تحديث البيانات"
               >
-                <ArrowPathIcon className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                {isRefreshing ? 'جاري التحديث...' : 'تحديث البيانات'}
+                <ArrowPathIcon
+                  className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
+                />
+                {isRefreshing ? "جاري التحديث..." : "تحديث البيانات"}
               </button>
             )}
             <button

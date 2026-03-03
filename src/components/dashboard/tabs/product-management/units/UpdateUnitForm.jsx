@@ -1,17 +1,17 @@
 // src/components/dashboard/tabs/product-management/units/UpdateUnitForm.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 function UpdateUnitForm({ unit, onUpdate, onCancel }) {
   const [formData, setFormData] = useState({
-    base_units_id: '',
-    base_units_name: '',
+    base_units_id: "",
+    base_units_name: "",
   });
 
   useEffect(() => {
     if (unit) {
       setFormData({
-        base_units_id: unit.base_units_id || '',
-        base_units_name: unit.base_units_name || '',
+        base_units_id: unit.base_units_id || "",
+        base_units_name: unit.base_units_name || "",
       });
     }
   }, [unit]);
@@ -30,11 +30,19 @@ function UpdateUnitForm({ unit, onUpdate, onCancel }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-xl mx-auto" dir="rtl">
-      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">تعديل الوحدة</h3>
+    <div
+      className="bg-white p-4 sm:p-6 rounded-lg shadow-md max-w-xl mx-auto"
+      dir="rtl"
+    >
+      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 text-center">
+        تعديل الوحدة
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="base_units_name" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="base_units_name"
+            className="block text-sm font-medium text-gray-700"
+          >
             اسم الوحدة
           </label>
           <input
@@ -49,7 +57,7 @@ function UpdateUnitForm({ unit, onUpdate, onCancel }) {
           />
         </div>
 
-        <div className="flex justify-end space-x-4 space-x-reverse mt-6">
+        <div className="flex flex-col-reverse sm:flex-row justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-4 sm:space-x-reverse mt-4 sm:mt-6">
           <button
             type="button"
             onClick={onCancel}
