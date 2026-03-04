@@ -1,8 +1,8 @@
 // src/components/dashboard/tabs/inventory-management/Inventory/RepackModal.jsx
-import React, { useState, useMemo, useEffect } from 'react';
-import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
-import Modal from '../../../../common/Modal/Modal';
-import Alert from '../../../../common/Alert/Alert';
+import React, { useState, useMemo, useEffect } from "react";
+import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
+import Modal from "../../../../common/Modal/Modal";
+import Alert from "../../../../common/Alert/Alert";
 
 // Helper function to calculate GCD (Greatest Common Divisor)
 const gcd = (a, b) => {
@@ -23,18 +23,18 @@ export default function RepackModal({
   inventoryItem,
   packagingTypes,
   baseUnits,
-  allowedTargetPackagingTypeIds
+  allowedTargetPackagingTypeIds,
 }) {
   // theme colors from your page
-  const THEME_DARK = '#1F2937';
-  const THEME_ACCENT = '#8DD8F5';
+  const THEME_DARK = "#1F2937";
+  const THEME_ACCENT = "#8DD8F5";
   // rgb values (used for rgba backgrounds)
-  const THEME_ACCENT_RGB = '141,216,245';
-  const THEME_DARK_RGB = '31,41,55';
+  const THEME_ACCENT_RGB = "141,216,245";
+  const THEME_DARK_RGB = "31,41,55";
 
   // Initialize quantityToConvert to 0, as the step will handle initial increment
   const [quantityToConvert, setQuantityToConvert] = useState(0);
-  const [toPackagingTypeId, setToPackagingTypeId] = useState('');
+  const [toPackagingTypeId, setToPackagingTypeId] = useState("");
   const [error, setError] = useState(null);
 
   // Find the base unit of the current inventory item's product
@@ -45,7 +45,9 @@ export default function RepackModal({
   // Find the current packaging type object
   const currentPackagingType = useMemo(() => {
     return Array.isArray(packagingTypes)
-      ? packagingTypes.find(pt => pt.packaging_types_id === inventoryItem?.packaging_type_id)
+      ? packagingTypes.find(
+          (pt) => pt.packaging_types_id === inventoryItem?.packaging_type_id,
+        )
       : undefined;
   }, [packagingTypes, inventoryItem]);
 
@@ -53,20 +55,35 @@ export default function RepackModal({
   // Exclude the current packaging type from compatible options
   const compatiblePackagingTypes = useMemo(() => {
     if (!Array.isArray(packagingTypes) || !currentBaseUnitId) return [];
-    let list = packagingTypes.filter(pt =>
-      pt.packaging_types_compatible_base_unit_id === currentBaseUnitId &&
-      pt.packaging_types_id !== inventoryItem?.packaging_type_id
+    let list = packagingTypes.filter(
+      (pt) =>
+        pt.packaging_types_compatible_base_unit_id === currentBaseUnitId &&
+        pt.packaging_types_id !== inventoryItem?.packaging_type_id,
     );
-    if (Array.isArray(allowedTargetPackagingTypeIds) && allowedTargetPackagingTypeIds.length > 0) {
-      const allowedSet = new Set(allowedTargetPackagingTypeIds.map(id => parseInt(id)));
-      list = list.filter(pt => allowedSet.has(parseInt(pt.packaging_types_id)));
+    if (
+      Array.isArray(allowedTargetPackagingTypeIds) &&
+      allowedTargetPackagingTypeIds.length > 0
+    ) {
+      const allowedSet = new Set(
+        allowedTargetPackagingTypeIds.map((id) => parseInt(id)),
+      );
+      list = list.filter((pt) =>
+        allowedSet.has(parseInt(pt.packaging_types_id)),
+      );
     }
     return list;
-  }, [packagingTypes, currentBaseUnitId, inventoryItem?.packaging_type_id, allowedTargetPackagingTypeIds]);
+  }, [
+    packagingTypes,
+    currentBaseUnitId,
+    inventoryItem?.packaging_type_id,
+    allowedTargetPackagingTypeIds,
+  ]);
 
   // Find the selected target packaging type object
   const selectedToPackagingType = useMemo(() => {
-    return compatiblePackagingTypes.find(pt => pt.packaging_types_id.toString() === toPackagingTypeId);
+    return compatiblePackagingTypes.find(
+      (pt) => pt.packaging_types_id.toString() === toPackagingTypeId,
+    );
   }, [compatiblePackagingTypes, toPackagingTypeId]);
 
   // Calculate the step size for increment/decrement buttons
@@ -74,10 +91,20 @@ export default function RepackModal({
   const conversionStep = useMemo(() => {
     if (!currentPackagingType || !selectedToPackagingType) return 1; // Default to 1 if no types selected
 
-    const currentFactor = parseFloat(currentPackagingType.packaging_types_default_conversion_factor);
-    const targetFactor = parseFloat(selectedToPackagingType.packaging_types_default_conversion_factor);
+    const currentFactor = parseFloat(
+      currentPackagingType.packaging_types_default_conversion_factor,
+    );
+    const targetFactor = parseFloat(
+      selectedToPackagingType.packaging_types_default_conversion_factor,
+    );
 
-    if (isNaN(currentFactor) || isNaN(targetFactor) || currentFactor <= 0 || targetFactor <= 0) return 1;
+    if (
+      isNaN(currentFactor) ||
+      isNaN(targetFactor) ||
+      currentFactor <= 0 ||
+      targetFactor <= 0
+    )
+      return 1;
 
     // Convert factors to integers by multiplying by a large power of 10 to handle decimals
     const multiplier = 10000; // Adjust as needed for precision
@@ -89,14 +116,19 @@ export default function RepackModal({
     const step = commonMultiple / intCurrentFactor;
 
     return Math.max(1, step);
-
   }, [currentPackagingType, selectedToPackagingType]);
 
   // Calculate equivalent quantity in target packaging type, ensuring it's a whole number
   const equivalentQuantityInTarget = useMemo(() => {
     const currentQty = quantityToConvert;
-    const currentConversionFactor = parseFloat(currentPackagingType?.packaging_types_default_conversion_factor) || 1;
-    const targetConversionFactor = parseFloat(selectedToPackagingType?.packaging_types_default_conversion_factor) || 1;
+    const currentConversionFactor =
+      parseFloat(
+        currentPackagingType?.packaging_types_default_conversion_factor,
+      ) || 1;
+    const targetConversionFactor =
+      parseFloat(
+        selectedToPackagingType?.packaging_types_default_conversion_factor,
+      ) || 1;
 
     if (currentQty === 0 || targetConversionFactor === 0) return 0;
 
@@ -118,21 +150,23 @@ export default function RepackModal({
   // Ensure quantityToConvert is reset if inventoryItem changes (e.g., modal is reused for a different item)
   useEffect(() => {
     setQuantityToConvert(0); // Start at 0 for new item, let increment button set first step
-    setToPackagingTypeId(''); // Reset target packaging type
+    setToPackagingTypeId(""); // Reset target packaging type
   }, [inventoryItem]);
 
   const handleIncrement = () => {
     setError(null); // Clear error on interaction
     if (!selectedToPackagingType) {
-      setError('الرجاء اختيار نوع تعبئة أولاً لتحديد خطوة التحويل.');
+      setError("الرجاء اختيار نوع تعبئة أولاً لتحديد خطوة التحويل.");
       return;
     }
 
-    setQuantityToConvert(prev => {
+    setQuantityToConvert((prev) => {
       const newVal = prev + conversionStep;
       const availableQty = parseFloat(inventoryItem.inventory_quantity);
       if (newVal > availableQty) {
-        setError(`لا يمكن أن تكون الكمية أكبر من الكمية المتاحة (${availableQty.toFixed(0)}).`);
+        setError(
+          `لا يمكن أن تكون الكمية أكبر من الكمية المتاحة (${availableQty.toFixed(0)}).`,
+        );
         return prev;
       }
       return newVal;
@@ -142,14 +176,14 @@ export default function RepackModal({
   const handleDecrement = () => {
     setError(null); // Clear error on interaction
     if (!selectedToPackagingType) {
-      setError('الرجاء اختيار نوع تعبئة أولًا لتحديد خطوة التحويل.');
+      setError("الرجاء اختيار نوع تعبئة أولًا لتحديد خطوة التحويل.");
       return;
     }
 
-    setQuantityToConvert(prev => {
+    setQuantityToConvert((prev) => {
       const newVal = prev - conversionStep;
       if (newVal < 0) {
-        setError('الكمية لا يمكن أن تكون أقل من صفر.');
+        setError("الكمية لا يمكن أن تكون أقل من صفر.");
         return prev;
       }
       return newVal;
@@ -161,27 +195,31 @@ export default function RepackModal({
     const quantity = quantityToConvert;
 
     if (quantity <= 0) {
-      setError('الكمية يجب أن تكون رقمًا صحيحًا وموجبًا.');
+      setError("الكمية يجب أن تكون رقمًا صحيحًا وموجبًا.");
       return;
     }
     if (!toPackagingTypeId) {
-      setError('الرجاء اختيار نوع التعبئة للتحويل إليه.');
+      setError("الرجاء اختيار نوع التعبئة للتحويل إليه.");
       return;
     }
     if (toPackagingTypeId === inventoryItem.packaging_type_id.toString()) {
-      setError('لا يمكن التحويل إلى نفس نوع التعبئة الحالي.');
+      setError("لا يمكن التحويل إلى نفس نوع التعبئة الحالي.");
       return;
     }
     if (quantity > parseFloat(inventoryItem.inventory_quantity)) {
-      setError(`الكمية المراد تحويلها (${quantity}) أكبر من الكمية المتاحة في المخزون (${parseFloat(inventoryItem.inventory_quantity).toFixed(0)}).`);
+      setError(
+        `الكمية المراد تحويلها (${quantity}) أكبر من الكمية المتاحة في المخزون (${parseFloat(inventoryItem.inventory_quantity).toFixed(0)}).`,
+      );
       return;
     }
     if (selectedToPackagingType === undefined) {
-      setError('نوع التعبئة المحدد غير صالح.');
+      setError("نوع التعبئة المحدد غير صالح.");
       return;
     }
     if (equivalentQuantityInTarget === null) {
-      setError('لا يمكن إجراء هذا التحويل بكميات صحيحة. يرجى تعديل الكمية أو نوع التعبئة.');
+      setError(
+        "لا يمكن إجراء هذا التحويل بكميات صحيحة. يرجى تعديل الكمية أو نوع التعبئة.",
+      );
       return;
     }
 
@@ -200,7 +238,11 @@ export default function RepackModal({
       onClose={onClose}
       title={`تحويل تعبئة/تفكيك — ${inventoryItem?.variant_display_name}`}
     >
-      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6" dir="rtl" style={{ color: THEME_DARK }}>
+      <div
+        className="p-3 sm:p-6 space-y-4 sm:space-y-6"
+        dir="rtl"
+        style={{ color: THEME_DARK }}
+      >
         {error && <Alert type="error" message={error} className="mb-2" />}
 
         {/* ===== PRODUCT CARD ===== */}
@@ -208,7 +250,7 @@ export default function RepackModal({
           className="relative overflow-hidden rounded-2xl p-3 sm:p-5 shadow-lg"
           style={{
             background: `linear-gradient(135deg, rgba(${THEME_ACCENT_RGB},0.18), rgba(255,255,255,1))`,
-            border: `1px solid rgba(${THEME_ACCENT_RGB},0.45)`
+            border: `1px solid rgba(${THEME_ACCENT_RGB},0.45)`,
           }}
         >
           <div className="absolute top-[-20px] right-[-20px] w-36 h-36 bg-blue-200 opacity-20 rounded-full filter blur-2xl" />
@@ -224,17 +266,15 @@ export default function RepackModal({
           <div className="flex justify-between text-sm font-semibold">
             <span>الكمية المتاحة</span>
             <span className="text-lg">
-              {parseFloat(inventoryItem?.inventory_quantity || 0).toFixed(0)}{' '}
-              {currentPackagingType?.packaging_types_name || ''}
+              {parseFloat(inventoryItem?.inventory_quantity || 0).toFixed(0)}{" "}
+              {currentPackagingType?.packaging_types_name || ""}
             </span>
           </div>
         </div>
 
         {/* ===== TARGET PACKAGING ===== */}
         <div className="bg-white rounded-2xl shadow-md p-3 sm:p-5 border">
-          <p className="text-xs font-semibold opacity-70 mb-2">
-            التحويل إلى
-          </p>
+          <p className="text-xs font-semibold opacity-70 mb-2">التحويل إلى</p>
 
           <select
             value={toPackagingTypeId}
@@ -243,19 +283,21 @@ export default function RepackModal({
             style={{ borderColor: THEME_ACCENT }}
           >
             <option value="">اختر نوع تعبئة</option>
-            {compatiblePackagingTypes.map(pt => (
+            {compatiblePackagingTypes.map((pt) => (
               <option key={pt.packaging_types_id} value={pt.packaging_types_id}>
-                {pt.packaging_types_name} — معامل {pt.packaging_types_default_conversion_factor}
+                {pt.packaging_types_name} — معامل{" "}
+                {pt.packaging_types_default_conversion_factor}
               </option>
             ))}
           </select>
 
           {compatiblePackagingTypes.length === 0 && (
-            <p className="text-sm mt-2" style={{ color: '#cc3333' }}>
+            <p className="text-sm mt-2" style={{ color: "#cc3333" }}>
               لا توجد أنواع تعبئة متوافقة
-              {Array.isArray(allowedTargetPackagingTypeIds) && allowedTargetPackagingTypeIds.length > 0
-                ? ' ضمن التعبئة المفضلة لهذا المنتج.'
-                : ' مع الوحدة الأساسية لهذا المنتج.'}
+              {Array.isArray(allowedTargetPackagingTypeIds) &&
+              allowedTargetPackagingTypeIds.length > 0
+                ? " ضمن التعبئة المفضلة لهذا المنتج."
+                : " مع الوحدة الأساسية لهذا المنتج."}
             </p>
           )}
         </div>
@@ -279,8 +321,8 @@ export default function RepackModal({
             <div
               className="px-6 sm:px-10 py-3 sm:py-4 rounded-2xl text-2xl sm:text-3xl font-extrabold shadow-inner min-w-[80px] text-center"
               style={{
-                background: '#f8fafc',
-                border: '1px solid rgba(0,0,0,0.05)'
+                background: "#f8fafc",
+                border: "1px solid rgba(0,0,0,0.05)",
               }}
             >
               {quantityToConvert.toFixed(0)}
@@ -301,7 +343,7 @@ export default function RepackModal({
               className="text-center rounded-xl p-3 text-sm font-semibold"
               style={{
                 background: `rgba(${THEME_ACCENT_RGB},0.12)`,
-                border: `1px solid rgba(${THEME_ACCENT_RGB},0.35)`
+                border: `1px solid rgba(${THEME_ACCENT_RGB},0.35)`,
               }}
             >
               الناتج =
@@ -310,16 +352,17 @@ export default function RepackModal({
                   {equivalentQuantityInTarget.toFixed(0)}
                 </span>
               ) : (
-                <span className="mx-1 text-red-600 font-bold">
-                  غير صالح
-                </span>
+                <span className="mx-1 text-red-600 font-bold">غير صالح</span>
               )}
-              {selectedToPackagingType?.packaging_types_name || ''}
+              {selectedToPackagingType?.packaging_types_name || ""}
             </div>
           )}
 
           {!selectedToPackagingType && (
-            <p className="text-sm mt-2 text-center" style={{ color: `rgba(${THEME_DARK_RGB},0.6)` }}>
+            <p
+              className="text-sm mt-2 text-center"
+              style={{ color: `rgba(${THEME_DARK_RGB},0.6)` }}
+            >
               الرجاء اختيار نوع تعبئة جديد لحساب الكمية المحولة.
             </p>
           )}
@@ -339,7 +382,7 @@ export default function RepackModal({
             className="w-full sm:w-auto px-8 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition"
             style={{
               background: `linear-gradient(135deg, ${THEME_DARK}, #0f172a)`,
-              color: 'white'
+              color: "white",
             }}
           >
             تنفيذ التحويل

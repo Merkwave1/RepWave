@@ -289,12 +289,12 @@ transition-all duration-200
           <div className="space-y-1.5 sm:space-y-2">
             <label className="text-sm font-medium text-gray-600">الدور</label>
 
-          <div className="relative">
-            <select
-              name="users_role"
-              value={formData.users_role}
-              onChange={handleChange}
-              className="
+            <div className="relative">
+              <select
+                name="users_role"
+                value={formData.users_role}
+                onChange={handleChange}
+                className="
         w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
         bg-white
         border border-gray-200
@@ -309,31 +309,31 @@ transition-all duration-200
         appearance-none
         pr-10
       "
-            >
-              <option value="admin">مدير</option>
-              <option value="rep">مسئول مبيعات</option>
-              <option value="store_keeper">أمين مخزن</option>
-              <option value="cash">كاش</option>
-            </select>
-
-            {/* Premium arrow */}
-            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+                <option value="admin">مدير</option>
+                <option value="rep">مسئول مبيعات</option>
+                <option value="store_keeper">أمين مخزن</option>
+                <option value="cash">كاش</option>
+              </select>
+
+              {/* Premium arrow */}
+              <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
         </div>
 
         {/* PHONE + NATIONAL ID GRID */}

@@ -820,7 +820,9 @@ export default function TransfersTab() {
                     sortable: true,
                     render: (transfer) =>
                       warehouses.find(
-                        (w) => w.warehouse_id === transfer.transfer_source_warehouse_id,
+                        (w) =>
+                          w.warehouse_id ===
+                          transfer.transfer_source_warehouse_id,
                       )?.warehouse_name ||
                       transfer.source_warehouse_name ||
                       "غير معروف",
@@ -832,7 +834,9 @@ export default function TransfersTab() {
                     sortable: true,
                     render: (transfer) =>
                       warehouses.find(
-                        (w) => w.warehouse_id === transfer.transfer_destination_warehouse_id,
+                        (w) =>
+                          w.warehouse_id ===
+                          transfer.transfer_destination_warehouse_id,
                       )?.warehouse_name ||
                       transfer.destination_warehouse_name ||
                       "غير معروف",
@@ -869,7 +873,10 @@ export default function TransfersTab() {
                     render: (transfer) =>
                       transfer.formatted_transfer_date ||
                       (transfer.created_at
-                        ? format(new Date(transfer.created_at), "yyyy-MM-dd HH:mm")
+                        ? format(
+                            new Date(transfer.created_at),
+                            "yyyy-MM-dd HH:mm",
+                          )
                         : "N/A"),
                   },
                   {

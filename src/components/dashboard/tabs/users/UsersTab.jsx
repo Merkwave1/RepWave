@@ -1,21 +1,31 @@
 // src/components/dashboard/tabs/users/UsersTab.jsx
-import React, { useEffect, useState, useCallback } from 'react';
-import { Outlet, NavLink, useOutletContext, useNavigate } from 'react-router-dom';
-import { getAppSettings } from '../../../../apis/auth.js';
-import { getAllUsers, deleteUser } from '../../../../apis/users.js';
-import Loader from '../../../common/Loader/Loader.jsx';
-import Alert from '../../../common/Alert/Alert.jsx';
-import Modal from '../../../common/Modal/Modal.jsx';
-import Button from '../../../common/Button/Button.jsx';
-import UserDetailsModal from './UserDetailsModal.jsx';
-import CustomPageHeader from '../../../common/CustomPageHeader/CustomPageHeader';
-import { Bars3BottomLeftIcon, PlusIcon, EyeIcon, PencilIcon, TrashIcon, UsersIcon } from '@heroicons/react/24/outline';
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  Outlet,
+  NavLink,
+  useOutletContext,
+  useNavigate,
+} from "react-router-dom";
+import { getAppSettings } from "../../../../apis/auth.js";
+import { getAllUsers, deleteUser } from "../../../../apis/users.js";
+import Loader from "../../../common/Loader/Loader.jsx";
+import Alert from "../../../common/Alert/Alert.jsx";
+import Modal from "../../../common/Modal/Modal.jsx";
+import Button from "../../../common/Button/Button.jsx";
+import UserDetailsModal from "./UserDetailsModal.jsx";
+import CustomPageHeader from "../../../common/CustomPageHeader/CustomPageHeader";
+import {
+  Bars3BottomLeftIcon,
+  PlusIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
 
 const MOCK_MODE = true; // ⬅ switch to false when using real API
 
-const mockSettings = [
-  { settings_key: "users_limits", settings_value: "8" },
-];
+const mockSettings = [{ settings_key: "users_limits", settings_value: "8" }];
 
 const mockUsers = [
   {
@@ -44,19 +54,19 @@ const mockUsers = [
   },
 ];
 
-
 function UsersTab() {
   const { setGlobalMessage } = useOutletContext();
   const navigate = useNavigate();
   const [userLimit, setUserLimit] = useState(null);
   const [currentUsers, setCurrentUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const [localMessage, setLocalMessage] = useState('');
-  const [localMessageType, setLocalMessageType] = useState('info');
+  const [localMessage, setLocalMessage] = useState("");
+  const [localMessageType, setLocalMessageType] = useState("info");
 
-  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] =
+    useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -67,87 +77,101 @@ function UsersTab() {
   // State for limit dialog
   const [showLimitDialog, setShowLimitDialog] = useState(false);
 
-
   // Function to load data from localStorage and refresh from API if necessary
-  const loadUserData = useCallback(async (forceApiRefresh = false) => {
-    setLoading(true); setError(''); setGlobalMessage('');
-    try {
+  const loadUserData = useCallback(
+    async (forceApiRefresh = false) => {
+      setLoading(true);
+      setError("");
+      setGlobalMessage("");
+      try {
+        // Load settings (always from localStorage, as it's fetched on login)
+        // const settings = getAppSettings();
+        // if (settings) {
+        //   const limitSetting = settings.find(s => s.settings_key === 'users_limits');
+        //   setUserLimit(limitSetting ? parseInt(limitSetting.settings_value, 10) : null);
 
+        const settings = MOCK_MODE ? mockSettings : await getAppSettings();
 
-
-
-      // Load settings (always from localStorage, as it's fetched on login)
-      // const settings = getAppSettings();
-      // if (settings) {
-      //   const limitSetting = settings.find(s => s.settings_key === 'users_limits');
-      //   setUserLimit(limitSetting ? parseInt(limitSetting.settings_value, 10) : null);
-
-
-      const settings = MOCK_MODE ? mockSettings : await getAppSettings();
-
-      if (settings && Array.isArray(settings)) { // Ensure settings is an array
-        const limitSetting = settings.find(s => s.settings_key === 'users_limits');
-        setUserLimit(limitSetting ? parseInt(limitSetting.settings_value, 10) : null);
-      } else { 
-        setUserLimit(null); 
-      }
-
-
-
-      // Try to load users from localStorage first
-      const cachedUsersString = localStorage.getItem('appUsers');
-      let usersData = null;
-
-      if (cachedUsersString && !forceApiRefresh) {
-        try {
-          usersData = JSON.parse(cachedUsersString);
-          setCurrentUsers(usersData); // Display cached data immediately
-          setLoading(false); // Stop loading quickly if cached data is available
-        } catch (e) {
-          console.error("Failed to parse cached users data:", e);
-          // If parsing fails, treat as no cached data and proceed to API fetch
-          usersData = null;
+        if (settings && Array.isArray(settings)) {
+          // Ensure settings is an array
+          const limitSetting = settings.find(
+            (s) => s.settings_key === "users_limits",
+          );
+          setUserLimit(
+            limitSetting ? parseInt(limitSetting.settings_value, 10) : null,
+          );
+        } else {
+          setUserLimit(null);
         }
-      }
 
-      // If no cached data or forceApiRefresh is true, fetch from API
-      if (!usersData || forceApiRefresh) {
-        setLoading(true); // Re-show loading if API fetch is happening
-        const apiUsersData = await getAllUsers();
-        setCurrentUsers(apiUsersData);
-        localStorage.setItem('appUsers', JSON.stringify(apiUsersData)); // Update localStorage with fresh data
+        // Try to load users from localStorage first
+        const cachedUsersString = localStorage.getItem("appUsers");
+        let usersData = null;
+
+        if (cachedUsersString && !forceApiRefresh) {
+          try {
+            usersData = JSON.parse(cachedUsersString);
+            setCurrentUsers(usersData); // Display cached data immediately
+            setLoading(false); // Stop loading quickly if cached data is available
+          } catch (e) {
+            console.error("Failed to parse cached users data:", e);
+            // If parsing fails, treat as no cached data and proceed to API fetch
+            usersData = null;
+          }
+        }
+
+        // If no cached data or forceApiRefresh is true, fetch from API
+        if (!usersData || forceApiRefresh) {
+          setLoading(true); // Re-show loading if API fetch is happening
+          const apiUsersData = await getAllUsers();
+          setCurrentUsers(apiUsersData);
+          localStorage.setItem("appUsers", JSON.stringify(apiUsersData)); // Update localStorage with fresh data
+          setLoading(false);
+        }
+      } catch (e) {
+        console.error("Failed to load or refresh user data:", e);
+        setError("حدث خطأ أثناء تحميل بيانات المستخدمين: " + e.message);
         setLoading(false);
       }
+    },
+    [setGlobalMessage],
+  );
+  useEffect(() => {
+    loadUserData();
+  }, [loadUserData]); // Initial load on mount
 
-    } catch (e) {
-      console.error("Failed to load or refresh user data:", e);
-      setError("حدث خطأ أثناء تحميل بيانات المستخدمين: " + e.message);
-      setLoading(false);
-    }
-  }, [setGlobalMessage]);
-  useEffect(() => { loadUserData(); }, [loadUserData]); // Initial load on mount
-
-  const openConfirmDeleteModal = (user) => { setUserToDelete(user); setIsConfirmDeleteModalOpen(true); setLocalMessage(''); };
-  const closeConfirmDeleteModal = () => { setUserToDelete(null); setIsConfirmDeleteModalOpen(false); setLocalMessage(''); };
+  const openConfirmDeleteModal = (user) => {
+    setUserToDelete(user);
+    setIsConfirmDeleteModalOpen(true);
+    setLocalMessage("");
+  };
+  const closeConfirmDeleteModal = () => {
+    setUserToDelete(null);
+    setIsConfirmDeleteModalOpen(false);
+    setLocalMessage("");
+  };
 
   const handleConfirmDelete = async () => {
     if (!userToDelete) return;
-    setDeleteLoading(true); setLocalMessage('');
+    setDeleteLoading(true);
+    setLocalMessage("");
     try {
       const result = await deleteUser(userToDelete.users_id);
-  const successMsg = result.message || "تم حذف المستخدم بنجاح!";
-  // Refresh list first
-  await loadUserData(true);
-  // Close modal immediately (no delay)
-  closeConfirmDeleteModal();
-  // Surface success at top
-  setLocalMessage(successMsg);
-  setLocalMessageType('success');
+      const successMsg = result.message || "تم حذف المستخدم بنجاح!";
+      // Refresh list first
+      await loadUserData(true);
+      // Close modal immediately (no delay)
+      closeConfirmDeleteModal();
+      // Surface success at top
+      setLocalMessage(successMsg);
+      setLocalMessageType("success");
     } catch (err) {
       console.error("Delete error:", err);
       setLocalMessage(err.message || "حدث خطأ أثناء حذف المستخدم.");
-      setLocalMessageType('error');
-    } finally { setDeleteLoading(false); }
+      setLocalMessageType("error");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   // Handlers for user details modal
@@ -170,10 +194,11 @@ function UsersTab() {
     userLimit,
     currentUsers,
     loading, // Pass loading state to children
-    error,   // Pass error state to children
+    error, // Pass error state to children
     loadUserData: () => loadUserData(true), // Always force API refresh when children call loadUserData
     openConfirmDeleteModal,
-    setGlobalMessage: (msg) => { // Wrapper to set global message from children
+    setGlobalMessage: (msg) => {
+      // Wrapper to set global message from children
       setLocalMessage(msg.message);
       setLocalMessageType(msg.type);
     },
@@ -182,22 +207,31 @@ function UsersTab() {
 
   return (
     <div className="p-1.5 sm:p-2 md:p-4" dir="rtl">
-      {localMessage && (<Alert message={localMessage} type={localMessageType} onClose={() => setLocalMessage('')} className="mb-3 sm:mb-4" />)}
+      {localMessage && (
+        <Alert
+          message={localMessage}
+          type={localMessageType}
+          onClose={() => setLocalMessage("")}
+          className="mb-3 sm:mb-4"
+        />
+      )}
       <div className="mb-3 sm:mb-4 md:mb-6">
         <CustomPageHeader
           title="إدارة المستخدمين"
           subtitle="إدارة وتنظيم المستخدمين"
-          icon={<UsersIcon className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-[#1F2937]" />}
+          icon={
+            <UsersIcon className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-[#1F2937]" />
+          }
           statValue={currentUsers.length}
           statLabel="إجمالي المستخدمين"
-          color='blue'
+          color="blue"
           actionButton={
             <button
               onClick={() => {
                 if (userLimit !== null && currentUsers.length >= userLimit) {
                   setShowLimitDialog(true);
                 } else {
-                  navigate('/dashboard/users/add-user');
+                  navigate("/dashboard/users/add-user");
                 }
               }}
               className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-2.5 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-2 rounded-lg flex items-center gap-1.5 sm:gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-sm sm:text-base md:text-lg"
@@ -212,18 +246,44 @@ function UsersTab() {
       <Outlet context={contextValue} />
 
       {/* Delete Confirmation Modal (rendered by UsersTab) */}
-      <Modal isOpen={isConfirmDeleteModalOpen} onClose={closeConfirmDeleteModal} title="تأكيد الحذف">
+      <Modal
+        isOpen={isConfirmDeleteModalOpen}
+        onClose={closeConfirmDeleteModal}
+        title="تأكيد الحذف"
+      >
         <div dir="rtl" className="px-1 sm:px-2">
-          <p className="mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">هل أنت متأكد أنك تريد حذف المستخدم "{userToDelete?.users_name}" (ID: {userToDelete?.users_id})؟ لا يمكن التراجع عن هذا الإجراء.</p>
-          {localMessage && localMessageType === 'error' && (
+          <p className="mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">
+            هل أنت متأكد أنك تريد حذف المستخدم "{userToDelete?.users_name}" (ID:{" "}
+            {userToDelete?.users_id})؟ لا يمكن التراجع عن هذا الإجراء.
+          </p>
+          {localMessage && localMessageType === "error" && (
             <div className="mb-3 p-2 rounded bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm whitespace-pre-line">
               {localMessage}
             </div>
           )}
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:space-x-2 sm:rtl:space-x-reverse">
-            <Button type="button" onClick={closeConfirmDeleteModal} className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto" disabled={deleteLoading}>إلغاء</Button>
-            <Button type="button" onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700 flex items-center justify-center w-full sm:w-auto" disabled={deleteLoading}>
-              {deleteLoading ? (<><Loader className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> جاري الحذف...</>) : 'حذف'}
+            <Button
+              type="button"
+              onClick={closeConfirmDeleteModal}
+              className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto"
+              disabled={deleteLoading}
+            >
+              إلغاء
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700 flex items-center justify-center w-full sm:w-auto"
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? (
+                <>
+                  <Loader className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> جاري
+                  الحذف...
+                </>
+              ) : (
+                "حذف"
+              )}
             </Button>
           </div>
         </div>
@@ -231,11 +291,23 @@ function UsersTab() {
 
       {/* Limit Reached Dialog */}
       {showLimitDialog && (
-        <Modal isOpen={showLimitDialog} onClose={() => setShowLimitDialog(false)} title="حد الاقصى للمستخدمين">
+        <Modal
+          isOpen={showLimitDialog}
+          onClose={() => setShowLimitDialog(false)}
+          title="حد الاقصى للمستخدمين"
+        >
           <div dir="rtl" className="px-1 sm:px-2">
-            <p className="mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">لقد وصلت الحد الأقصى من المستخدمين {currentUsers.length} / {userLimit}.</p>
+            <p className="mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">
+              لقد وصلت الحد الأقصى من المستخدمين {currentUsers.length} /{" "}
+              {userLimit}.
+            </p>
             <div className="flex justify-end gap-2">
-              <Button onClick={() => setShowLimitDialog(false)} className="w-full sm:w-auto">إغلاق</Button>
+              <Button
+                onClick={() => setShowLimitDialog(false)}
+                className="w-full sm:w-auto"
+              >
+                إغلاق
+              </Button>
             </div>
           </div>
         </Modal>

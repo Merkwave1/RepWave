@@ -163,8 +163,7 @@ export default function PurchaseReturnDetailsModal({
         <div className="flex items-center justify-between px-4 py-3 sm:p-6 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             <h2 className="text-xl font-semibold text-gray-900">
-              تفاصيل مرتجع الشراء #
-              {formattedReturnData.purchase_returns_id}
+              تفاصيل مرتجع الشراء #{formattedReturnData.purchase_returns_id}
             </h2>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[formattedReturnData.purchase_returns_status] || "bg-gray-100 text-gray-800"}`}
@@ -231,8 +230,7 @@ export default function PurchaseReturnDetailsModal({
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[formattedReturnData.purchase_returns_status] || "bg-gray-100 text-gray-800"}`}
                   >
-                    {formattedReturnData.purchase_returns_status ||
-                      "غير محدد"}
+                    {formattedReturnData.purchase_returns_status || "غير محدد"}
                   </span>
                 </div>
                 <div>
@@ -354,18 +352,14 @@ export default function PurchaseReturnDetailsModal({
               <div className="space-y-2">
                 {/* Show breakdown: items total, order discount (if any), grand total */}
                 <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    المجموع الفرعي:
-                  </span>
+                  <span className="text-gray-600">المجموع الفرعي:</span>
                   <span className="font-medium">
                     {formatMoney(returnTotals.itemsTotal || 0)}
                   </span>
                 </div>
                 {returnTotals.orderDiscount > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      خصم على الطلب:
-                    </span>
+                    <span className="text-gray-600">خصم على الطلب:</span>
                     <span className="font-medium text-red-600">
                       -{formatMoney(returnTotals.orderDiscount)}
                     </span>

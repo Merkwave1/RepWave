@@ -52,9 +52,13 @@ const DetailItem = ({
   <div className="flex items-start text-sm md:text-base justify-between gap-2 py-2 px-3 bg-white rounded-lg border border-gray-200">
     <div className="flex items-start gap-1.5 min-w-0 shrink max-w-[52%]">
       <span className="shrink-0 mt-0.5">
-        {React.cloneElement(icon, { className: "h-4 w-4 md:h-5 md:w-5 text-blue-500" })}
+        {React.cloneElement(icon, {
+          className: "h-4 w-4 md:h-5 md:w-5 text-blue-500",
+        })}
       </span>
-      <span className="font-medium text-gray-700 break-words leading-snug">{label}:</span>
+      <span className="font-medium text-gray-700 break-words leading-snug">
+        {label}:
+      </span>
     </div>
     {children || (
       <span

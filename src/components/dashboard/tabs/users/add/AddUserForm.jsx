@@ -2,32 +2,34 @@
 // This component provides the form for adding a new user.
 // It should be saved as AddUserForm.jsx in your local project.
 
-import React, { useState } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
-import Button from '../../../../common/Button/Button.jsx';
-import Loader from '../../../../common/Loader/Loader.jsx';
-import Alert from '../../../../common/Alert/Alert.jsx';
-import { addUser } from '../../../../../apis/users.js';
+import React, { useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import Button from "../../../../common/Button/Button.jsx";
+import Loader from "../../../../common/Loader/Loader.jsx";
+import Alert from "../../../../common/Alert/Alert.jsx";
+import { addUser } from "../../../../../apis/users.js";
 
 function AddUserForm() {
   const navigate = useNavigate();
-  const { setGlobalMessage, loadUserData, userLimit, currentUsers } = useOutletContext();
+  const { setGlobalMessage, loadUserData, userLimit, currentUsers } =
+    useOutletContext();
 
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
-  const [userRole, setUserRole] = useState('rep');
-  const [userPhone, setUserPhone] = useState('');
-  const [userNationalId, setUserNationalId] = useState('');
-  const [userStatus, setUserStatus] = useState('1');
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [userRole, setUserRole] = useState("rep");
+  const [userPhone, setUserPhone] = useState("");
+  const [userNationalId, setUserNationalId] = useState("");
+  const [userStatus, setUserStatus] = useState("1");
   const [userImage, setUserImage] = useState(null);
-  const [userImagePreview, setUserImagePreview] = useState('');
+  const [userImagePreview, setUserImagePreview] = useState("");
 
   const [formLoading, setFormLoading] = useState(false);
-  const [formMessage, setFormMessage] = useState('');
-  const [formMessageType, setFormMessageType] = useState('info');
+  const [formMessage, setFormMessage] = useState("");
+  const [formMessageType, setFormMessageType] = useState("info");
 
-  const isUserLimitReached = userLimit !== null && currentUsers.length >= userLimit;
+  const isUserLimitReached =
+    userLimit !== null && currentUsers.length >= userLimit;
 
   const premiumInput = `
     w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
@@ -53,7 +55,7 @@ function AddUserForm() {
       reader.readAsDataURL(file);
     } else {
       setUserImage(null);
-      setUserImagePreview('');
+      setUserImagePreview("");
     }
   };
 
@@ -61,15 +63,17 @@ function AddUserForm() {
     e.preventDefault();
 
     if (isUserLimitReached) {
-      setFormMessage('لقد وصلت إلى الحد الأقصى للمستخدمين. لا يمكن إضافة مستخدم جديد.');
-      setFormMessageType('error');
+      setFormMessage(
+        "لقد وصلت إلى الحد الأقصى للمستخدمين. لا يمكن إضافة مستخدم جديد.",
+      );
+      setFormMessageType("error");
       return;
     }
 
     setFormLoading(true);
-    setFormMessage('');
+    setFormMessage("");
 
-    const normalizedRole = userRole === 'sales_rep' ? 'rep' : userRole;
+    const normalizedRole = userRole === "sales_rep" ? "rep" : userRole;
     const userData = {
       users_name: userName,
       users_email: userEmail,
@@ -78,21 +82,27 @@ function AddUserForm() {
       users_phone: userPhone,
       users_national_id: userNationalId,
       users_status: parseInt(userStatus, 10),
-      users_image: userImage
+      users_image: userImage,
     };
 
     try {
       const result = await addUser(userData);
       setFormMessage(result.message || "تم إضافة المستخدم بنجاح!");
-      setFormMessageType('success');
-      setGlobalMessage({ message: result.message || "تم إضافة المستخدم بنجاح!", type: 'success' });
+      setFormMessageType("success");
+      setGlobalMessage({
+        message: result.message || "تم إضافة المستخدم بنجاح!",
+        type: "success",
+      });
       loadUserData();
-      setTimeout(() => navigate('/dashboard/users'), 1500);
+      setTimeout(() => navigate("/dashboard/users"), 1500);
     } catch (err) {
       console.error("Form submission error:", err);
       setFormMessage(err.message || "حدث خطأ أثناء إضافة المستخدم.");
-      setFormMessageType('error');
-      setGlobalMessage({ message: err.message || "حدث خطأ أثناء إضافة المستخدم.", type: 'error' });
+      setFormMessageType("error");
+      setGlobalMessage({
+        message: err.message || "حدث خطأ أثناء إضافة المستخدم.",
+        type: "error",
+      });
     } finally {
       setFormLoading(false);
     }
@@ -131,8 +141,18 @@ function AddUserForm() {
               shrink-0
             "
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            <svg
+              className="w-5 h-5 sm:w-6 sm:h-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
             </svg>
           </div>
           <div className="min-w-0">
@@ -152,8 +172,16 @@ function AddUserForm() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4">
             <div className="flex items-start gap-2 sm:gap-3">
               <div className="flex-shrink-0 mt-0.5">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div>
@@ -163,7 +191,8 @@ function AddUserForm() {
                 <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-red-700">
                   عدد المستخدمين الحالي: {currentUsers.length} / {userLimit}
                   <br />
-                  لا يمكن إضافة مستخدمين جدد حتى يتم حذف مستخدمين موجودين أو ترقية خطتك.
+                  لا يمكن إضافة مستخدمين جدد حتى يتم حذف مستخدمين موجودين أو
+                  ترقية خطتك.
                 </p>
               </div>
             </div>
@@ -172,15 +201,24 @@ function AddUserForm() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleFormSubmit} className="p-3 sm:p-5 md:p-7 space-y-4 sm:space-y-5">
+      <form
+        onSubmit={handleFormSubmit}
+        className="p-3 sm:p-5 md:p-7 space-y-4 sm:space-y-5"
+      >
         {formMessage && (
-          <Alert message={formMessage} type={formMessageType} onClose={() => setFormMessage('')} />
+          <Alert
+            message={formMessage}
+            type={formMessageType}
+            onClose={() => setFormMessage("")}
+          />
         )}
 
         {/* Name + Email row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           <div className="space-y-1.5 sm:space-y-2">
-            <label className="text-sm font-medium text-gray-600">اسم المستخدم</label>
+            <label className="text-sm font-medium text-gray-600">
+              اسم المستخدم
+            </label>
             <input
               type="text"
               value={userName}
@@ -193,7 +231,9 @@ function AddUserForm() {
           </div>
 
           <div className="space-y-1.5 sm:space-y-2">
-            <label className="text-sm font-medium text-gray-600">البريد الإلكتروني</label>
+            <label className="text-sm font-medium text-gray-600">
+              البريد الإلكتروني
+            </label>
             <input
               type="email"
               value={userEmail}
@@ -209,7 +249,9 @@ function AddUserForm() {
         {/* Password + Role row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           <div className="space-y-1.5 sm:space-y-2">
-            <label className="text-sm font-medium text-gray-600">كلمة المرور</label>
+            <label className="text-sm font-medium text-gray-600">
+              كلمة المرور
+            </label>
             <input
               type="password"
               value={userPassword}
@@ -246,8 +288,18 @@ function AddUserForm() {
                 <option value="cash">كاش</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -269,7 +321,9 @@ function AddUserForm() {
           </div>
 
           <div className="space-y-1.5 sm:space-y-2">
-            <label className="text-sm font-medium text-gray-600">الرقم القومي</label>
+            <label className="text-sm font-medium text-gray-600">
+              الرقم القومي
+            </label>
             <input
               type="text"
               value={userNationalId}
@@ -305,8 +359,18 @@ function AddUserForm() {
               <option value="0">غير نشط</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </div>
           </div>
@@ -314,7 +378,9 @@ function AddUserForm() {
 
         {/* Image Upload */}
         <div className="space-y-2 sm:space-y-3">
-          <label className="text-sm font-medium text-gray-600">صورة المستخدم</label>
+          <label className="text-sm font-medium text-gray-600">
+            صورة المستخدم
+          </label>
 
           {userImagePreview && (
             <div className="flex items-center gap-3 sm:gap-4">
@@ -329,7 +395,9 @@ function AddUserForm() {
                   transition-all hover:scale-105
                 "
               />
-              <span className="text-xs sm:text-sm text-gray-500">معاينة الصورة</span>
+              <span className="text-xs sm:text-sm text-gray-500">
+                معاينة الصورة
+              </span>
             </div>
           )}
 
@@ -358,7 +426,7 @@ function AddUserForm() {
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-100">
           <Button
             type="button"
-            onClick={() => navigate('/dashboard/users')}
+            onClick={() => navigate("/dashboard/users")}
             className="bg-gray-100 text-gray-700 hover:bg-gray-200 w-full sm:w-auto"
             disabled={formLoading}
           >
@@ -370,12 +438,21 @@ function AddUserForm() {
               bg-[#8DD8F5] text-[#1F2937] hover:bg-[#74cbea]
               shadow-sm flex items-center justify-center
               w-full sm:w-auto
-              ${isUserLimitReached ? 'opacity-50 cursor-not-allowed' : ''}
+              ${isUserLimitReached ? "opacity-50 cursor-not-allowed" : ""}
             `}
             disabled={formLoading || isUserLimitReached}
-            title={isUserLimitReached ? 'لقد وصلت إلى الحد الأقصى للمستخدمين' : ''}
+            title={
+              isUserLimitReached ? "لقد وصلت إلى الحد الأقصى للمستخدمين" : ""
+            }
           >
-            {formLoading ? (<><Loader className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> جاري الحفظ...</>) : 'إضافة مستخدم'}
+            {formLoading ? (
+              <>
+                <Loader className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> جاري
+                الحفظ...
+              </>
+            ) : (
+              "إضافة مستخدم"
+            )}
           </Button>
         </div>
       </form>
