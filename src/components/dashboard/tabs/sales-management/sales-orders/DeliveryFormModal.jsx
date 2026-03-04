@@ -703,8 +703,8 @@ const DeliveryFormModal = ({
   );
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/40 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-      <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/40 overflow-y-auto h-full w-full z-50 flex items-start sm:items-center justify-center p-2 sm:p-4">
+      <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-6 border-b border-gray-200 bg-green-50">
           <div className="flex items-center">
@@ -729,8 +729,8 @@ const DeliveryFormModal = ({
         </div>
 
         {/* Order Info */}
-        <div className="p-6 bg-gray-50 border-b">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="p-3 sm:p-6 bg-gray-50 border-b">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
             <div>
               <span className="text-gray-500">العميل:</span>
               <p className="font-medium text-gray-900">
@@ -756,11 +756,11 @@ const DeliveryFormModal = ({
 
         <form onSubmit={handleSubmit}>
           {/* Delivery Details */}
-          <div className="p-6 border-b">
-            <h4 className="text-md font-semibold text-gray-900 mb-4">
+          <div className="p-3 sm:p-6 border-b">
+            <h4 className="text-md font-semibold text-gray-900 mb-3 sm:mb-4">
               تفاصيل التسليم
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   تاريخ التسليم
@@ -789,7 +789,7 @@ const DeliveryFormModal = ({
                   placeholder="عنوان التسليم"
                 />
               </div>
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   ملاحظات التسليم
                 </label>
@@ -807,15 +807,15 @@ const DeliveryFormModal = ({
           </div>
 
           {/* Products to Deliver */}
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="p-3 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
               <h4 className="text-md font-semibold text-gray-900">
                 المنتجات المطلوب تسليمها
               </h4>
               <button
                 type="button"
                 onClick={handlePrintDeliveryItems}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm w-full sm:w-auto"
               >
                 <PrinterIcon className="h-4 w-4" />
                 طباعة قائمة التسليم
@@ -859,9 +859,9 @@ const DeliveryFormModal = ({
                           key={index}
                           className="hover:bg-gray-50 transition-colors"
                         >
-                          <td className="px-4 py-3">
+                          <td className="px-2 sm:px-4 py-2 sm:py-3">
                             <div>
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-xs sm:text-sm font-medium text-gray-900">
                                 {item.variant_name ||
                                   item.product_name ||
                                   "منتج غير محدد"}
@@ -879,27 +879,27 @@ const DeliveryFormModal = ({
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className="text-sm text-gray-600">
+                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
+                            <span className="text-xs sm:text-sm text-gray-600">
                               {item.packaging_type || "غير محدد"}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
                             <span
-                              className={`text-sm font-medium ${item.max_quantity === 0 ? "text-red-600" : "text-gray-900"}`}
+                              className={`text-xs sm:text-sm font-medium ${item.max_quantity === 0 ? "text-red-600" : "text-gray-900"}`}
                             >
                               {item.max_quantity?.toLocaleString("en-US") ||
                                 "0"}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
                             <NumberInput
                               value={item.quantity || ""}
                               onChange={(val) =>
                                 handleItemQuantityChange(index, val)
                               }
                               disabled={item.max_quantity === 0}
-                              className={`w-24 text-center text-sm ${
+                              className={`w-16 sm:w-24 text-center text-xs sm:text-sm ${
                                 item.max_quantity === 0
                                   ? "bg-gray-100 cursor-not-allowed"
                                   : ""
@@ -907,7 +907,7 @@ const DeliveryFormModal = ({
                               placeholder="0"
                             />
                           </td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
                             <select
                               value={item.batch_date || ""}
                               onChange={(e) =>
@@ -918,7 +918,7 @@ const DeliveryFormModal = ({
                                 !item.available_batches ||
                                 item.available_batches.length === 0
                               }
-                              className={`w-32 rounded-md border-gray-300 shadow-sm text-center text-xs focus:border-green-500 focus:ring-green-500 ${
+                              className={`w-24 sm:w-32 rounded-md border-gray-300 shadow-sm text-center text-xs focus:border-green-500 focus:ring-green-500 ${
                                 item.max_quantity === 0
                                   ? "bg-gray-100 cursor-not-allowed"
                                   : ""
@@ -1000,7 +1000,7 @@ const DeliveryFormModal = ({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+          <div className="flex flex-wrap items-center justify-between gap-2 p-3 sm:p-6 border-t bg-gray-50">
             <button
               type="button"
               onClick={handlePrintDeliveryItems}
@@ -1015,7 +1015,7 @@ const DeliveryFormModal = ({
               طباعة التسليم
             </button>
 
-            <div className="flex items-center space-x-3 space-x-reverse">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={onClose}

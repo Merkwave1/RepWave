@@ -181,13 +181,13 @@ function UsersTab() {
   };
 
   return (
-    <div className="p-2 md:p-4" dir="rtl">
-      {localMessage && (<Alert message={localMessage} type={localMessageType} onClose={() => setLocalMessage('')} className="mb-4" />)}
-      <div className="mb-6">
+    <div className="p-1.5 sm:p-2 md:p-4" dir="rtl">
+      {localMessage && (<Alert message={localMessage} type={localMessageType} onClose={() => setLocalMessage('')} className="mb-3 sm:mb-4" />)}
+      <div className="mb-3 sm:mb-4 md:mb-6">
         <CustomPageHeader
           title="إدارة المستخدمين"
           subtitle="إدارة وتنظيم المستخدمين"
-          icon={<UsersIcon className="h-8 w-8 text-[#1F2937]" />}
+          icon={<UsersIcon className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-[#1F2937]" />}
           statValue={currentUsers.length}
           statLabel="إجمالي المستخدمين"
           color='blue'
@@ -200,9 +200,9 @@ function UsersTab() {
                   navigate('/dashboard/users/add-user');
                 }
               }}
-                className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-lg"
+              className="bg-[#1F2937] text-[#8DD8F5] hover:bg-[#374151] px-2.5 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-2 rounded-lg flex items-center gap-1.5 sm:gap-2 transition-all duration-200 shadow-md hover:shadow-lg font-bold text-sm sm:text-base md:text-lg"
             >
-              <PlusIcon className="h-5 w-5" />
+              <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               إضافة مستخدم
             </button>
           }
@@ -213,16 +213,16 @@ function UsersTab() {
 
       {/* Delete Confirmation Modal (rendered by UsersTab) */}
       <Modal isOpen={isConfirmDeleteModalOpen} onClose={closeConfirmDeleteModal} title="تأكيد الحذف">
-        <div dir="rtl">
-          <p className="mb-4 text-gray-700">هل أنت متأكد أنك تريد حذف المستخدم "{userToDelete?.users_name}" (ID: {userToDelete?.users_id})؟ لا يمكن التراجع عن هذا الإجراء.</p>
+        <div dir="rtl" className="px-1 sm:px-2">
+          <p className="mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">هل أنت متأكد أنك تريد حذف المستخدم "{userToDelete?.users_name}" (ID: {userToDelete?.users_id})؟ لا يمكن التراجع عن هذا الإجراء.</p>
           {localMessage && localMessageType === 'error' && (
-            <div className="mb-3 p-2 rounded bg-red-50 border border-red-200 text-red-700 text-sm whitespace-pre-line">
+            <div className="mb-3 p-2 rounded bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm whitespace-pre-line">
               {localMessage}
             </div>
           )}
-          <div className="flex justify-end space-x-2 rtl:space-x-reverse">
-            <Button type="button" onClick={closeConfirmDeleteModal} className="bg-gray-500 hover:bg-gray-600" disabled={deleteLoading}>إلغاء</Button>
-            <Button type="button" onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700 flex items-center" disabled={deleteLoading}>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:space-x-2 sm:rtl:space-x-reverse">
+            <Button type="button" onClick={closeConfirmDeleteModal} className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto" disabled={deleteLoading}>إلغاء</Button>
+            <Button type="button" onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700 flex items-center justify-center w-full sm:w-auto" disabled={deleteLoading}>
               {deleteLoading ? (<><Loader className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> جاري الحذف...</>) : 'حذف'}
             </Button>
           </div>
@@ -232,10 +232,10 @@ function UsersTab() {
       {/* Limit Reached Dialog */}
       {showLimitDialog && (
         <Modal isOpen={showLimitDialog} onClose={() => setShowLimitDialog(false)} title="حد الاقصى للمستخدمين">
-          <div dir="rtl">
-            <p className="mb-4 text-gray-700">لقد وصلت الحد الأقصى من المستخدمين {currentUsers.length} / {userLimit}.</p>
+          <div dir="rtl" className="px-1 sm:px-2">
+            <p className="mb-3 sm:mb-4 text-gray-700 text-sm sm:text-base">لقد وصلت الحد الأقصى من المستخدمين {currentUsers.length} / {userLimit}.</p>
             <div className="flex justify-end gap-2">
-              <Button onClick={() => setShowLimitDialog(false)}>إغلاق</Button>
+              <Button onClick={() => setShowLimitDialog(false)} className="w-full sm:w-auto">إغلاق</Button>
             </div>
           </div>
         </Modal>

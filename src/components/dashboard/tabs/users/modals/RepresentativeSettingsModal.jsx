@@ -308,7 +308,7 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
-      <div className="flex items-center justify-center min-h-screen px-2 sm:px-4 pt-2 sm:pt-4 pb-10 sm:pb-20 text-center sm:block sm:p-0">
+      <div className="flex flex-col md:flex-row items-center justify-center min-h-screen px-2 sm:px-0 pt-2 sm:pt-4 pb-10 sm:pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
         <div
           className="fixed inset-0 transition-opacity backdrop-blur-sm bg-black/40"
@@ -316,7 +316,7 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
         ></div>
 
         {/* Modal panel */}
-        <div className="inline-block w-full max-w-3xl my-2 sm:my-8 overflow-hidden text-right align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+        <div className="inline-block w-full max-w-3xl my-2 sm:my-1 overflow-hidden text-right align-middle transition-all transform bg-white shadow-xl rounded-2xl">
           {/* Header */}
           {/* Header */}
           <div className="border-b border-[#8DD8F5]/40">
@@ -646,7 +646,7 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
                       <div className="flex items-center justify-end mb-3">
                         <button
                           onClick={() => openMapModal("start")}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                          className="flex items-center md:gap-2 gap-1 px-1 md:px-4 py-2 text-sm font-medium rounded-lg transition-colors"
                           style={{ background: "#8DD8F5", color: "#1F2937" }}
                         >
                           <MapPinIcon className="h-4 w-4" />
@@ -857,11 +857,14 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
                   {/* GPS Tracking Enabled - moved to bottom - Hidden for store_keeper and cash */}
                   {user?.users_role !== "store_keeper" &&
                     user?.users_role !== "cash" && (
-                      <div className="flex items-center justify-between p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 pb-6">
-                        <div className="flex items-center gap-3">
-                          <SignalIcon className="h-5 w-5 text-[#8DD8F5]" />
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30">
+                        
+                        {/* Left Content */}
+                        <div className="flex items-start sm:items-center gap-3">
+                          <SignalIcon className="h-5 w-5 text-[#8DD8F5] mt-1 sm:mt-0" />
+                          
                           <div>
-                            <h4 className="text-lg font-semibold text-[#1F2937]">
+                            <h4 className="text-base sm:text-lg font-semibold text-[#1F2937]">
                               تفعيل تتبع GPS
                             </h4>
                             <p className="text-xs text-[#1F2937]/60 mt-0.5">
@@ -869,13 +872,17 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
                             </p>
                           </div>
                         </div>
-                        <ToggleSwitch
-                          checked={settings.gps_tracking_enabled}
-                          onClick={handleToggleClick("gps_tracking_enabled")}
-                          ariaLabel="تفعيل تتبع GPS"
-                        />
+
+                        {/* Toggle */}
+                        <div className="self-end sm:self-auto">
+                          <ToggleSwitch
+                            checked={settings.gps_tracking_enabled}
+                            onClick={handleToggleClick("gps_tracking_enabled")}
+                            ariaLabel="تفعيل تتبع GPS"
+                          />
+                        </div>
                       </div>
-                    )}
+                  )}
                 </div>
 
                 {/* GPS Accuracy - standalone card (input inside the card) */}
@@ -911,7 +918,7 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
 
           {/* Footer */}
           {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-200">
+          <div className="px-2 md:px-6 py-4 bg-gray-50 flex items-center justify-center gap-3 border-t border-gray-200">
             <button
               onClick={onClose}
               disabled={saving}
@@ -932,8 +939,8 @@ function RepresentativeSettingsModal({ isOpen, onClose, user }) {
             <button
               onClick={handleSave}
               disabled={saving || loading}
-              className="
-      px-6 py-2
+              className=" px-1
+      md:px-3 py-2
       rounded-xl
       bg-[#8DD8F5]
       hover:bg-[#7ccfee]

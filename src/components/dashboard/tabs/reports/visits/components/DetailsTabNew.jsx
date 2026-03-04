@@ -830,7 +830,7 @@ const DetailsTab = ({ data }) => {
   }, [appliedFilters, repOptions, areaTagOptions, clientOptions]);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="md:p-2 p-6 space-y-6">
       {/* Filters Section - replaced by shared FilterBar component */}
       <FilterBar
         title="خيارات التصفية"

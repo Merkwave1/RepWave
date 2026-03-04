@@ -781,33 +781,36 @@ export default function ClientCashTab() {
               title="عرض"
               type="button"
               onClick={() => handleView(item)}
-                          className="p-1.5 rounded-full 
+              className="p-1.5 rounded-full 
                    text-sky-700 bg-sky-100
                    hover:bg-sky-500 hover:text-white
                    hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
-                   transition-all duration-200 hover:scale-110"            >
+                   transition-all duration-200 hover:scale-110"
+            >
               <EyeIcon className="h-4 w-4" />
             </button>
             <button
               title="تعديل"
               type="button"
               onClick={() => handleEdit(item)}
-                            className="p-1.5 rounded-full 
+              className="p-1.5 rounded-full 
                    text-emerald-700 bg-emerald-100
                    hover:bg-emerald-500 hover:text-white
                    hover:shadow-[0_0_12px_rgba(16,185,129,0.45)]
-                   transition-all duration-200 hover:scale-110"            >
+                   transition-all duration-200 hover:scale-110"
+            >
               <PencilSquareIcon className="h-4 w-4" />
             </button>
             <button
               title="طباعة"
               type="button"
               onClick={() => handlePrint(item)}
-            className="p-1.5 rounded-full 
+              className="p-1.5 rounded-full 
            text-purple-700 bg-purple-100
            hover:bg-purple-500 hover:text-white
            hover:shadow-[0_0_12px_rgba(168,85,247,0.45)]
-           transition-all duration-200 hover:scale-110"            >
+           transition-all duration-200 hover:scale-110"
+            >
               <PrinterIcon className="h-4 w-4" />
             </button>
           </div>
@@ -936,33 +939,35 @@ export default function ClientCashTab() {
   );
 
   const renderContent = () => {
-    if (loading && currentView === "list" && !movements.length)
-      return <Loader />;
-    if (error && currentView === "list")
-      return <Alert type="error" message={error} />;
+    const listNode =
+      loading && !movements.length ? (
+        <Loader />
+      ) : error ? (
+        <Alert type="error" message={error} />
+      ) : (
+        renderListView()
+      );
 
-    switch (currentView) {
-      case "add":
-        return (
+    return (
+      <>
+        {listNode}
+        {currentView === "add" && (
           <AddMovementWrapper
             onDone={handleFormSubmit}
             onClose={handleCloseModal}
           />
-        );
-      case "edit":
-        if (currentType === "payment") {
-          return (
-            <UpdateClientPaymentForm
-              onClose={handleCloseModal}
-              onSubmit={handleFormSubmit}
-              safes={safes}
-              clients={clients}
-              paymentMethods={paymentMethods}
-              payment={selectedItem?.original}
-            />
-          );
-        }
-        return (
+        )}
+        {currentView === "edit" && currentType === "payment" && (
+          <UpdateClientPaymentForm
+            onClose={handleCloseModal}
+            onSubmit={handleFormSubmit}
+            safes={safes}
+            clients={clients}
+            paymentMethods={paymentMethods}
+            payment={selectedItem?.original}
+          />
+        )}
+        {currentView === "edit" && currentType !== "payment" && (
           <UpdateClientRefundForm
             onClose={handleCloseModal}
             onSubmit={handleFormSubmit}
@@ -971,20 +976,17 @@ export default function ClientCashTab() {
             paymentMethods={paymentMethods}
             refund={selectedItem?.original}
           />
-        );
-      case "details":
-        if (currentType === "payment") {
-          return (
-            <ClientPaymentDetailsModal
-              onClose={handleCloseModal}
-              payment={selectedItem?.original}
-              clients={clients}
-              safes={safes}
-              paymentMethods={paymentMethods}
-            />
-          );
-        }
-        return (
+        )}
+        {currentView === "details" && currentType === "payment" && (
+          <ClientPaymentDetailsModal
+            onClose={handleCloseModal}
+            payment={selectedItem?.original}
+            clients={clients}
+            safes={safes}
+            paymentMethods={paymentMethods}
+          />
+        )}
+        {currentView === "details" && currentType !== "payment" && (
           <ClientRefundDetailsModal
             onClose={handleCloseModal}
             refund={selectedItem?.original}
@@ -992,10 +994,9 @@ export default function ClientCashTab() {
             safes={safes}
             paymentMethods={paymentMethods}
           />
-        );
-      default:
-        return renderListView();
-    }
+        )}
+      </>
+    );
   };
 
   return (

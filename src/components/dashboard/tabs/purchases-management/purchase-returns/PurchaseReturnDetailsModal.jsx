@@ -26,7 +26,7 @@ export default function PurchaseReturnDetailsModal({
         setDetails(detailsData);
       } catch (err) {
         console.error("Error loading purchase return details:", err);
-        setError("ÙØ´Ù„ ÙÙŠ ØªØ­Ù…ÙŠÙ„ ØªÙØ§ØµÙŠÙ„ Ù…Ø±ØªØ¬Ø¹ Ø§Ù„Ø´Ø±Ø§Ø¡");
+        setError("فشل في تحميل تفاصيل مرتجع الشراء");
       } finally {
         setLoading(false);
       }
@@ -49,7 +49,7 @@ export default function PurchaseReturnDetailsModal({
   const supplierName = useMemo(() => {
     const sid = details?.purchase_returns_supplier_id;
     const s = suppliers?.find((x) => x.supplier_id == sid);
-    return s?.supplier_name || details?.supplier_name || "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+    return s?.supplier_name || details?.supplier_name || "غير محدد";
   }, [details, suppliers]);
 
   const formattedReturnData = useMemo(() => {
@@ -66,8 +66,8 @@ export default function PurchaseReturnDetailsModal({
         : "-",
       items: (details.items || []).map((it) => ({
         ...it,
-        display_name: it.products_name || it.variant_name || "ØºÙŠØ± Ù…Ø­Ø¯Ø¯",
-        packaging_type_name: it.packaging_types_name || "ØºÙŠØ± Ù…Ø­Ø¯Ø¯",
+        display_name: it.products_name || it.variant_name || "غير محدد",
+        packaging_type_name: it.packaging_types_name || "غير محدد",
         calculated: calculateItemTotal(it),
       })),
     };
@@ -79,7 +79,7 @@ export default function PurchaseReturnDetailsModal({
       (s, it) => s + (parseFloat(it.calculated.total) || 0),
       0,
     );
-    // Try explicit fields first, otherwise try to parse a discount value from notes (e.g. "(Ø®ØµÙ… Ø¥Ø±Ø¬Ø§Ø¹: 3000)")
+    // Try explicit fields first, otherwise try to parse a discount value from notes (e.g. "(خصم إرجاع: 3000)")
     let orderDiscount =
       parseFloat(
         formattedReturnData.purchase_returns_order_discount ||
@@ -88,9 +88,9 @@ export default function PurchaseReturnDetailsModal({
       ) || 0;
     if (!orderDiscount && formattedReturnData.purchase_returns_notes) {
       const notes = String(formattedReturnData.purchase_returns_notes || "");
-      // Regex to catch Arabic 'Ø®ØµÙ… Ø¥Ø±Ø¬Ø§Ø¹' or generic 'discount' patterns followed by a number
-      const reArabic = /Ø®ØµÙ…\s*Ø¥Ø±Ø¬Ø§Ø¹\s*[:ï¼š]?\s*([0-9.,]+)/i;
-      const reGeneric = /discount\s*[:ï¼š]?\s*([0-9.,]+)/i;
+      // Regex to catch Arabic 'خصم إرجاع' or generic 'discount' patterns followed by a number
+      const reArabic = /خصم\s*إرجاع\s*[:：]?\s*([0-9.,]+)/i;
+      const reGeneric = /discount\s*[:：]?\s*([0-9.,]+)/i;
       let m = notes.match(reArabic) || notes.match(reGeneric);
       if (m && m[1]) {
         // Remove commas and parse
@@ -163,13 +163,13 @@ export default function PurchaseReturnDetailsModal({
         <div className="flex items-center justify-between px-4 py-3 sm:p-6 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             <h2 className="text-xl font-semibold text-gray-900">
-              ØªÙØ§ØµÙŠÙ„ Ù…Ø±ØªØ¬Ø¹ Ø§Ù„Ø´Ø±Ø§Ø¡ #
+              تفاصيل مرتجع الشراء #
               {formattedReturnData.purchase_returns_id}
             </h2>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[formattedReturnData.purchase_returns_status] || "bg-gray-100 text-gray-800"}`}
             >
-              {formattedReturnData.purchase_returns_status || "ØºÙŠØ± Ù…Ø­Ø¯Ø¯"}
+              {formattedReturnData.purchase_returns_status || "غير محدد"}
             </span>
           </div>
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -180,7 +180,7 @@ export default function PurchaseReturnDetailsModal({
            hover:bg-purple-500 hover:text-white
            hover:shadow-[0_0_12px_rgba(168,85,247,0.45)]
            transition-all duration-200 hover:scale-110"
-              title="Ø·Ø¨Ø§Ø¹Ø©"
+              title="طباعة"
             >
               <FaPrint size={18} />
             </button>
@@ -199,12 +199,12 @@ export default function PurchaseReturnDetailsModal({
             {/* Return Information Card */}
             <div className="bg-gray-50 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…Ø±ØªØ¬Ø¹
+                معلومات المرتجع
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <span className="text-sm font-medium text-gray-500">
-                    Ø±Ù‚Ù… Ø§Ù„Ù…Ø±ØªØ¬Ø¹:
+                    رقم المرتجع:
                   </span>
                   <p className="text-gray-900">
                     {formattedReturnData.purchase_returns_id}
@@ -212,13 +212,13 @@ export default function PurchaseReturnDetailsModal({
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-500">
-                    Ø§Ù„Ù…ÙˆØ±Ø¯:
+                    المورد:
                   </span>
                   <p className="text-gray-900">{supplierName}</p>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-500">
-                    Ø§Ù„ØªØ§Ø±ÙŠØ®:
+                    التاريخ:
                   </span>
                   <p className="text-gray-900">
                     {formattedReturnData.formatted_date}
@@ -226,28 +226,28 @@ export default function PurchaseReturnDetailsModal({
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-500">
-                    Ø§Ù„Ø­Ø§Ù„Ø©:
+                    الحالة:
                   </span>
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[formattedReturnData.purchase_returns_status] || "bg-gray-100 text-gray-800"}`}
                   >
                     {formattedReturnData.purchase_returns_status ||
-                      "ØºÙŠØ± Ù…Ø­Ø¯Ø¯"}
+                      "غير محدد"}
                   </span>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-500">
-                    Ø£Ù…Ø± Ø§Ù„Ø´Ø±Ø§Ø¡ Ø§Ù„Ù…Ø±ØªØ¨Ø·:
+                    أمر الشراء المرتبط:
                   </span>
                   <p className="text-gray-900">
                     {formattedReturnData.purchase_returns_purchase_order_id
                       ? `#${formattedReturnData.purchase_returns_purchase_order_id}`
-                      : "ØºÙŠØ± Ù…Ø±ØªØ¨Ø·"}
+                      : "غير مرتبط"}
                   </p>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-500">
-                    Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø±ØªØ¬Ø¹:
+                    إجمالي المرتجع:
                   </span>
                   <p className="text-lg font-semibold text-green-600">
                     {formatMoney(returnTotals.grandTotal)}
@@ -260,7 +260,7 @@ export default function PurchaseReturnDetailsModal({
                   {formattedReturnData.purchase_returns_reason && (
                     <div className="mb-2">
                       <span className="text-sm font-medium text-gray-500">
-                        Ø³Ø¨Ø¨ Ø§Ù„Ù…Ø±ØªØ¬Ø¹:
+                        سبب المرتجع:
                       </span>
                       <p className="text-gray-900 mt-1">
                         {formattedReturnData.purchase_returns_reason}
@@ -270,7 +270,7 @@ export default function PurchaseReturnDetailsModal({
                   {formattedReturnData.purchase_returns_notes && (
                     <div>
                       <span className="text-sm font-medium text-gray-500">
-                        Ù…Ù„Ø§Ø­Ø¸Ø§Øª:
+                        ملاحظات:
                       </span>
                       <p className="text-gray-900 mt-1">
                         {formattedReturnData.purchase_returns_notes}
@@ -285,7 +285,7 @@ export default function PurchaseReturnDetailsModal({
             <div className="bg-white rounded-lg border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Ø¹Ù†Ø§ØµØ± Ø§Ù„Ù…Ø±ØªØ¬Ø¹
+                  عناصر المرتجع
                 </h3>
               </div>
               <div className="overflow-x-auto">
@@ -293,16 +293,16 @@ export default function PurchaseReturnDetailsModal({
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ø§Ù„Ù…Ù†ØªØ¬
+                        المنتج
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ø§Ù„ÙƒÙ…ÙŠØ©
+                        الكمية
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ø³Ø¹Ø± Ø§Ù„ÙˆØ­Ø¯Ø©
+                        سعر الوحدة
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ
+                        الإجمالي
                       </th>
                     </tr>
                   </thead>
@@ -313,7 +313,7 @@ export default function PurchaseReturnDetailsModal({
                           colSpan={4}
                           className="px-6 py-8 text-center text-gray-500"
                         >
-                          Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¹Ù†Ø§ØµØ± ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø±ØªØ¬Ø¹
+                          لا توجد عناصر في هذا المرتجع
                         </td>
                       </tr>
                     ) : (
@@ -349,13 +349,13 @@ export default function PurchaseReturnDetailsModal({
             {/* Summary */}
             <div className="bg-gray-50 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Ù…Ù„Ø®Øµ Ø§Ù„Ù…Ø±ØªØ¬Ø¹
+                ملخص المرتجع
               </h3>
               <div className="space-y-2">
                 {/* Show breakdown: items total, order discount (if any), grand total */}
                 <div className="flex justify-between">
                   <span className="text-gray-600">
-                    Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„ÙØ±Ø¹ÙŠ:
+                    المجموع الفرعي:
                   </span>
                   <span className="font-medium">
                     {formatMoney(returnTotals.itemsTotal || 0)}
@@ -364,7 +364,7 @@ export default function PurchaseReturnDetailsModal({
                 {returnTotals.orderDiscount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">
-                      Ø®ØµÙ… Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨:
+                      خصم على الطلب:
                     </span>
                     <span className="font-medium text-red-600">
                       -{formatMoney(returnTotals.orderDiscount)}
@@ -372,7 +372,7 @@ export default function PurchaseReturnDetailsModal({
                   </div>
                 )}
                 <div className="flex justify-between text-lg font-semibold pt-2 border-t border-gray-300">
-                  <span>Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠ:</span>
+                  <span>الإجمالي النهائي:</span>
                   <span className="text-green-600">
                     {formatMoney(returnTotals.grandTotal)}
                   </span>
@@ -388,7 +388,7 @@ export default function PurchaseReturnDetailsModal({
             onClick={onClose}
             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Ø¥ØºÙ„Ø§Ù‚
+            إغلاق
           </button>
         </div>
       </div>

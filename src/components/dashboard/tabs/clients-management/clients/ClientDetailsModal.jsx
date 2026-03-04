@@ -49,14 +49,16 @@ const DetailItem = ({
   valueClassName = "text-slate-800",
   children,
 }) => (
-  <div className="flex items-start justify-between py-2 px-3 bg-white rounded-lg border border-gray-200">
-    <div className="flex items-center gap-2">
-      {React.cloneElement(icon, { className: "h-5 w-5 text-blue-500" })}
-      <span className="font-medium text-gray-700">{label}:</span>
+  <div className="flex items-start text-sm md:text-base justify-between gap-2 py-2 px-3 bg-white rounded-lg border border-gray-200">
+    <div className="flex items-start gap-1.5 min-w-0 shrink max-w-[52%]">
+      <span className="shrink-0 mt-0.5">
+        {React.cloneElement(icon, { className: "h-4 w-4 md:h-5 md:w-5 text-blue-500" })}
+      </span>
+      <span className="font-medium text-gray-700 break-words leading-snug">{label}:</span>
     </div>
     {children || (
       <span
-        className={`font-semibold break-words text-right ${valueClassName}`}
+        className={`font-semibold break-all text-right min-w-0 max-w-[48%] ${valueClassName}`}
       >
         {value ?? "غير متوفر"}
       </span>
@@ -607,15 +609,15 @@ function ClientDetailsModal({
         );
       case "interests":
         return (
-          <div className="space-y-6">
-            <div className="bg-white border border-blue-100 rounded-xl shadow-sm p-6">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="bg-white border border-blue-100 rounded-xl shadow-sm p-3 sm:p-5 md:p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h4 className="text-xl font-bold text-blue-800 flex items-center gap-2">
-                    <PlusCircleIcon className="h-6 w-6" />
+                  <h4 className="text-base sm:text-lg md:text-xl font-bold text-blue-800 flex items-center gap-2">
+                    <PlusCircleIcon className="h-5 w-5 sm:h-6 sm:w-6 shrink-0" />
                     إضافة منتج مهتم به
                   </h4>
-                  <p className="text-sm text-blue-600 mt-1">
+                  <p className="text-xs sm:text-sm text-blue-600 mt-1">
                     اختر منتجًا لإضافته إلى اهتمامات هذا العميل وتشجيع فريق
                     المبيعات على التركيز عليه.
                   </p>
@@ -676,18 +678,18 @@ function ClientDetailsModal({
             {renderFeedback()}
 
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h4 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <CubeIcon className="h-6 w-6 text-blue-500" />
+              <div className="px-3 sm:px-5 md:px-6 py-2.5 sm:py-4 border-b border-gray-100 flex items-center justify-between">
+                <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <CubeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 shrink-0" />
                   المنتجات المهتم بها
                 </h4>
                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                   {interestedProducts.length}
                 </span>
               </div>
-              <div className="p-6">
+              <div className="p-3 sm:p-5 md:p-6">
                 {interestedLoading ? (
-                  <div className="py-8 flex items-center justify-center text-gray-500 gap-3">
+                  <div className="py-6 sm:py-8 flex items-center justify-center text-gray-500 gap-3 text-sm">
                     <span className="inline-block h-5 w-5 rounded-full border-2 border-blue-300 border-t-transparent animate-spin" />
                     جاري تحميل المنتجات المرتبطة...
                   </div>
@@ -712,12 +714,12 @@ function ClientDetailsModal({
                           key={productIdStr}
                           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 rounded-lg border border-gray-100 bg-gray-50 p-4"
                         >
-                          <div className="flex items-start gap-4">
+                          <div className="flex items-start gap-2.5 sm:gap-4">
                             {product.products_image_url ? (
                               <img
                                 src={product.products_image_url}
                                 alt={product.products_name || "Product Image"}
-                                className="h-16 w-16 rounded-lg border border-gray-200 object-cover"
+                                className="h-12 w-12 sm:h-16 sm:w-16 rounded-lg border border-gray-200 object-cover shrink-0"
                                 onError={(event) => {
                                   event.currentTarget.src =
                                     "https://placehold.co/64x64/E2E8F0/64748B?text=No+Image";
@@ -725,12 +727,12 @@ function ClientDetailsModal({
                                 }}
                               />
                             ) : (
-                              <div className="h-16 w-16 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400">
-                                <CubeIcon className="h-8 w-8" />
+                              <div className="h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shrink-0">
+                                <CubeIcon className="h-6 w-6 sm:h-8 sm:w-8" />
                               </div>
                             )}
-                            <div>
-                              <h5 className="text-lg font-bold text-gray-800">
+                            <div className="min-w-0">
+                              <h5 className="text-sm sm:text-base md:text-lg font-bold text-gray-800 break-words">
                                 {product.products_name ||
                                   `منتج #${product.products_id}`}
                               </h5>
@@ -819,28 +821,28 @@ function ClientDetailsModal({
       {" "}
       {/* Adjusted modalWidthClass */}
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-xl sticky top-0 z-10">
-        <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Bars3BottomLeftIcon className="h-7 w-7 text-blue-600" />
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-white rounded-t-xl sticky top-0 z-10">
+        <h3 className="text-base sm:text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-1.5 sm:gap-2">
+          <Bars3BottomLeftIcon className="h-5 w-5 sm:h-7 sm:w-7 text-blue-600 shrink-0" />
           تفاصيل العميل
         </h3>
         <button
           onClick={onClose}
-          className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors"
+          className="p-1.5 sm:p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors"
         >
-          <XMarkIcon className="h-6 w-6" />
+          <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
       </div>
       {/* Body */}
       <div className="p-3 sm:p-6 flex-grow overflow-y-auto bg-gray-50">
         {/* Top section - Client Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6 flex flex-col md:flex-row items-center md:items-start gap-6">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 md:p-6 mb-3 sm:mb-6 flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-5 md:gap-6">
           <div className="flex-shrink-0">
-            {client.clients_image ? ( // Use 'clients_image' as it contains the URL in the detailed response
+            {client.clients_image ? (
               <img
                 src={client.clients_image}
                 alt={client.clients_company_name || "Client Image"}
-                className="w-32 h-32 md:w-48 md:h-48 object-cover rounded-lg shadow-inner border border-gray-200"
+                className="w-20 h-20 sm:w-32 sm:h-32 md:w-44 md:h-44 object-cover rounded-lg shadow-inner border border-gray-200"
                 onError={(e) => {
                   e.currentTarget.src =
                     "https://placehold.co/192x192/E2E8F0/64748B?text=No+Image";
@@ -848,28 +850,28 @@ function ClientDetailsModal({
                 }}
               />
             ) : (
-              <div className="w-32 h-32 md:w-48 md:h-48 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 border border-gray-200 shadow-inner">
-                <BuildingOffice2Icon className="w-16 h-16" />
+              <div className="w-20 h-20 sm:w-32 sm:h-32 md:w-44 md:h-44 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 border border-gray-200 shadow-inner">
+                <BuildingOffice2Icon className="w-10 h-10 sm:w-16 sm:h-16" />
               </div>
             )}
           </div>
-          <div className="flex-grow text-center md:text-right">
-            <h4 className="text-3xl font-extrabold text-gray-900 mb-2 break-words">
+          <div className="flex-grow text-center sm:text-right min-w-0">
+            <h4 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-gray-900 mb-1 sm:mb-2 break-words">
               {client.clients_company_name}
             </h4>
-            <p className="text-gray-600 text-base leading-relaxed">
+            <p className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed line-clamp-3 sm:line-clamp-none">
               {client.clients_description || "لا يوجد وصف مفصل لهذا العميل."}
             </p>
-            <div className="mt-4 flex flex-wrap justify-center md:justify-end gap-3">
+            <div className="mt-2 sm:mt-4 flex flex-wrap justify-center sm:justify-end gap-1.5 sm:gap-3">
               <span
-                className={`text-sm font-semibold px-3 py-1 rounded-full ${statusBadgeClass}`}
+                className={`text-xs sm:text-sm font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full ${statusBadgeClass}`}
               >
                 الحالة: {statusLabel}
               </span>
-              <span className="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full">
+              <span className="bg-green-100 text-green-800 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                 الرصيد: {formatMoney(client.clients_credit_balance ?? 0)}
               </span>
-              <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">
+              <span className="bg-blue-100 text-blue-800 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                 الحد: {formatMoney(client.clients_credit_limit ?? 0)}
               </span>
             </div>
@@ -877,15 +879,15 @@ function ClientDetailsModal({
         </div>
 
         {/* Tabs Navigation */}
-        <div className="border-b border-gray-200 mb-4 bg-white rounded-lg shadow-sm">
+        <div className="border-b border-gray-200 mb-3 sm:mb-4 bg-white rounded-lg shadow-sm">
           <nav
-            className="-mb-px flex space-x-4 space-x-reverse overflow-x-auto px-4"
+            className="-mb-px flex space-x-1 sm:space-x-4 space-x-reverse overflow-x-auto px-1 sm:px-4 scrollbar-hide"
             aria-label="Tabs"
           >
             <button
               type="button"
               onClick={() => setActiveTab("general")}
-              className={`whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
+              className={`whitespace-nowrap py-2 px-2 sm:py-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
                 activeTab === "general"
                   ? "border-blue-600 text-blue-600 bg-blue-50"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -896,7 +898,7 @@ function ClientDetailsModal({
             <button
               type="button"
               onClick={() => setActiveTab("contact")}
-              className={`whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
+              className={`whitespace-nowrap py-2 px-2 sm:py-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
                 activeTab === "contact"
                   ? "border-blue-600 text-blue-600 bg-blue-50"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -907,7 +909,7 @@ function ClientDetailsModal({
             <button
               type="button"
               onClick={() => setActiveTab("address")}
-              className={`whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
+              className={`whitespace-nowrap py-2 px-2 sm:py-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
                 activeTab === "address"
                   ? "border-blue-600 text-blue-600 bg-blue-50"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -918,7 +920,7 @@ function ClientDetailsModal({
             <button
               type="button"
               onClick={() => setActiveTab("other")}
-              className={`whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
+              className={`whitespace-nowrap py-2 px-2 sm:py-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
                 activeTab === "other"
                   ? "border-blue-600 text-blue-600 bg-blue-50"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -929,7 +931,7 @@ function ClientDetailsModal({
             <button
               type="button"
               onClick={() => setActiveTab("interests")}
-              className={`whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
+              className={`whitespace-nowrap py-2 px-2 sm:py-3 sm:px-4 border-b-2 font-medium text-xs sm:text-sm rounded-t-lg transition-colors duration-200 ease-in-out ${
                 activeTab === "interests"
                   ? "border-blue-600 text-blue-600 bg-blue-50"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -941,9 +943,7 @@ function ClientDetailsModal({
         </div>
 
         {/* Content Area for Tabs */}
-        <div className="mt-4 bg-white p-6 rounded-lg shadow-md">
-          {" "}
-          {/* Changed background and padding */}
+        <div className="mt-3 sm:mt-4 bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
           {renderTabContent()}
         </div>
       </div>

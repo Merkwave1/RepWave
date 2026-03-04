@@ -684,15 +684,6 @@ export default function PurchaseOrdersTab() {
   const renderContent = () => {
     // MODIFIED: Check only if the data is an array, not necessarily if it has length > 0.
     // This allows the form to render even if supporting data lists are initially empty.
-    const isSupportingDataLoaded =
-      Array.isArray(suppliers) &&
-      Array.isArray(products) &&
-      Array.isArray(baseUnits) &&
-      Array.isArray(packagingTypes) &&
-      Array.isArray(warehouses);
-
-    // Debug logging for supporting data
-
     if (loading && currentView === "list") {
       // Only show full-page loader for the list view
       return <Loader className="mt-8" />;
@@ -703,34 +694,6 @@ export default function PurchaseOrdersTab() {
     }
 
     switch (currentView) {
-      case "add":
-        return (
-          <AddPurchaseOrderForm
-            onAdd={handleAdd}
-            onCancel={() => setCurrentView("list")}
-            suppliers={suppliers || []}
-            products={products || []}
-            baseUnits={baseUnits || []}
-            packagingTypes={packagingTypes || []}
-            warehouses={warehouses || []}
-            dataLoaded={isSupportingDataLoaded}
-          />
-        );
-      case "edit":
-        return isSupportingDataLoaded && selectedOrder ? (
-          <UpdatePurchaseOrderForm
-            order={selectedOrder}
-            onUpdate={handleUpdate}
-            onCancel={() => setCurrentView("list")}
-            suppliers={suppliers}
-            products={products}
-            baseUnits={baseUnits}
-            packagingTypes={packagingTypes}
-            warehouses={warehouses}
-          />
-        ) : (
-          <p className="text-center text-gray-600">جاري تحميل البيانات...</p>
-        );
       case "list":
       default:
         return (
@@ -991,6 +954,50 @@ export default function PurchaseOrdersTab() {
   return (
     <div className="p-4" dir="rtl">
       {renderContent()}
+
+      {/* Add modal */}
+      {currentView === "add" && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto flex items-start justify-center p-2 sm:p-6">
+          <div className="relative w-full max-w-6xl my-4 sm:my-8">
+            <AddPurchaseOrderForm
+              onAdd={handleAdd}
+              onCancel={() => setCurrentView("list")}
+              suppliers={suppliers || []}
+              products={products || []}
+              baseUnits={baseUnits || []}
+              packagingTypes={packagingTypes || []}
+              warehouses={warehouses || []}
+              dataLoaded={isSupportingDataLoaded}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit modal */}
+      {currentView === "edit" && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto flex items-start justify-center p-2 sm:p-6">
+          <div className="relative w-full max-w-6xl my-4 sm:my-8">
+            {isSupportingDataLoaded && selectedOrder ? (
+              <UpdatePurchaseOrderForm
+                order={selectedOrder}
+                onUpdate={handleUpdate}
+                onCancel={() => setCurrentView("list")}
+                suppliers={suppliers}
+                products={products}
+                baseUnits={baseUnits}
+                packagingTypes={packagingTypes}
+                warehouses={warehouses}
+              />
+            ) : (
+              <div className="bg-white rounded-xl p-8 text-center text-gray-600 shadow-xl">
+                جاري تحميل البيانات...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Details modal */}
       {currentView === "details" && isSupportingDataLoaded && selectedOrder && (
         <PurchaseOrderDetailsModal
           isOpen

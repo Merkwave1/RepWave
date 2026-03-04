@@ -1466,7 +1466,169 @@ export default function DeliverProductsTab() {
                   )}
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile cards (md and below) */}
+                <div className="md:hidden space-y-2">
+                  {deliverableItems.map((item) => {
+                    const key = `${order.sales_orders_id}-${item.sales_order_items_id}`;
+                    const isSelected = isActiveOrder && selectedItems[key];
+                    const details = isActiveOrder
+                      ? deliveryDetails[key] || {}
+                      : {};
+                    const displaySku =
+                      item.variant_sku ||
+                      item.products_sku ||
+                      (item.sales_order_items_variant_id
+                        ? `ID: ${item.sales_order_items_variant_id}`
+                        : "غير محدد");
+                    const deliveredQty = parseFloat(
+                      item.delivered_quantity ||
+                        item.sales_order_items_quantity_delivered ||
+                        0,
+                    );
+                    const returnedQty = parseFloat(
+                      item.returned_quantity ||
+                        item.sales_order_items_quantity_returned ||
+                        0,
+                    );
+                    const totalQty = parseFloat(
+                      item.sales_order_items_quantity || 0,
+                    );
+                    const remainingQty = totalQty - deliveredQty - returnedQty;
+                    const batches = isActiveOrder
+                      ? availableBatches[key] || []
+                      : [];
+                    const batch = isActiveOrder
+                      ? selectedBatches[key] || ""
+                      : "";
+
+                    return (
+                      <div
+                        key={item.sales_order_items_id}
+                        className={`border rounded-lg p-2.5 text-xs transition-colors ${
+                          isSelected
+                            ? "border-blue-400 bg-blue-50"
+                            : "border-gray-200 bg-white"
+                        }`}
+                      >
+                        {/* Checkbox + name */}
+                        <div className="flex items-start gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() =>
+                              handleItemToggle(
+                                order.sales_orders_id,
+                                item.sales_order_items_id,
+                                item,
+                              )
+                            }
+                            disabled={remainingQty <= 0}
+                            className="h-4 w-4 mt-0.5 text-blue-600 border-gray-300 rounded flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 truncate">
+                              {item.variant_name || item.products_name}
+                            </p>
+                            <p className="text-gray-400 truncate">
+                              {displaySku} ·{" "}
+                              {item.packaging_types_name || "غير محدد"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Quantities row */}
+                        <div className="grid grid-cols-4 gap-1 mt-2 text-center">
+                          <div>
+                            <span className="block text-gray-400 text-[9px] mb-0.5">
+                              مطلوبة
+                            </span>
+                            <span className="font-semibold text-gray-900">
+                              {formatNumber(totalQty)}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="block text-gray-400 text-[9px] mb-0.5">
+                              مُسلمة
+                            </span>
+                            <span>{formatNumber(deliveredQty)}</span>
+                          </div>
+                          <div>
+                            <span className="block text-gray-400 text-[9px] mb-0.5">
+                              مرتجعة
+                            </span>
+                            <span>{formatNumber(returnedQty)}</span>
+                          </div>
+                          <div>
+                            <span className="block text-gray-400 text-[9px] mb-0.5">
+                              متبقي
+                            </span>
+                            <span className="font-semibold text-green-600">
+                              {formatNumber(remainingQty)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Qty input + batch selector when selected */}
+                        {isSelected && (
+                          <div className="mt-2 space-y-1.5 border-t border-blue-200 pt-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-600 flex-shrink-0">
+                                كمية التسليم:
+                              </span>
+                              <NumberInput
+                                min="0"
+                                max={remainingQty}
+                                value={details.quantity ?? ""}
+                                onChange={(val) =>
+                                  handleQuantityChange(
+                                    order.sales_orders_id,
+                                    item.sales_order_items_id,
+                                    Math.min(
+                                      Math.max(0, parseFloat(val) || 0),
+                                      remainingQty,
+                                    ),
+                                  )
+                                }
+                                className="w-20 text-center border px-1 py-0.5 rounded"
+                              />
+                            </div>
+                            <div>
+                              <span className="text-gray-600 block mb-0.5">
+                                الدفعة:
+                              </span>
+                              <select
+                                value={batch}
+                                onChange={(e) =>
+                                  handleBatchChange(
+                                    order.sales_orders_id,
+                                    item.sales_order_items_id,
+                                    e.target.value,
+                                  )
+                                }
+                                disabled={batches.length === 0}
+                                className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                              >
+                                <option value="">اختر دفعة</option>
+                                {batches.map((b) => (
+                                  <option
+                                    key={b.inventory_id}
+                                    value={b.inventory_production_date}
+                                  >
+                                    {b.inventory_production_date || "غير محدد"}{" "}
+                                    (متاح: {formatNumber(b.inventory_quantity)})
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop table (md+) */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full border border-gray-300 text-xs">
                     <thead className="bg-gray-50">
                       <tr className="[&>th]:border [&>th]:p-2 text-gray-600">

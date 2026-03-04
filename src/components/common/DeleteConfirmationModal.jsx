@@ -1,5 +1,6 @@
 // src/components/common/DeleteConfirmationModal.js
 import React from "react";
+import { createPortal } from "react-dom";
 
 function DeleteConfirmationModal({
   isOpen,
@@ -21,9 +22,9 @@ function DeleteConfirmationModal({
     if (lower.includes("valid supplier id")) return "معرّف المورد غير صالح";
     return errorMessage; // fallback original (could already be Arabic)
   })();
-  return (
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       dir="rtl"
     >
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl max-w-sm w-full mx-2 sm:mx-4 max-h-[95vh] overflow-y-auto">
@@ -60,6 +61,7 @@ function DeleteConfirmationModal({
       </div>
     </div>
   );
+  return createPortal(modal, document.body);
 }
 
 export default DeleteConfirmationModal;

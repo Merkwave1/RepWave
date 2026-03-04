@@ -613,8 +613,8 @@ const SafeTransactionsModal = ({ safeId, safeName, onClose }) => {
   const modalContent = (() => {
     if (loading) {
       return (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-xl shadow-xl p-6">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl p-6 my-auto">
             <Loader />
             <p className="text-center mt-4 text-gray-600">
               جاري تحميل معاملات الخزنة...
@@ -688,7 +688,7 @@ const SafeTransactionsModal = ({ safeId, safeName, onClose }) => {
           >
             <div className="p-3 sm:p-6 space-y-6">
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-gradient-to-r from-green-100 to-green-50 p-4 rounded-lg border border-green-200">
                   <div className="flex items-center justify-between">
                     <div>

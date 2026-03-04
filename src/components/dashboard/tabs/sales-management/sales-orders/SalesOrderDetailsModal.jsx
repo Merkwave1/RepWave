@@ -260,7 +260,7 @@ export default function SalesOrderDetailsModal({ order, onClose }) {
       <style>{`@media print {  body { background: #fff !important; }  body * { visibility: hidden; }  .order-details-print, .order-details-print * { visibility: visible; }  .order-details-print { position: absolute; inset: 0; width: 100% !important; max-height: none !important; overflow: visible !important; box-shadow: none !important; border: none !important; background: #fff !important; }  .no-print { display: none !important; } }`}</style>
       <div className="order-details-print relative top-2 sm:top-10 mx-auto p-3 sm:p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto flex flex-col">
         {/* Sticky Header */}
-        <div className="sticky top-0 -mx-5 px-5 pt-4 pb-3 mb-4 bg-white border-b border-gray-200 z-20 shadow-sm flex items-center justify-between">
+        <div className="flex flex-col md:flex-row -mx-5 px-5 pt-4 pb-3 mb-4 bg-white border-b border-gray-200 z-20 shadow-sm flex items-center justify-between">
           <h3 className="text-lg md:text-xl font-bold text-gray-900 truncate">
             تفاصيل أمر البيع رقم #{orderIdDisplay}
           </h3>

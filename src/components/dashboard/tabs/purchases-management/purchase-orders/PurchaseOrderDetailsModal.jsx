@@ -321,9 +321,9 @@ const PurchaseOrderDetailsModal = ({
           )}
 
           {!loading && !error && formattedOrderData && (
-            <div className="p-8 space-y-8">
+            <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
               {/* Order Information Card */}
-              <div className="bg-gray-50/70 rounded-2xl p-8 border border-gray-100 shadow-sm">
+              <div className="bg-gray-50/70 rounded-2xl p-4 sm:p-8 border border-gray-100 shadow-sm">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">
                   معلومات الطلب
                 </h3>
@@ -406,13 +406,53 @@ const PurchaseOrderDetailsModal = ({
 
               {/* Items Table */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="px-8 py-5 border-b border-gray-100 bg-gray-50">
+                <div className="px-4 sm:px-8 py-4 sm:py-5 border-b border-gray-100 bg-gray-50">
                   <h3 className="text-lg font-semibold text-gray-800">
                     عناصر الطلب
                   </h3>
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile cards */}
+                <div className="sm:hidden divide-y divide-gray-100">
+                  {formattedOrderData.items.map((item, index) => (
+                    <div key={index} className="p-4 space-y-2">
+                      <p className="font-semibold text-gray-800 text-sm">
+                        {item.display_name}
+                      </p>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600">
+                        <div>
+                          <span className="text-gray-400">نوع التعبئة: </span>
+                          {item.packaging_name}
+                        </div>
+                        <div>
+                          <span className="text-gray-400">الكمية: </span>
+                          {parseFloat(
+                            item.purchase_order_items_quantity_ordered ||
+                              item.purchase_order_items_quantity ||
+                              0,
+                          ).toLocaleString("en-GB")}
+                        </div>
+                        <div>
+                          <span className="text-gray-400">سعر الوحدة: </span>
+                          {formatMoney(
+                            item.purchase_order_items_unit_cost ||
+                              item.purchase_order_items_unit_price ||
+                              0,
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-gray-400">الإجمالي: </span>
+                          <span className="font-semibold text-gray-900">
+                            {formatMoney(item.calculated.total)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden sm:block overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                       <tr>
@@ -433,7 +473,6 @@ const PurchaseOrderDetailsModal = ({
                         </th>
                       </tr>
                     </thead>
-
                     <tbody className="divide-y divide-gray-100">
                       {formattedOrderData.items.map((item, index) => (
                         <tr
@@ -443,11 +482,9 @@ const PurchaseOrderDetailsModal = ({
                           <td className="px-6 py-4 font-medium text-gray-800">
                             {item.display_name}
                           </td>
-
                           <td className="px-6 py-4 text-gray-600">
                             {item.packaging_name}
                           </td>
-
                           <td className="px-6 py-4 text-gray-700">
                             {parseFloat(
                               item.purchase_order_items_quantity_ordered ||
@@ -455,7 +492,6 @@ const PurchaseOrderDetailsModal = ({
                                 0,
                             ).toLocaleString("en-GB")}
                           </td>
-
                           <td className="px-6 py-4 text-gray-700">
                             {formatMoney(
                               item.purchase_order_items_unit_cost ||
@@ -463,7 +499,6 @@ const PurchaseOrderDetailsModal = ({
                                 0,
                             )}
                           </td>
-
                           <td className="px-6 py-4 font-semibold text-gray-900">
                             {formatMoney(item.calculated.total)}
                           </td>
@@ -475,7 +510,7 @@ const PurchaseOrderDetailsModal = ({
               </div>
 
               {/* Order Summary */}
-              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 shadow-sm max-w-md ml-auto rtl:mr-auto">
+              <div className="bg-gray-50 rounded-2xl p-4 sm:p-8 border border-gray-100 shadow-sm max-w-full sm:max-w-md ml-auto rtl:mr-auto">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6">
                   ملخص الطلب
                 </h3>
@@ -510,7 +545,7 @@ const PurchaseOrderDetailsModal = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-4 rtl:space-x-reverse px-8 py-6 border-t border-gray-100 bg-gray-50 print:hidden">
+        <div className="flex items-center justify-end space-x-4 rtl:space-x-reverse px-4 sm:px-8 py-4 sm:py-6 border-t border-gray-100 bg-gray-50 print:hidden">
           <button
             onClick={onClose}
             className="px-6 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"

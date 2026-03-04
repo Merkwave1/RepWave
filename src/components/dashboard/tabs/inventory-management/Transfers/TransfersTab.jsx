@@ -807,24 +807,56 @@ export default function TransfersTab() {
                     title: "#ID",
                     className: "w-24",
                     sortable: true,
+                    render: (transfer) =>
+                      transfer.display_id ||
+                      (transfer.type === "request"
+                        ? `REQ-${transfer.transfer_id}`
+                        : transfer.transfer_id),
                   },
                   {
                     key: "source_warehouse_name",
                     title: "المخزن المصدر",
                     className: "",
                     sortable: true,
+                    render: (transfer) =>
+                      warehouses.find(
+                        (w) => w.warehouse_id === transfer.transfer_source_warehouse_id,
+                      )?.warehouse_name ||
+                      transfer.source_warehouse_name ||
+                      "غير معروف",
                   },
                   {
                     key: "destination_warehouse_name",
                     title: "المخزن الوجهة",
                     className: "",
                     sortable: true,
+                    render: (transfer) =>
+                      warehouses.find(
+                        (w) => w.warehouse_id === transfer.transfer_destination_warehouse_id,
+                      )?.warehouse_name ||
+                      transfer.destination_warehouse_name ||
+                      "غير معروف",
                   },
                   {
                     key: "status",
                     title: "الحالة",
                     className: "",
                     sortable: true,
+                    render: (transfer) => (
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          transfer.status === "Completed"
+                            ? "bg-green-100 text-green-800"
+                            : transfer.status === "In Transit"
+                              ? "bg-blue-100 text-blue-800"
+                              : transfer.status === "Pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {transfer.status}
+                      </span>
+                    ),
                   },
                   // Use a numeric sortAccessor for reliable date sorting
                   {
@@ -834,12 +866,18 @@ export default function TransfersTab() {
                     sortable: true,
                     sortAccessor: (it) =>
                       it?.created_at ? new Date(it.created_at).getTime() : 0,
+                    render: (transfer) =>
+                      transfer.formatted_transfer_date ||
+                      (transfer.created_at
+                        ? format(new Date(transfer.created_at), "yyyy-MM-dd HH:mm")
+                        : "N/A"),
                   },
                   {
                     key: "notes",
                     title: "ملاحظات",
                     className: "min-w-[200px]",
                     sortable: false,
+                    render: (transfer) => transfer.notes || "لا يوجد",
                   },
                   {
                     key: "actions",
@@ -847,6 +885,17 @@ export default function TransfersTab() {
                     className: "w-32 text-center",
                     sortable: false,
                     showDivider: false,
+                    render: (transfer) => (
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => openTransferDetailsModal(transfer)}
+                          className="p-1.5 rounded-full text-sky-700 bg-sky-100 hover:bg-sky-500 hover:text-white hover:shadow-[0_0_12px_rgba(56,189,248,0.45)] transition-all duration-200 hover:scale-110"
+                          title="عرض التفاصيل"
+                        >
+                          <EyeIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ),
                   },
                 ]}
                 renderRow={(transfer) => {

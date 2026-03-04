@@ -1,5 +1,6 @@
 // src/components/dashboard/tabs/sales-management/client-payments/UpdateClientPaymentForm.jsx
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { XMarkIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import SearchableSelect from "../../../../common/SearchableSelect/SearchableSelect";
 import NumberInput from "../../../../common/NumberInput/NumberInput";
@@ -92,9 +93,9 @@ const UpdateClientPaymentForm = ({
     }
   };
 
-  return (
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
@@ -200,14 +201,14 @@ const UpdateClientPaymentForm = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 bg-indigo-600 text-white py-1 md:py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? "جاري الحفظ..." : "حفظ التغييرات"}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+                className="flex-1 bg-gray-300 text-gray-700 py-1 md:py-3 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
               >
                 إلغاء
               </button>
@@ -217,6 +218,7 @@ const UpdateClientPaymentForm = ({
       </div>
     </div>
   );
+  return createPortal(modal, document.body);
 };
 
 export default UpdateClientPaymentForm;

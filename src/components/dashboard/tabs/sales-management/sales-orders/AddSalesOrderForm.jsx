@@ -12,6 +12,7 @@ import {
   PlusCircleIcon,
   TrashIcon,
   ExclamationTriangleIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import SearchableSelect from "../../../../common/SearchableSelect/SearchableSelect";
 import NumberInput from "../../../../common/NumberInput/NumberInput";
@@ -1499,10 +1500,18 @@ export default function AddSalesOrderForm({
 
   return (
     <div
-      className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto"
+      className="relative bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto"
       dir="rtl"
     >
-      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+      <button
+        type="button"
+        onClick={onCancel}
+        aria-label="Close form"
+        className="absolute top-4 left-4 z-20 bg-white rounded-full p-1 shadow-sm hover:bg-gray-100 text-gray-600 focus:outline-none"
+      >
+        <XMarkIcon className="h-5 w-5" />
+      </button>
+      <h3 className="text-2xl font-bold text-gray-800 mt-4 md:mt-0 mb-2 md:mb-6 text-center">
         إضافة أمر بيع جديد
       </h3>
 
@@ -1927,7 +1936,7 @@ export default function AddSalesOrderForm({
                 <button
                   type="button"
                   onClick={handleAddItem}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  className="inline-flex items-center px-2 md:px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
                   <PlusCircleIcon
                     className="-mr-1 ml-2 h-5 w-5"
@@ -2069,11 +2078,11 @@ export default function AddSalesOrderForm({
         )}
 
         {/* Form Actions */}
-        <div className="flex justify-end space-x-reverse space-x-3 pt-6 border-t border-gray-200">
+        <div className="grid grid-cols-2 gap-y-2  md:flex md:justify-end space-x-reverse space-x-3 pt-6 border-t border-gray-200">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-2 h-10 md:h-none md:px-4 py-1 md:py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             إلغاء
           </button>
@@ -2086,7 +2095,7 @@ export default function AddSalesOrderForm({
               !formData.sales_orders_client_id ||
               !formData.sales_orders_warehouse_id
             }
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-yellow-50 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
+            className="px-1 md:px-4 h-10 md:h-none py-1 md:py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-yellow-50 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
           >
             {loading ? "جاري الحفظ..." : "حفظ كمسودة"}
           </button>
@@ -2099,7 +2108,7 @@ export default function AddSalesOrderForm({
               !formData.sales_orders_client_id ||
               !formData.sales_orders_warehouse_id
             }
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="px-10 md:px-4 col-span-2 py-1 md:py-2 border border-transparent justify-self-center  rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
             {loading ? "جاري التأكيد..." : "تأكيد الأمر"}
           </button>
@@ -2123,9 +2132,17 @@ export default function AddSalesOrderForm({
               &#8203;
             </span>
             <div
-              className="inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+              className="relative inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
               dir="rtl"
             >
+              <button
+                type="button"
+                onClick={() => setIsConfirmOrderModalOpen(false)}
+                aria-label="Close"
+                className="absolute top-3 right-3 z-20 bg-red-200 rounded-full p-1 shadow-sm hover:bg-gray-100 text-gray-600 focus:outline-none"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">

@@ -175,7 +175,7 @@ export default function ProductInventoryDetailsModal({
             key={variant.variantId}
             className="bg-white rounded-2xl shadow-sm border"
           >
-            <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b rounded-t-2xl flex justify-between items-center">
+            <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b rounded-t-2xl flex flex-wrap justify-between items-center gap-2">
               <h4 className="font-bold text-gray-800 text-sm">
                 الخيار: {variant.variantName}
               </h4>
@@ -197,7 +197,110 @@ export default function ProductInventoryDetailsModal({
                   </div>
 
                   <div className="overflow-x-auto">
-                    <table className="min-w-full text-[13px] text-gray-700 border-separate border-spacing-y-2">
+                    {/* Mobile cards */}
+                    <div className="sm:hidden space-y-3">
+                      {block.rows.map((r) => (
+                        <div
+                          key={r.id}
+                          className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 space-y-2"
+                        >
+                          <div className="flex justify-between items-start">
+                            <span className="text-xs font-semibold text-gray-500">
+                              المخزن
+                            </span>
+                            <span className="text-xs font-bold text-gray-800 text-left max-w-[60%] break-words">
+                              {r.warehouse}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-gray-500">
+                              التعبئة
+                            </span>
+                            <span className="text-xs text-gray-700">
+                              {r.packaging} ({r.factor})
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-gray-500">
+                              الكمية
+                            </span>
+                            <span className="text-xs font-semibold text-gray-800">
+                              {r.quantity.toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-gray-500">
+                              الإجمالي ({baseUnit})
+                            </span>
+                            <span className="text-xs font-bold text-blue-700">
+                              {r.totalBase.toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-gray-500">
+                              الحالة
+                            </span>
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                              ${
+                                r.status === "In Stock"
+                                  ? "bg-green-50 text-green-700 ring-1 ring-green-200"
+                                  : r.status === "Low Stock"
+                                    ? "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200"
+                                    : "bg-red-50 text-red-700 ring-1 ring-red-200"
+                              }`}
+                            >
+                              {r.status}
+                            </span>
+                          </div>
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              className="flex-1 px-2 py-1.5 text-xs rounded-lg bg-[#8DD8F5] text-black hover:text-white hover:bg-blue-600 shadow-sm transition disabled:opacity-50"
+                              onClick={() => {
+                                const preferred = Array.isArray(
+                                  product?.preferred_packaging,
+                                )
+                                  ? product.preferred_packaging.map(
+                                      (p) => p.packaging_types_id,
+                                    )
+                                  : [];
+                                setRepackContext({
+                                  open: true,
+                                  item: r.raw,
+                                  allowedIds: preferred,
+                                });
+                              }}
+                              disabled={!onRepack}
+                            >
+                              تحويل/تفكيك
+                            </button>
+                            {r.quantity <= 0 && (
+                              <button
+                                className="flex-1 px-2 py-1.5 text-xs rounded-lg bg-red-500 text-white hover:bg-red-600 shadow-sm transition"
+                                onClick={() =>
+                                  setDeleteConfirm({
+                                    open: true,
+                                    id: r.id,
+                                    label: `${r.warehouse} - ${r.packaging} - ${r.productionDate}`,
+                                  })
+                                }
+                              >
+                                حذف
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop table */}
+                    <table className="hidden sm:table min-w-full text-[13px] text-gray-700 border-separate border-spacing-y-2">
                       <thead>
                         <tr className="text-xs uppercase text-gray-500">
                           <th className="px-3 py-2 text-center">المخزن</th>

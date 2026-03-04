@@ -38,20 +38,24 @@ function Modal({
         dir="rtl" // Set direction to RTL for Arabic content
       >
         {/* Modal Header */}
-        <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 bg-[#02415A] text-white rounded-t-xl shrink-0">
-          <h3 className="text-base sm:text-xl font-bold truncate pl-2">
-            {title}
-          </h3>
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {actions && <div className="ml-2">{actions}</div>}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-[#02415A] text-white rounded-t-xl shrink-0">
+          {/* Title row + close button */}
+          <div className="flex justify-between items-center">
+            <h3 className="text-base sm:text-xl font-bold truncate pl-2">
+              {title}
+            </h3>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors"
+              className="shrink-0 p-1.5 rounded-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors"
               aria-label="إغلاق"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </button>
           </div>
+          {/* Actions row (separate line) */}
+          {actions && (
+            <div className="mt-2 flex flex-wrap gap-2">{actions}</div>
+          )}
         </div>
 
         {/* Modal Body */}

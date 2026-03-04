@@ -320,14 +320,14 @@ const AddSupplierPaymentForm = ({ onClose, onSubmit, safes = [] }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 bg-green-600 text-white py-1 md:py-3 px-2 md:px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? "جاري الحفظ..." : "حفظ الدفعة"}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+                className="flex-1 bg-gray-300 text-gray-700 py-1 md:py-3 px-2 md:px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
               >
                 إلغاء
               </button>

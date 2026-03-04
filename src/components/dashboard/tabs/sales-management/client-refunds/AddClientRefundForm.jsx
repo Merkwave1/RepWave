@@ -1,6 +1,14 @@
 // src/components/dashboard/tabs/sales-management/client-refunds/AddClientRefundForm.jsx
 import React, { useMemo, useState } from "react";
-import { XMarkIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
+import { createPortal } from "react-dom";
+import {
+  XMarkIcon,
+  ArrowUturnLeftIcon,
+  UserCircleIcon,
+  ArchiveBoxIcon,
+  CreditCardIcon,
+  DocumentTextIcon,
+} from "@heroicons/react/24/outline";
 import SearchableSelect from "../../../../common/SearchableSelect/SearchableSelect";
 import { addClientRefund } from "../../../../../apis/client_refunds";
 import NumberInput from "../../../../common/NumberInput/NumberInput";
@@ -102,44 +110,62 @@ const AddClientRefundForm = ({
     }
   };
 
-  return (
+  const amountNum = parseFloat(formData.amount || 0) || 0;
+
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-2 sm:mx-4 max-h-[95vh] overflow-hidden flex flex-col"
+        className="bg-gray-50 rounded-2xl shadow-2xl max-w-xl w-full my-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
+        dir="rtl"
       >
-        <div className="bg-gradient-to-r from-indigo-100 to-blue-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-300 shrink-0">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-base sm:text-xl font-bold text-gray-800 flex items-center gap-2 truncate">
-              <ArrowUturnLeftIcon className="h-6 w-6 text-indigo-600" />
-              إضافة مرتجع عميل
-            </h3>
-            <div className="flex items-center gap-3">
-              {extraHeaderRight}
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-all"
-              >
-                <XMarkIcon className="h-5 w-5 text-gray-600" />
-              </button>
+        {/* ── Premium Header ── */}
+        <div className="px-5 py-4 flex items-center justify-between bg-gradient-to-l from-red-600 to-rose-500">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="bg-white/20 rounded-xl p-2 shrink-0">
+              <ArrowUturnLeftIcon className="h-6 w-6 text-white" />
             </div>
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-bold text-white truncate">
+                إضافة مرتجع عميل
+              </h3>
+              <p className="text-xs text-white/70 hidden sm:block">
+                أدخل بيانات المرتجع ثم اضغط حفظ
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {extraHeaderRight}
+            <button
+              onClick={onClose}
+              className="bg-white/20 hover:bg-white/30 rounded-full p-1.5 text-white transition-colors"
+            >
+              <XMarkIcon className="h-5 w-5" />
+            </button>
           </div>
         </div>
 
-        <div className="p-3 sm:p-6 overflow-y-auto flex-1" dir="rtl">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {errors.submit && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                {errors.submit}
-              </div>
-            )}
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
+          {errors.submit && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {errors.submit}
+            </div>
+          )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* ── Client & Safe ── */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+              <UserCircleIcon className="h-4 w-4 text-rose-500" />
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                العميل والخزنة
+              </span>
+            </div>
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                   العميل <span className="text-red-500">*</span>
                 </label>
                 <SearchableSelect
@@ -150,14 +176,18 @@ const AddClientRefundForm = ({
                   className="w-full"
                 />
                 {errors.client_id && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-red-500 text-xs mt-1">
                     {errors.client_id}
                   </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  الخزنة <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                  <span className="flex items-center gap-1">
+                    <ArchiveBoxIcon className="h-3.5 w-3.5" />
+                    الخزنة
+                  </span>{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <SearchableSelect
                   options={safeOptions}
@@ -167,14 +197,23 @@ const AddClientRefundForm = ({
                   className="w-full"
                 />
                 {errors.safe_id && (
-                  <p className="text-red-500 text-sm mt-1">{errors.safe_id}</p>
+                  <p className="text-red-500 text-xs mt-1">{errors.safe_id}</p>
                 )}
               </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* ── Payment Method & Amount ── */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+              <CreditCardIcon className="h-4 w-4 text-rose-500" />
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                طريقة الدفع والمبلغ
+              </span>
+            </div>
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                   طريقة الدفع <span className="text-red-500">*</span>
                 </label>
                 <SearchableSelect
@@ -185,13 +224,13 @@ const AddClientRefundForm = ({
                   className="w-full"
                 />
                 {errors.payment_method_id && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-red-500 text-xs mt-1">
                     {errors.payment_method_id}
                   </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                   المبلغ ({symbol}) <span className="text-red-500">*</span>
                 </label>
                 <NumberInput
@@ -200,45 +239,81 @@ const AddClientRefundForm = ({
                   placeholder="0.00"
                 />
                 {errors.amount && (
-                  <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
+                  <p className="text-red-500 text-xs mt-1">{errors.amount}</p>
                 )}
               </div>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+          {/* ── Notes ── */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+              <DocumentTextIcon className="h-4 w-4 text-gray-400" />
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                 ملاحظات
-              </label>
+              </span>
+            </div>
+            <div className="p-4">
               <input
                 type="text"
                 value={formData.notes}
                 onChange={(e) => handleChange("notes", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="اختياري"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                placeholder="اختياري..."
               />
             </div>
+          </div>
 
-            <div className="flex gap-3 pt-4">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isSubmitting ? "جاري الحفظ..." : "حفظ المرتجع"}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-              >
-                إلغاء
-              </button>
+          {/* ── Live Preview ── */}
+          {amountNum > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
+              <span className="text-sm font-semibold text-red-700">
+                إجمالي المرتجع
+              </span>
+              <span className="text-2xl font-extrabold text-red-700">
+                -
+                {amountNum.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{" "}
+                {symbol}
+              </span>
             </div>
-          </form>
-        </div>
+          )}
+
+          {/* ── Footer ── */}
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-1 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full sm:w-auto px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+              disabled={isSubmitting}
+            >
+              إلغاء
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:flex-1 py-2.5 px-6 rounded-xl text-sm font-bold text-white bg-gradient-to-l from-red-600 to-rose-500 hover:from-red-700 hover:to-rose-600 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{" "}
+                  جاري الحفظ...
+                </>
+              ) : (
+                <>
+                  <ArrowUturnLeftIcon className="h-4 w-4" /> حفظ المرتجع
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 };
 
 export default AddClientRefundForm;

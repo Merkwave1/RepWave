@@ -333,12 +333,27 @@ function DashboardLayout({ setGlobalMessage }) {
     }
   };
 
+  // Close sidebar on mobile when navigating
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
   return (
-    <div className="flex h-screen bg-gray-100" dir="rtl">
+    <div className="flex h-screen bg-gray-100 overflow-hidden" dir="rtl">
+      {/* Mobile overlay backdrop */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       <aside
-        className={`bg-[#1F2937] text-white ${
-          sidebarOpen ? "w-64" : "w-12 md:w-20"
-        } flex-shrink-0 transition-all duration-300 ease-in-out flex flex-col justify-between h-full`}
+        className={`bg-[#1F2937] text-white flex-shrink-0 transition-all duration-300 ease-in-out flex flex-col justify-between h-full
+          fixed lg:relative inset-y-0 right-0 z-40
+          ${sidebarOpen ? "w-64 translate-x-0" : "w-64 translate-x-full lg:translate-x-0 lg:w-20"}
+        `}
       >
         <div
           className={`p-4 flex items-center justify-between ${sidebarOpen ? "flex-row" : "flex-col-reverse gap-4"} h-18 border-b border-gray-700`}
@@ -363,13 +378,8 @@ function DashboardLayout({ setGlobalMessage }) {
             />
           )}
           <button
-            onClick={() => {
-              if (window.innerWidth >= 1024) {
-                setSidebarOpen((v) => !v);
-              }
-            }}
-            disabled={window.innerWidth < 1024}
-            className="text-[#8DD8F5] bg-[#02415A] disabled:bg-gray-500 disabled:text-gray-800   rounded-lg p-1 transition-colors duration-200"
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="text-[#8DD8F5] bg-[#02415A] rounded-lg p-1 transition-colors duration-200"
             title={sidebarOpen ? "طي القائمة الجانبية" : "فتح القائمة الجانبية"}
           >
             {sidebarOpen ? (
@@ -1330,15 +1340,25 @@ function DashboardLayout({ setGlobalMessage }) {
           className="flex-shrink-0 h-16 bg-white shadow p-4 flex justify-between items-center"
           dir="rtl"
         >
-          <h1 className="hidden md:block text-2xl font-bold text-blue-700">
-            {companyName || "لوحة التحكم"}
-          </h1>
+          <div className="flex items-center gap-3">
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors"
+              title="فتح القائمة"
+            >
+              <Bars3Icon className="h-6 w-6" />
+            </button>
+            <h1 className="hidden md:block text-2xl font-bold text-blue-700">
+              {companyName || "لوحة التحكم"}
+            </h1>
+          </div>
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             <div className="flex items-center justify-center p-4 rounded-lg w-8 h-8 md:w-12 md:h-12 bg-[#1F2937]  ">
               <NotificationBell />
             </div>
             {userName && (
-              <span className="text-gray-700 text-sm">
+              <span className="hidden sm:inline text-gray-700 text-sm">
                 المستخدم:{" "}
                 <span className="font-semibold text-gray-800">{userName}</span>{" "}
                 (

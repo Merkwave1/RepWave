@@ -370,7 +370,7 @@ export default function RequestDetailsModal({
       isOpen={isOpen}
       onClose={onClose}
       dir="rtl"
-      modalWidthClass="max-w-6xl"
+      modalWidthClass="max-w-6xl flex flex-col"
     >
       {/* Header */}
       <div
@@ -965,8 +965,6 @@ export default function RequestDetailsModal({
             placeholder="أضف ملاحظة..."
           />
         </div>
-      </div>
-
       {/* Validation warnings  */}
       {(() => {
         const insufficientItems = items.filter((item) => {
@@ -1001,7 +999,7 @@ export default function RequestDetailsModal({
       })()}
 
       {/* Action bar */}
-      <div className="sticky bottom-0 bg-white/95 backdrop-blur-md border-t px-6 py-4 flex justify-center gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.06)]">
+      <div className=" bg-white/95 backdrop-blur-md border-t px-6 py-4 flex justify-center gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.06)]">
         <button
           onClick={() => {
             const allocations = items
@@ -1013,7 +1011,7 @@ export default function RequestDetailsModal({
               }));
             onApproveAllocate(request.request_id, allocations, adminNote);
           }}
-          className="px-8 py-3 rounded-xl font-bold text-white"
+          className="px-2 py-2 text-xs md:text-base md:px-8 md:py-3 rounded-xl font-bold text-white"
           style={{
             background: THEME_DARK,
             boxShadow: `0 8px 30px ${THEME_ACCENT}33`,
@@ -1024,11 +1022,13 @@ export default function RequestDetailsModal({
 
         <button
           onClick={() => onReject?.(request.request_id, adminNote)}
-          className="px-8 py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow"
+          className="px-2 py-2 text-xs md:text-base md:px-8 md:py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow"
         >
           رفض الطلب
         </button>
       </div>
+      </div>
+
     </Modal>
   );
 }

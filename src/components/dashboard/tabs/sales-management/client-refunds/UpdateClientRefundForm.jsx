@@ -1,5 +1,6 @@
 // src/components/dashboard/tabs/sales-management/client-refunds/UpdateClientRefundForm.jsx
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { XMarkIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import SearchableSelect from "../../../../common/SearchableSelect/SearchableSelect";
 import { updateClientRefund } from "../../../../../apis/client_refunds";
@@ -108,9 +109,9 @@ const UpdateClientRefundForm = ({
     }
   };
 
-  return (
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
@@ -260,6 +261,7 @@ const UpdateClientRefundForm = ({
       </div>
     </div>
   );
+  return createPortal(modal, document.body);
 };
 
 export default UpdateClientRefundForm;

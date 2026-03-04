@@ -1,5 +1,6 @@
 // src/components/dashboard/tabs/safe-management/safes/AddSafeForm.jsx
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   XMarkIcon,
   PlusIcon,
@@ -152,70 +153,76 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
 
   // users list is used directly when preparing options per selected type
 
-  return (
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
+        className="bg-gray-50 rounded-2xl shadow-2xl max-w-2xl w-full my-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-300">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-xl font-bold text-gray-800 flex items-center gap-2 truncate">
-              <PlusIcon className="h-6 w-6 text-blue-600" />
-              إضافة خزنة جديدة
-            </h3>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-all"
-            >
-              <XMarkIcon className="h-5 w-5 text-gray-600" />
-            </button>
+        <div className="px-5 py-4 flex items-center justify-between bg-gradient-to-l from-blue-600 to-indigo-500">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 rounded-xl p-2">
+              <ArchiveBoxIcon className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                إضافة خزنة جديدة
+              </h3>
+              <p className="text-xs text-white/70 hidden sm:block">
+                أدخل بيانات الخزنة ثم اضغط إضافة
+              </p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="bg-white/20 hover:bg-white/30 rounded-full p-1.5 text-white transition-colors"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
         </div>
 
         {/* Content */}
-        <div
-          className="overflow-y-auto max-h-[calc(95vh-110px)] sm:max-h-[calc(90vh-140px)]"
-          dir="rtl"
-        >
-          <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-6">
+        <div dir="rtl">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
             {errors.submit && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {errors.submit}
               </div>
             )}
 
             {/* Basic Information */}
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <ArchiveBoxIcon className="h-5 w-5 text-blue-600" />
-                معلومات الخزنة الأساسية
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+                <ArchiveBoxIcon className="h-4 w-4 text-blue-500" />
+                <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  معلومات الخزنة الأساسية
+                </span>
+              </div>
+              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Safe Name */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     اسم الخزنة <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                     placeholder="أدخل اسم الخزنة..."
                   />
                   {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                    <p className="text-red-500 text-xs mt-1">{errors.name}</p>
                   )}
                 </div>
 
                 {/* Description */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     وصف الخزنة
                   </label>
                   <textarea
@@ -223,40 +230,39 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
                     onChange={(e) =>
                       handleInputChange("description", e.target.value)
                     }
-                    rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    rows={2}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
                     placeholder="وصف اختياري للخزنة..."
                   />
                 </div>
 
                 {/* Safe Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     نوع الخزنة <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.type}
                     onChange={(e) => {
                       handleInputChange("type", e.target.value);
-                      // Clear rep selection when switching to company type
                       if (e.target.value === "company") {
                         handleInputChange("rep_user_id", "");
                       }
                     }}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   >
                     <option value="rep">خزنة مندوب</option>
                     <option value="store_keeper">خزنة أمين المخزن</option>
                     <option value="company">خزنة الشركة</option>
                   </select>
                   {errors.type && (
-                    <p className="text-red-500 text-sm mt-1">{errors.type}</p>
+                    <p className="text-red-500 text-xs mt-1">{errors.type}</p>
                   )}
                 </div>
 
                 {/* Payment Method */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     طريقة الدفع <span className="text-red-500">*</span>
                   </label>
                   <select
@@ -267,7 +273,7 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
                         parseInt(e.target.value),
                       )
                     }
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                     disabled={loadingPaymentMethods}
                   >
                     {loadingPaymentMethods ? (
@@ -286,18 +292,18 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
                     )}
                   </select>
                   {errors.payment_method_id && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-500 text-xs mt-1">
                       {errors.payment_method_id}
                     </p>
                   )}
                 </div>
 
                 {/* Color Picker */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                     لون الخزنة
                   </label>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                     {SAFE_COLORS.map((color) => (
                       <button
                         key={color.value}
@@ -344,7 +350,7 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
 
                 {/* Initial Balance */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     الرصيد الأولي ({symbol}){" "}
                     <span className="text-red-500">*</span>
                   </label>
@@ -357,7 +363,7 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
                     placeholder="0.00"
                   />
                   {errors.initial_balance && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-500 text-xs mt-1">
                       {errors.initial_balance}
                     </p>
                   )}
@@ -365,7 +371,7 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
 
                 {/* Status */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     حالة الخزنة
                   </label>
                   <select
@@ -373,7 +379,7 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
                     onChange={(e) =>
                       handleInputChange("is_active", e.target.value === "true")
                     }
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   >
                     <option value={true}>نشط</option>
                     <option value={false}>غير نشط</option>
@@ -384,38 +390,37 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
 
             {/* Assignment Information - show for rep and store_keeper safes */}
             {(formData.type === "rep" || formData.type === "store_keeper") && (
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  تعيين المسؤول
-                </h4>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+                  <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                    تعيين المسؤول
+                  </span>
+                </div>
+                <div className="p-4">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     {formData.type === "rep"
                       ? "مندوب المبيعات المسؤول"
                       : "أمين المخزن المسؤول"}{" "}
                     <span className="text-red-500">*</span>
                   </label>
                   {loadingUsers ? (
-                    <div className="w-full p-3 border border-gray-300 rounded-md bg-gray-50 text-gray-500 text-center">
+                    <div className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-sm text-center">
                       جاري تحميل المستخدمين...
                     </div>
                   ) : (
                     <SearchableSelect
-                      options={
-                        // Filter users by role: show reps for rep type, store_keepers for store_keeper type
-                        users
-                          .filter((u) => {
-                            if (formData.type === "rep")
-                              return u.users_role === "rep";
-                            if (formData.type === "store_keeper")
-                              return u.users_role === "store_keeper";
-                            return false;
-                          })
-                          .map((u) => ({
-                            value: u.users_id,
-                            label: `${u.users_name} (${u.users_role})`,
-                          }))
-                      }
+                      options={users
+                        .filter((u) => {
+                          if (formData.type === "rep")
+                            return u.users_role === "rep";
+                          if (formData.type === "store_keeper")
+                            return u.users_role === "store_keeper";
+                          return false;
+                        })
+                        .map((u) => ({
+                          value: u.users_id,
+                          label: `${u.users_name} (${u.users_role})`,
+                        }))}
                       value={formData.rep_user_id}
                       onChange={(value) =>
                         handleInputChange("rep_user_id", value)
@@ -434,7 +439,7 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
                     />
                   )}
                   {errors.rep_user_id && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-500 text-xs mt-1">
                       {errors.rep_user_id}
                     </p>
                   )}
@@ -444,101 +449,63 @@ const AddSafeForm = ({ onClose, onSubmit }) => {
 
             {/* Company Safe Info */}
             {formData.type === "company" && (
-              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                  خزنة الشركة
-                </h4>
-                <p className="text-gray-600 text-sm">
-                  هذه خزنة خاصة بالشركة الرئيسية ولا تحتاج إلى تعيين مندوب
-                  مبيعات محدد.
+              <div className="bg-purple-50 rounded-xl border border-purple-200 px-4 py-3">
+                <p className="text-purple-700 text-sm font-medium">
+                  خزنة الشركة — لا تحتاج إلى تعيين مندوب مبيعات محدد.
                 </p>
               </div>
             )}
 
             {/* Information Note */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-5 w-5 text-yellow-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="mr-3">
-                  <h3 className="text-sm font-medium text-yellow-800">
-                    ملاحظة مهمة
-                  </h3>
-                  <div className="mt-2 text-sm text-yellow-700">
-                    <p>
-                      • سيتم إنشاء معاملة أولية في حالة وجود رصيد ابتدائي
-                      <br />•{" "}
-                      {formData.type === "rep" ||
-                      formData.type === "store_keeper"
-                        ? formData.type === "rep"
-                          ? "المستخدم المختار (مندوب) سيكون مسؤولاً عن هذه الخزنة"
-                          : "المستخدم المختار (أمين المخزن) سيكون مسؤولاً عن هذه الخزنة"
-                        : "هذه خزنة تابعة للشركة الرئيسية"}
-                      <br />• يمكن تعديل هذه المعلومات لاحقاً من خلال قسم
-                      التعديل
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700 space-y-1">
+              <p className="font-semibold text-amber-800">ملاحظة مهمة</p>
+              <p>• سيتم إنشاء معاملة أولية في حالة وجود رصيد ابتدائي</p>
+              <p>
+                •{" "}
+                {formData.type === "rep"
+                  ? "المستخدم المختار (مندوب) سيكون مسؤولاً عن هذه الخزنة"
+                  : formData.type === "store_keeper"
+                    ? "المستخدم المختار (أمين المخزن) سيكون مسؤولاً عن هذه الخزنة"
+                    : "هذه خزنة تابعة للشركة الرئيسية"}
+              </p>
+              <p>• يمكن تعديل هذه المعلومات لاحقاً من خلال قسم التعديل</p>
+            </div>
+
+            {/* Footer */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+                disabled={isSubmitting}
+              >
+                إلغاء
+              </button>
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={isSubmitting || loadingUsers}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-l from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{" "}
+                    جاري الإضافة...
+                  </>
+                ) : (
+                  <>
+                    <PlusIcon className="h-4 w-4" /> إضافة الخزنة
+                  </>
+                )}
+              </button>
             </div>
           </form>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 text-base sm:text-sm"
-            >
-              إلغاء
-            </button>
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={isSubmitting || loadingUsers}
-              className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-sm"
-            >
-              {isSubmitting && (
-                <svg
-                  className="animate-spin h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              )}
-              {isSubmitting ? "جاري الإضافة..." : "إضافة الخزنة"}
-            </button>
-          </div>
         </div>
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 };
 
 export default AddSafeForm;

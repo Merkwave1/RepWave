@@ -4,22 +4,18 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import TextField from '../../../../common/TextField/TextField.jsx';
 import Button from '../../../../common/Button/Button.jsx';
 import Loader from '../../../../common/Loader/Loader.jsx';
 import Alert from '../../../../common/Alert/Alert.jsx';
 import { addUser } from '../../../../../apis/users.js';
-// Removed: import { User as UserIcon } from 'lucide-react'; // Not used in this component
 
 function AddUserForm() {
   const navigate = useNavigate();
-  // Consume functions from context
-  const { setGlobalMessage, loadUserData, userLimit, currentUsers } = useOutletContext(); // Added userLimit and currentUsers
+  const { setGlobalMessage, loadUserData, userLimit, currentUsers } = useOutletContext();
 
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
-  // Only two roles allowed per new requirement: مدير (admin) / مسئول مبيعات (rep)
   const [userRole, setUserRole] = useState('rep');
   const [userPhone, setUserPhone] = useState('');
   const [userNationalId, setUserNationalId] = useState('');
@@ -31,28 +27,48 @@ function AddUserForm() {
   const [formMessage, setFormMessage] = useState('');
   const [formMessageType, setFormMessageType] = useState('info');
 
-  // Check if user limit is reached
   const isUserLimitReached = userLimit !== null && currentUsers.length >= userLimit;
+
+  const premiumInput = `
+    w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
+    bg-white
+    border border-gray-200
+    text-gray-800 text-sm sm:text-base
+    placeholder:text-gray-400
+    shadow-sm
+    hover:border-gray-300
+    focus:border-[#5BC7F2]
+    focus:ring-4 focus:ring-[#5BC7F2]/25
+    focus:shadow-md
+    outline-none
+    transition-all duration-200
+  `;
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) { setUserImage(file); const reader = new FileReader(); reader.onloadend = () => setUserImagePreview(reader.result); reader.readAsDataURL(file); }
-    else { setUserImage(null); setUserImagePreview(''); }
+    if (file) {
+      setUserImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setUserImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      setUserImage(null);
+      setUserImagePreview('');
+    }
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    
-    // Prevent submission if user limit is reached
+
     if (isUserLimitReached) {
       setFormMessage('لقد وصلت إلى الحد الأقصى للمستخدمين. لا يمكن إضافة مستخدم جديد.');
       setFormMessageType('error');
       return;
     }
-    
-    setFormLoading(true); setFormMessage('');
 
-    // Normalize role (legacy value safeguard)
+    setFormLoading(true);
+    setFormMessage('');
+
     const normalizedRole = userRole === 'sales_rep' ? 'rep' : userRole;
     const userData = {
       users_name: userName,
@@ -69,15 +85,13 @@ function AddUserForm() {
       const result = await addUser(userData);
       setFormMessage(result.message || "تم إضافة المستخدم بنجاح!");
       setFormMessageType('success');
-      // Use the single setGlobalMessage function from context
       setGlobalMessage({ message: result.message || "تم إضافة المستخدم بنجاح!", type: 'success' });
-      loadUserData(); // Refresh list in parent via context
-      setTimeout(() => navigate('/dashboard/users'), 1500); // Redirect back to list
+      loadUserData();
+      setTimeout(() => navigate('/dashboard/users'), 1500);
     } catch (err) {
       console.error("Form submission error:", err);
       setFormMessage(err.message || "حدث خطأ أثناء إضافة المستخدم.");
       setFormMessageType('error');
-      // Use the single setGlobalMessage function from context for error
       setGlobalMessage({ message: err.message || "حدث خطأ أثناء إضافة المستخدم.", type: 'error' });
     } finally {
       setFormLoading(false);
@@ -85,24 +99,68 @@ function AddUserForm() {
   };
 
   return (
-    <div className="p-4" dir="rtl">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">إضافة مستخدم جديد</h2>
-      
+    <div
+      className="
+        bg-white
+        rounded-2xl
+        border border-gray-200/60
+        shadow-sm
+        max-w-5xl
+        mx-auto
+        overflow-hidden
+      "
+      dir="rtl"
+    >
+      {/* Premium Header */}
+      <div
+        className="
+          px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6
+          border-b border-gray-200
+          bg-gradient-to-r from-[#5BC7F2]/10 via-white to-white
+          flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3
+        "
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="
+              w-10 h-10 sm:w-12 sm:h-12
+              rounded-xl
+              bg-[#5BC7F2]/20
+              flex items-center justify-center
+              text-[#5BC7F2]
+              shrink-0
+            "
+          >
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
+              إضافة مستخدم جديد
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+              إنشاء حساب مستخدم جديد وتعيين الصلاحيات
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* User Limit Warning */}
       {isUserLimitReached && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="mr-3">
-              <h3 className="text-sm font-medium text-red-800">
-                تم الوصول إلى الحد الأقصى للمستخدمين
-              </h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>
+        <div className="mx-3 sm:mx-5 md:mx-7 mt-4 sm:mt-5">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xs sm:text-sm font-medium text-red-800">
+                  تم الوصول إلى الحد الأقصى للمستخدمين
+                </h3>
+                <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-red-700">
                   عدد المستخدمين الحالي: {currentUsers.length} / {userLimit}
                   <br />
                   لا يمكن إضافة مستخدمين جدد حتى يتم حذف مستخدمين موجودين أو ترقية خطتك.
@@ -113,59 +171,214 @@ function AddUserForm() {
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <form onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {formMessage && (<div className="md:col-span-2"><Alert message={formMessage} type={formMessageType} onClose={() => setFormMessage('')} /></div>)}
-          <TextField label="اسم المستخدم" type="text" id="userName" value={userName} onChange={(e) => setUserName(e.target.value)} placeholder="أدخل اسم المستخدم" required disabled={formLoading} />
-          <TextField label="البريد الإلكتروني" type="email" id="userEmail" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} placeholder="أدخل البريد الإلكتروني" required disabled={formLoading} />
-          <TextField label="كلمة المرور" type="password" id="userPassword" value={userPassword} onChange={(e) => setUserPassword(e.target.value)} placeholder="أدخل كلمة المرور" required disabled={formLoading} />
+      {/* Form */}
+      <form onSubmit={handleFormSubmit} className="p-3 sm:p-5 md:p-7 space-y-4 sm:space-y-5">
+        {formMessage && (
+          <Alert message={formMessage} type={formMessageType} onClose={() => setFormMessage('')} />
+        )}
 
-          <div className="mb-4" dir="rtl">
-            <label htmlFor="userRole" className="block text-gray-700 text-sm font-bold mb-2 text-right">الدور</label>
-            <select
-              id="userRole"
-              value={userRole}
-              onChange={(e) => setUserRole(e.target.value)}
-              className="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right bg-white"
+        {/* Name + Email row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">اسم المستخدم</label>
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              placeholder="أدخل اسم المستخدم"
               required
               disabled={formLoading}
-              dir="rtl"
-            >
-              <option value="admin">مدير</option>
+              className={premiumInput}
+            />
+          </div>
+
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">البريد الإلكتروني</label>
+            <input
+              type="email"
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
+              placeholder="أدخل البريد الإلكتروني"
+              required
+              disabled={formLoading}
+              className={premiumInput}
+            />
+          </div>
+        </div>
+
+        {/* Password + Role row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">كلمة المرور</label>
+            <input
+              type="password"
+              value={userPassword}
+              onChange={(e) => setUserPassword(e.target.value)}
+              placeholder="أدخل كلمة المرور"
+              required
+              disabled={formLoading}
+              className={premiumInput}
+            />
+          </div>
+
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">الدور</label>
+            <div className="relative">
+              <select
+                value={userRole}
+                onChange={(e) => setUserRole(e.target.value)}
+                required
+                disabled={formLoading}
+                className="
+                  w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
+                  bg-white border border-gray-200
+                  text-gray-800 text-sm sm:text-base
+                  shadow-sm hover:border-gray-300
+                  focus:border-[#5BC7F2] focus:ring-4 focus:ring-[#5BC7F2]/25
+                  focus:shadow-md outline-none
+                  transition-all duration-200
+                  appearance-none pr-10
+                "
+              >
+                <option value="admin">مدير</option>
                 <option value="rep">مسئول مبيعات</option>
                 <option value="store_keeper">أمين مخزن</option>
                 <option value="cash">كاش</option>
-            </select>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
-          <TextField label="الهاتف" type="tel" id="userPhone" value={userPhone} onChange={(e) => setUserPhone(e.target.value)} placeholder="أدخل رقم الهاتف" disabled={formLoading} />
-          <TextField label="الرقم القومي" type="text" id="userNationalId" value={userNationalId} onChange={(e) => setUserNationalId(e.target.value)} placeholder="أدخل الرقم القومي" disabled={formLoading} />
+        </div>
 
-          <div className="mb-4" dir="rtl">
-            <label htmlFor="userStatus" className="block text-gray-700 text-sm font-bold mb-2 text-right">الحالة</label>
-            <select id="userStatus" value={userStatus} onChange={(e) => setUserStatus(e.target.value)} className="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right bg-white" required disabled={formLoading} dir="rtl">
-              <option value="1">نشط</option><option value="0">غير نشط</option>
-            </select>
+        {/* Phone + National ID row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">الهاتف</label>
+            <input
+              type="tel"
+              value={userPhone}
+              onChange={(e) => setUserPhone(e.target.value)}
+              placeholder="أدخل رقم الهاتف"
+              disabled={formLoading}
+              className={premiumInput}
+            />
           </div>
 
-          <div className="mb-4" dir="rtl">
-            <label htmlFor="userImage" className="block text-gray-700 text-sm font-bold mb-2 text-right">الصورة</label>
-            <input type="file" id="userImage" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" disabled={formLoading} dir="rtl" />
-            {userImagePreview && (<div className="mt-2 text-right"><img src={userImagePreview} alt="معاينة الصورة" className="h-20 w-20 object-cover rounded-full inline-block border border-gray-200" /></div>)}
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">الرقم القومي</label>
+            <input
+              type="text"
+              value={userNationalId}
+              onChange={(e) => setUserNationalId(e.target.value)}
+              placeholder="أدخل الرقم القومي"
+              disabled={formLoading}
+              className={premiumInput}
+            />
           </div>
+        </div>
 
-          <div className="flex justify-end space-x-2 rtl:space-x-reverse md:col-span-2">
-            <Button type="button" onClick={() => navigate('/dashboard/users')} className="bg-gray-500 hover:bg-gray-600" disabled={formLoading}>إلغاء</Button>
-            <Button 
-              type="submit" 
-              className={`flex items-center ${isUserLimitReached ? 'opacity-50 cursor-not-allowed' : ''}`} 
-              disabled={formLoading || isUserLimitReached}
-              title={isUserLimitReached ? 'لقد وصلت إلى الحد الأقصى للمستخدمين' : ''}
+        {/* Status */}
+        <div className="space-y-1.5 sm:space-y-2">
+          <label className="text-sm font-medium text-gray-600">الحالة</label>
+          <div className="relative">
+            <select
+              value={userStatus}
+              onChange={(e) => setUserStatus(e.target.value)}
+              required
+              disabled={formLoading}
+              className="
+                w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl
+                bg-white border border-gray-200
+                text-gray-800 text-sm sm:text-base
+                shadow-sm hover:border-gray-300
+                focus:border-[#5BC7F2] focus:ring-4 focus:ring-[#5BC7F2]/25
+                focus:shadow-md outline-none
+                transition-all duration-200
+                appearance-none pr-10
+              "
             >
-              {formLoading ? (<><Loader className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> جاري الحفظ...</>) : 'إضافة'}
-            </Button>
+              <option value="1">نشط</option>
+              <option value="0">غير نشط</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
-        </form>
-      </div>
+        </div>
+
+        {/* Image Upload */}
+        <div className="space-y-2 sm:space-y-3">
+          <label className="text-sm font-medium text-gray-600">صورة المستخدم</label>
+
+          {userImagePreview && (
+            <div className="flex items-center gap-3 sm:gap-4">
+              <img
+                src={userImagePreview}
+                alt="معاينة الصورة"
+                className="
+                  h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24
+                  rounded-full object-cover
+                  ring-4 ring-[#8DD8F5]/30
+                  shadow-md
+                  transition-all hover:scale-105
+                "
+              />
+              <span className="text-xs sm:text-sm text-gray-500">معاينة الصورة</span>
+            </div>
+          )}
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            disabled={formLoading}
+            className="
+              block w-full text-xs sm:text-sm text-gray-500
+              file:ml-3 sm:file:ml-4
+              file:px-3 sm:file:px-5 file:py-1.5 sm:file:py-2
+              file:rounded-full
+              file:border-0
+              file:text-xs sm:file:text-sm
+              file:font-semibold
+              file:bg-[#8DD8F5]/20
+              file:text-[#1F2937]
+              hover:file:bg-[#8DD8F5]/30
+              transition-all
+            "
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-100">
+          <Button
+            type="button"
+            onClick={() => navigate('/dashboard/users')}
+            className="bg-gray-100 text-gray-700 hover:bg-gray-200 w-full sm:w-auto"
+            disabled={formLoading}
+          >
+            إلغاء
+          </Button>
+          <Button
+            type="submit"
+            className={`
+              bg-[#8DD8F5] text-[#1F2937] hover:bg-[#74cbea]
+              shadow-sm flex items-center justify-center
+              w-full sm:w-auto
+              ${isUserLimitReached ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
+            disabled={formLoading || isUserLimitReached}
+            title={isUserLimitReached ? 'لقد وصلت إلى الحد الأقصى للمستخدمين' : ''}
+          >
+            {formLoading ? (<><Loader className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" /> جاري الحفظ...</>) : 'إضافة مستخدم'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

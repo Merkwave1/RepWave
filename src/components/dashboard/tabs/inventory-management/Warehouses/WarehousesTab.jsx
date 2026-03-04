@@ -507,30 +507,39 @@ function WarehousesTab() {
                     title: "ID",
                     className: "w-16 text-center ",
                     sortable: true,
+                    render: (row) => (
+                      <span className="text-[#8DD8F5] bg-[#1F2937] text-xs px-2 py-1 rounded-full font-semibold">
+                        {row.warehouse_id}
+                      </span>
+                    ),
                   },
                   {
                     key: "warehouse_name",
                     title: "الاسم",
                     className: "min-w-[150px]",
                     sortable: true,
+                    render: (row) => row.warehouse_name || "–",
                   },
                   {
                     key: "warehouse_type",
                     title: "النوع",
                     className: "min-w-[100px]",
                     sortable: true,
+                    render: (row) => row.warehouse_type || "–",
                   },
                   {
                     key: "warehouse_code",
                     title: "الكود",
                     className: "min-w-[100px]",
                     sortable: true,
+                    render: (row) => row.warehouse_code || "–",
                   },
                   {
                     key: "warehouse_address",
                     title: "العنوان",
                     className: "min-w-[200px]",
                     sortable: true,
+                    render: (row) => row.warehouse_address || "–",
                   },
                   {
                     key: "contact_person",
@@ -539,12 +548,35 @@ function WarehousesTab() {
                     sortable: true,
                     sortAccessor: (row) =>
                       getUserName(row?.warehouse_representative_user_id),
+                    render: (row) =>
+                      getUserName(row?.warehouse_representative_user_id) || "–",
                   },
                   {
                     key: "warehouse_status",
                     title: "الحالة",
                     className: "min-w-[80px]",
                     sortable: true,
+                    render: (row) => (
+                      <span
+                        className={`font-semibold text-xs px-2 py-1 rounded-full ${
+                          row.warehouse_status === "Active"
+                            ? "bg-green-100 text-green-700"
+                            : row.warehouse_status === "Inactive"
+                              ? "bg-red-100 text-red-700"
+                              : row.warehouse_status === "Under Maintenance"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {row.warehouse_status === "Active"
+                          ? "نشط"
+                          : row.warehouse_status === "Inactive"
+                            ? "غير نشط"
+                            : row.warehouse_status === "Under Maintenance"
+                              ? "تحت الصيانة"
+                              : row.warehouse_status || "–"}
+                      </span>
+                    ),
                   },
                   {
                     key: "actions",
@@ -552,6 +584,38 @@ function WarehousesTab() {
                     className: "w-32 text-center",
                     sortable: false,
                     showDivider: false,
+                    mobileFullWidth: true,
+                    render: (row) => (
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => openWarehouseDetailsModal(row)}
+                          className="p-1.5 rounded-full text-sky-700 bg-sky-100 hover:bg-sky-500 hover:text-white hover:shadow-[0_0_12px_rgba(56,189,248,0.45)] transition-all duration-200 hover:scale-110"
+                          title="عرض"
+                        >
+                          <EyeIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedWarehouse(row);
+                            setCurrentView("edit");
+                          }}
+                          className="p-1.5 rounded-full text-emerald-700 bg-emerald-100 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_12px_rgba(16,185,129,0.45)] transition-all duration-200 hover:scale-110"
+                          title="تعديل"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedWarehouse(row);
+                            setCurrentView("deleteConfirm");
+                          }}
+                          className="p-1.5 rounded-full text-red-700 bg-red-100 hover:bg-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(239,68,68,0.45)] transition-all duration-200 hover:scale-110"
+                          title="حذف"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ),
                   },
                 ]}
                 renderRow={(warehouse, idx) => {

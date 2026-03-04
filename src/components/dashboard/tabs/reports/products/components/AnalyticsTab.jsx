@@ -97,20 +97,28 @@ const AnalyticsTab = ({ data, loading }) => {
             {analytics.category_analysis.map((category, index) => (
               <div 
                 key={index} 
-                className="flex items-center justify-between p-4 bg-white shadow-md hover:shadow-xl transition-shadow rounded-xl border border-gray-100"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-white shadow-md hover:shadow-xl transition-shadow rounded-xl border border-gray-100"
               >
                 <div>
-                  <h4 className="text-gray-900 font-semibold text-lg">{category.category_name}</h4>
-                  <p className="text-sm text-gray-500 mt-1">{category.count} منتج</p>
+                  <h4 className="text-gray-900 font-semibold text-base sm:text-lg">
+                    {category.category_name}
+                  </h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {category.count} منتج
+                  </p>
                 </div>
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <div className="w-28 h-2 bg-gray-200 rounded-full overflow-hidden">
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="flex-1 sm:w-28 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       className="h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
-                      style={{width: `${category.percentage}%`}}
+                      style={{ width: `${category.percentage}%` }}
                     ></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{category.percentage}%</span>
+
+                  <span className="text-sm font-medium text-gray-700 min-w-[40px] text-right">
+                    {category.percentage}%
+                  </span>
                 </div>
               </div>
             ))}

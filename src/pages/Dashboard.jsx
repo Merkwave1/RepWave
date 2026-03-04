@@ -318,8 +318,8 @@ function DashboardPage() {
   const navLinkClasses = ({ isActive }) => `py-2 px-4 text-sm font-medium border-b-2 focus:outline-none transition-colors duration-200 ${isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`;
 
   return (
-    <div className="p-4" dir="rtl">
-      <div className="flex flex-wrap border-b border-gray-200 mb-6 items-center" dir="rtl">
+    <div className="p-2 md:p-4" dir="rtl">
+      <div className="flex flex-wrap text-lg md:text-base border-b border-gray-200 mb-6 items-center" dir="rtl">
         <div className="flex-1 flex flex-wrap">
           <NavLink to="/dashboard" end className={navLinkClasses}>الرئيسية</NavLink>
           <NavLink to="/dashboard/users" className={navLinkClasses}>المستخدمون</NavLink>

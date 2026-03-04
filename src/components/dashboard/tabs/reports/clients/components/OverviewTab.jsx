@@ -87,16 +87,22 @@ const OverviewTab = ({ data, loading }) => {
             typeEntries.map((type, index) => {
               const palette = TYPE_COLOR_CLASSES[index % TYPE_COLOR_CLASSES.length];
               return (
-                <div key={type.slug || `${type.id || 'type'}-${index}`} className="flex justify-between items-center">
-                  <span className="text-gray-600">{type.name}</span>
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                    <div className={`w-32 ${palette.track} rounded-full h-2`}>
+                <div key={type.slug || `${type.id || 'type'}-${index}`} 
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+
+                  <span className="text-gray-600 text-sm sm:text-base">
+                    {type.name}
+                  </span>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className={`flex-1 sm:w-32 ${palette.track} rounded-full h-2`}>
                       <div
-                        className={`${palette.bar} h-2 rounded-full`}
+                        className={`${palette.bar} h-2 rounded-full transition-all duration-300`}
                         style={{ width: `${clampPercentage(type.percentage)}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-medium">
+
+                    <span className="text-sm font-medium min-w-[40px] text-right">
                       {formatNumber(clampPercentage(type.percentage), { maximumFractionDigits: 1 })}%
                     </span>
                   </div>

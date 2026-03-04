@@ -380,35 +380,6 @@ export default function PurchaseReturnsTab() {
   ];
 
   const renderContent = () => {
-    if (currentView === 'add') {
-      return (
-        <AddPurchaseReturnForm
-          suppliers={suppliers}
-          products={products}
-          packagingTypes={packagingTypes}
-          warehouses={warehouses}
-          onAdd={handleAdd}
-          onCancel={handleCancelAction}
-        />
-      );
-    }
-
-    if (currentView === 'edit' && selectedReturn) {
-      return (
-        <UpdatePurchaseReturnForm
-          purchaseReturn={selectedReturn}
-          suppliers={suppliers}
-          products={products}
-          baseUnits={baseUnits}
-          packagingTypes={packagingTypes}
-          warehouses={warehouses}
-          onSubmit={handleUpdate}
-          onCancel={handleCancelAction}
-          loading={loading}
-        />
-      );
-    }
-
     return (
       <>
         <CustomPageHeader
@@ -496,6 +467,43 @@ export default function PurchaseReturnsTab() {
   return (
     <div className="p-4" dir="rtl">
       {renderContent()}
+
+      {/* Add modal */}
+      {currentView === 'add' && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto flex items-start justify-center p-2 sm:p-6">
+          <div className="relative w-full max-w-6xl my-4 sm:my-8">
+            <AddPurchaseReturnForm
+              suppliers={suppliers}
+              products={products}
+              packagingTypes={packagingTypes}
+              warehouses={warehouses}
+              onAdd={handleAdd}
+              onCancel={handleCancelAction}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit modal */}
+      {currentView === 'edit' && selectedReturn && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto flex items-start justify-center p-2 sm:p-6">
+          <div className="relative w-full max-w-6xl my-4 sm:my-8">
+            <UpdatePurchaseReturnForm
+              purchaseReturn={selectedReturn}
+              suppliers={suppliers}
+              products={products}
+              baseUnits={baseUnits}
+              packagingTypes={packagingTypes}
+              warehouses={warehouses}
+              onSubmit={handleUpdate}
+              onCancel={handleCancelAction}
+              loading={loading}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Details modal */}
       {currentView === 'details' && selectedReturn && (
         <PurchaseReturnDetailsModal
           purchaseReturn={selectedReturn}

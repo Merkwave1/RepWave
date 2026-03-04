@@ -7,7 +7,11 @@ import Loader from "../../../../common/Loader/Loader";
 import Alert from "../../../../common/Alert/Alert";
 // NOTE: Removed heroicons for simpler design
 import { format } from "date-fns";
-import { InboxArrowDownIcon } from "@heroicons/react/24/outline";
+import {
+  InboxArrowDownIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+} from "@heroicons/react/24/outline";
 import CustomPageHeader from "../../../../common/CustomPageHeader/CustomPageHeader";
 import FilterBar from "../../../../common/FilterBar/FilterBar";
 import NumberInput from "../../../../common/NumberInput/NumberInput.jsx";
@@ -15,60 +19,76 @@ import NumberInput from "../../../../common/NumberInput/NumberInput.jsx";
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
-  const getPageNumbers = () => {
+  const getPageNumbers = (maxVisible) => {
     const pages = [];
-    const maxVisible = 5;
-
     let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     let end = Math.min(totalPages, start + maxVisible - 1);
-
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-
+    if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
     for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   };
 
+  const prevDisabled = currentPage <= 1;
+  const nextDisabled = currentPage >= totalPages;
+
+  const btnStyle = (active) => ({
+    background: active ? "linear-gradient(90deg,#8DD8F5,#63cde9)" : "#fff",
+    color: "#06202a",
+    boxShadow: active ? "0 6px 16px rgba(141,216,245,.45)" : "none",
+  });
+
+  const pageStyle = (active) => ({
+    background: active ? "linear-gradient(135deg,#1F2937,#061826)" : "#fff",
+    color: active ? "#fff" : "#1F2937",
+    boxShadow: active ? "0 8px 18px rgba(31,41,55,.35)" : "none",
+  });
+
   return (
-    <div className="flex justify-center items-center gap-2 mt-6 select-none">
+    <div className="flex justify-center items-center gap-1.5 sm:gap-2 mt-6 select-none flex-wrap">
       {/* Previous */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage <= 1}
-        className="px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-40"
-        style={{
-          background:
-            currentPage <= 1
-              ? "#fff"
-              : "linear-gradient(90deg,#8DD8F5,#63cde9)",
-          color: "#06202a",
-          boxShadow:
-            currentPage <= 1 ? "none" : "0 6px 16px rgba(141,216,245,.45)",
-        }}
+        disabled={prevDisabled}
+        className="flex items-center gap-1 px-2 sm:px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-40"
+        style={btnStyle(!prevDisabled)}
       >
-        السابق
+        <ChevronRightIcon className="h-4 w-4" />
+        <span className="hidden sm:inline">السابق</span>
       </button>
 
-      {/* Pages */}
+      {/* Page info on mobile */}
+      <span className="sm:hidden text-xs text-gray-500 font-medium px-1">
+        {currentPage} / {totalPages}
+      </span>
+
+      {/* Pages – 3 on mobile, 5 on sm+ */}
       <div
-        className="flex gap-1 bg-white p-1 rounded-xl shadow-sm border"
+        className="hidden sm:flex gap-1 bg-white p-1 rounded-xl shadow-sm border"
         style={{ borderColor: "#eef8fb" }}
       >
-        {getPageNumbers().map((page) => (
+        {getPageNumbers(5).map((page) => (
           <button
             key={page}
             onClick={() => onPageChange(page)}
             className="w-9 h-9 rounded-lg text-sm font-semibold transition-all"
-            style={{
-              background:
-                currentPage === page
-                  ? "linear-gradient(135deg,#1F2937,#061826)"
-                  : "#fff",
-              color: currentPage === page ? "#fff" : "#1F2937",
-              boxShadow:
-                currentPage === page ? "0 8px 18px rgba(31,41,55,.35)" : "none",
-            }}
+            style={pageStyle(currentPage === page)}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
+      {/* Compact pages on mobile (3 visible) */}
+      <div
+        className="flex sm:hidden gap-1 bg-white p-1 rounded-xl shadow-sm border"
+        style={{ borderColor: "#eef8fb" }}
+      >
+        {getPageNumbers(3).map((page) => (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className="w-8 h-8 rounded-lg text-xs font-semibold transition-all"
+            style={pageStyle(currentPage === page)}
           >
             {page}
           </button>
@@ -78,21 +98,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {/* Next */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage >= totalPages}
-        className="px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-40"
-        style={{
-          background:
-            currentPage >= totalPages
-              ? "#fff"
-              : "linear-gradient(90deg,#63cde9,#8DD8F5)",
-          color: "#06202a",
-          boxShadow:
-            currentPage >= totalPages
-              ? "none"
-              : "0 6px 16px rgba(141,216,245,.45)",
-        }}
+        disabled={nextDisabled}
+        className="flex items-center gap-1 px-2 sm:px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-40"
+        style={btnStyle(!nextDisabled)}
       >
-        التالي
+        <span className="hidden sm:inline">التالي</span>
+        <ChevronLeftIcon className="h-4 w-4" />
       </button>
     </div>
   );
@@ -1136,25 +1147,37 @@ export default function ReceiveProductsTab() {
               key={orderId}
               className="rounded-xl border border-gray-200 bg-white shadow-sm p-3 md:p-4 space-y-3"
             >
-              <div className="flex flex-wrap gap-4 text-xs text-gray-700">
-                <span className="font-semibold">أمر #{orderId}</span>
-                <span>
-                  التاريخ: {formatDateTime(order.purchase_orders_order_date)}
-                </span>
-                <span>
-                  المورد:{" "}
-                  {getSupplierNameById(order.purchase_orders_supplier_id)}
-                </span>
-                <span>
-                  المخزن:{" "}
-                  {getWarehouseNameById(order.purchase_orders_warehouse_id)}
-                </span>
+              {/* Order header */}
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs text-gray-700">
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-1 flex-1">
+                  <span className="font-bold text-gray-900">
+                    أمر #{orderId}
+                  </span>
+                  <span>
+                    <span className="font-semibold text-gray-500">
+                      التاريخ:{" "}
+                    </span>
+                    {formatDateTime(order.purchase_orders_order_date)}
+                  </span>
+                  <span>
+                    <span className="font-semibold text-gray-500">
+                      المورد:{" "}
+                    </span>
+                    {getSupplierNameById(order.purchase_orders_supplier_id)}
+                  </span>
+                  <span>
+                    <span className="font-semibold text-gray-500">
+                      المخزن:{" "}
+                    </span>
+                    {getWarehouseNameById(order.purchase_orders_warehouse_id)}
+                  </span>
+                </div>
                 {selectableItems.length > 0 && (
-                  <div className="ms-auto flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       onClick={() => handleToggleOrderSelection(order, true)}
-                      className="border border-gray-300 bg-[#8DD8F5] px-3 py-1 rounded hover:bg-gray-100"
+                      className="border border-gray-300 bg-[#8DD8F5] px-3 py-1 rounded hover:bg-gray-100 text-xs"
                     >
                       تحديد الأمر بالكامل
                     </button>
@@ -1162,7 +1185,7 @@ export default function ReceiveProductsTab() {
                       <button
                         type="button"
                         onClick={() => handleToggleOrderSelection(order, false)}
-                        className="border border-gray-300 bg-white px-3 py-1 rounded hover:bg-gray-100"
+                        className="border border-gray-300 bg-white px-3 py-1 rounded hover:bg-gray-100 text-xs"
                       >
                         إلغاء التحديد
                       </button>
@@ -1170,44 +1193,44 @@ export default function ReceiveProductsTab() {
                   </div>
                 )}
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full border border-gray-300 text-xs">
-                  <thead className="bg-gray-50">
-                    <tr className="[&>th]:border [&>th]:p-2">
-                      <th>تحديد</th>
-                      <th>المنتج</th>
-                      <th>التعبئة</th>
-                      <th>مطلوبة</th>
-                      <th>مستلمة</th>
-                      <th>مرتجعة</th>
-                      <th>متبقي</th>
-                      <th>استلام</th>
-                      <th>تاريخ الانتاج</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {order.items.map((item) => {
-                      const receivedQuantity = parseFloat(
-                        item.purchase_order_items_quantity_received || 0,
-                      );
-                      const totalQuantity = parseFloat(
-                        item.purchase_order_items_quantity_ordered || 0,
-                      );
-                      const remainingQuantity = parseFloat(
-                        item.quantity_pending || 0,
-                      );
-                      const itemKey = makeItemKey(
-                        orderId,
-                        item.purchase_order_items_id,
-                      );
-                      const rawQuantity = quantitiesToReceive[itemKey] ?? "";
-                      const isReceiving = parseFloat(rawQuantity || 0) > 0;
-                      return (
-                        <tr
-                          key={item.purchase_order_items_id}
-                          className="[&>td]:border [&>td]:p-1 hover:bg-gray-50"
-                        >
-                          <td className="text-center">
+
+              {/* Items */}
+              <div>
+                {/* Mobile cards */}
+                <div className="sm:hidden space-y-2">
+                  {order.items.map((item) => {
+                    const receivedQuantity = parseFloat(
+                      item.purchase_order_items_quantity_received || 0,
+                    );
+                    const totalQuantity = parseFloat(
+                      item.purchase_order_items_quantity_ordered || 0,
+                    );
+                    const remainingQuantity = parseFloat(
+                      item.quantity_pending || 0,
+                    );
+                    const itemKey = makeItemKey(
+                      orderId,
+                      item.purchase_order_items_id,
+                    );
+                    const rawQuantity = quantitiesToReceive[itemKey] ?? "";
+                    const isReceiving = parseFloat(rawQuantity || 0) > 0;
+                    const productName = item.variant_name
+                      ? `${item.products_name} - ${item.variant_name}`
+                      : item.products_name ||
+                        getProductNameById(
+                          item.purchase_order_items_variant_id,
+                        );
+                    const packagingName =
+                      item.packaging_types_name ||
+                      item.base_units_name ||
+                      getProductUnitById(item.purchase_order_items_variant_id);
+                    return (
+                      <div
+                        key={item.purchase_order_items_id}
+                        className={`border rounded-lg p-3 text-xs space-y-2 ${isReceiving ? "border-[#8DD8F5] bg-blue-50" : "bg-gray-50"} ${remainingQuantity <= 0 ? "opacity-60" : ""}`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2">
                             <input
                               type="checkbox"
                               checked={isReceiving}
@@ -1215,79 +1238,205 @@ export default function ReceiveProductsTab() {
                                 handleItemToggle(order, item, e.target.checked)
                               }
                               disabled={remainingQuantity <= 0}
-                              className="h-4 w-4"
+                              className="h-4 w-4 flex-shrink-0 mt-0.5"
                             />
-                          </td>
-                          <td className="whitespace-nowrap max-w-[190px] truncate">
-                            {item.variant_name
-                              ? `${item.products_name} - ${item.variant_name}`
-                              : item.products_name ||
-                                getProductNameById(
+                            <span className="font-semibold text-gray-800 break-words">
+                              {productName}
+                            </span>
+                          </div>
+                          <span className="text-gray-500 flex-shrink-0">
+                            {packagingName}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1 text-center">
+                          <div className="bg-white rounded p-1 border">
+                            <div className="text-gray-400 mb-0.5">مطلوبة</div>
+                            <div className="font-semibold">
+                              {formatNumber(totalQuantity)}
+                            </div>
+                          </div>
+                          <div className="bg-white rounded p-1 border">
+                            <div className="text-gray-400 mb-0.5">مستلمة</div>
+                            <div>{formatNumber(receivedQuantity)}</div>
+                          </div>
+                          <div className="bg-white rounded p-1 border">
+                            <div className="text-gray-400 mb-0.5">متبقي</div>
+                            <div className="font-semibold text-blue-700">
+                              {formatNumber(remainingQuantity)}
+                            </div>
+                          </div>
+                        </div>
+                        {isReceiving && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-gray-500 mb-1">
+                                كمية الاستلام
+                              </label>
+                              <NumberInput
+                                value={rawQuantity}
+                                onChange={(val) =>
+                                  handleQuantityChange(order, item, val)
+                                }
+                                disabled={
+                                  !isReceiving || remainingQuantity <= 0
+                                }
+                                className="w-full text-center border px-1 py-1 rounded"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gray-500 mb-1">
+                                تاريخ الإنتاج
+                              </label>
+                              <input
+                                type="date"
+                                value={getProductionDateForItem(
+                                  orderId,
+                                  item.purchase_order_items_id,
+                                )}
+                                onChange={(e) =>
+                                  handleProductionDateChange(
+                                    order,
+                                    item,
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-full border px-1 py-1 rounded text-xs"
+                                disabled={!isReceiving}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full border border-gray-300 text-xs">
+                    <thead className="bg-gray-50">
+                      <tr className="[&>th]:border [&>th]:p-2">
+                        <th>تحديد</th>
+                        <th>المنتج</th>
+                        <th>التعبئة</th>
+                        <th>مطلوبة</th>
+                        <th>مستلمة</th>
+                        <th>مرتجعة</th>
+                        <th>متبقي</th>
+                        <th>استلام</th>
+                        <th>تاريخ الانتاج</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {order.items.map((item) => {
+                        const receivedQuantity = parseFloat(
+                          item.purchase_order_items_quantity_received || 0,
+                        );
+                        const totalQuantity = parseFloat(
+                          item.purchase_order_items_quantity_ordered || 0,
+                        );
+                        const remainingQuantity = parseFloat(
+                          item.quantity_pending || 0,
+                        );
+                        const itemKey = makeItemKey(
+                          orderId,
+                          item.purchase_order_items_id,
+                        );
+                        const rawQuantity = quantitiesToReceive[itemKey] ?? "";
+                        const isReceiving = parseFloat(rawQuantity || 0) > 0;
+                        return (
+                          <tr
+                            key={item.purchase_order_items_id}
+                            className="[&>td]:border [&>td]:p-1 hover:bg-gray-50"
+                          >
+                            <td className="text-center">
+                              <input
+                                type="checkbox"
+                                checked={isReceiving}
+                                onChange={(e) =>
+                                  handleItemToggle(
+                                    order,
+                                    item,
+                                    e.target.checked,
+                                  )
+                                }
+                                disabled={remainingQuantity <= 0}
+                                className="h-4 w-4"
+                              />
+                            </td>
+                            <td className="whitespace-nowrap max-w-[190px] truncate">
+                              {item.variant_name
+                                ? `${item.products_name} - ${item.variant_name}`
+                                : item.products_name ||
+                                  getProductNameById(
+                                    item.purchase_order_items_variant_id,
+                                  )}
+                            </td>
+                            <td className="text-center">
+                              {item.packaging_types_name ||
+                                item.base_units_name ||
+                                getProductUnitById(
                                   item.purchase_order_items_variant_id,
                                 )}
-                          </td>
-                          <td className="text-center">
-                            {item.packaging_types_name ||
-                              item.base_units_name ||
-                              getProductUnitById(
-                                item.purchase_order_items_variant_id,
+                            </td>
+                            <td className="text-center font-semibold">
+                              {formatNumber(totalQuantity)}
+                            </td>
+                            <td className="text-center">
+                              {formatNumber(receivedQuantity)}
+                            </td>
+                            <td className="text-center">
+                              {formatNumber(
+                                parseFloat(
+                                  item.purchase_order_items_quantity_returned ||
+                                    0,
+                                ),
                               )}
-                          </td>
-                          <td className="text-center font-semibold">
-                            {formatNumber(totalQuantity)}
-                          </td>
-                          <td className="text-center">
-                            {formatNumber(receivedQuantity)}
-                          </td>
-                          <td className="text-center">
-                            {formatNumber(
-                              parseFloat(
-                                item.purchase_order_items_quantity_returned ||
-                                  0,
-                              ),
-                            )}
-                          </td>
-                          <td className="text-center font-semibold">
-                            {formatNumber(remainingQuantity)}
-                          </td>
-                          <td className="text-center">
-                            <NumberInput
-                              value={rawQuantity}
-                              onChange={(val) =>
-                                handleQuantityChange(order, item, val)
-                              }
-                              disabled={!isReceiving || remainingQuantity <= 0}
-                              className="w-14 text-center border px-1 py-0.5 rounded"
-                            />
-                          </td>
-                          <td className="text-center">
-                            <input
-                              type="date"
-                              value={getProductionDateForItem(
-                                orderId,
-                                item.purchase_order_items_id,
-                              )}
-                              onChange={(e) =>
-                                handleProductionDateChange(
-                                  order,
-                                  item,
-                                  e.target.value,
-                                )
-                              }
-                              className="border px-2 py-1 rounded"
-                              disabled={!isReceiving}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                            </td>
+                            <td className="text-center font-semibold">
+                              {formatNumber(remainingQuantity)}
+                            </td>
+                            <td className="text-center">
+                              <NumberInput
+                                value={rawQuantity}
+                                onChange={(val) =>
+                                  handleQuantityChange(order, item, val)
+                                }
+                                disabled={
+                                  !isReceiving || remainingQuantity <= 0
+                                }
+                                className="w-14 text-center border px-1 py-0.5 rounded"
+                              />
+                            </td>
+                            <td className="text-center">
+                              <input
+                                type="date"
+                                value={getProductionDateForItem(
+                                  orderId,
+                                  item.purchase_order_items_id,
+                                )}
+                                onChange={(e) =>
+                                  handleProductionDateChange(
+                                    order,
+                                    item,
+                                    e.target.value,
+                                  )
+                                }
+                                className="border px-2 py-1 rounded"
+                                disabled={!isReceiving}
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+
               {hasSelectedItems && (
                 <div className="border rounded p-3 bg-gray-50 space-y-2">
                   <div className="flex flex-wrap gap-3 text-xs">
-                    {/* Removed manual receipt date input: server uses current datetime by default. */}
                     <div className="flex-1 min-w-[200px]">
                       <label className="block mb-1">ملاحظات</label>
                       <textarea
@@ -1305,10 +1454,10 @@ export default function ReceiveProductsTab() {
                       />
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
                     <button
                       onClick={() => printReceiptDocument(order)}
-                      className="border px-3 py-1 rounded bg-white hover:bg-gray-100"
+                      className="flex-1 sm:flex-none border px-3 py-1.5 rounded bg-white hover:bg-gray-100 text-center"
                     >
                       طباعة
                     </button>
@@ -1318,11 +1467,11 @@ export default function ReceiveProductsTab() {
                         setShowConfirmModal(true);
                       }}
                       disabled={isSubmitting}
-                      className="px-4 py-1 rounded bg-[#8DD8F5] text-black disabled:opacity-50"
+                      className="flex-1 sm:flex-none px-4 py-1.5 rounded bg-[#8DD8F5] text-black disabled:opacity-50 text-center"
                     >
                       {isSubmitting ? "جاري..." : "استلام"}
                     </button>
-                    <div className="ml-auto text-gray-600 self-center">
+                    <div className="w-full sm:w-auto sm:ml-auto text-gray-600">
                       منتجات محددة:{" "}
                       {
                         order.items.filter(
@@ -1344,14 +1493,23 @@ export default function ReceiveProductsTab() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="pt-2">
+        <div className="pt-2 pb-4">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            itemsPerPage={itemsPerPage}
-            totalItems={filteredAndSortedOrders.length}
+            onPageChange={(p) => {
+              setCurrentPage(p);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           />
+          <p className="text-center text-xs text-gray-400 mt-2">
+            {(currentPage - 1) * itemsPerPage + 1}–
+            {Math.min(
+              currentPage * itemsPerPage,
+              filteredAndSortedOrders.length,
+            )}{" "}
+            من {filteredAndSortedOrders.length}
+          </p>
         </div>
       )}
 

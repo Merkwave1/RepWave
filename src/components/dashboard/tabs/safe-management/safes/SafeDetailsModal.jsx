@@ -1,5 +1,6 @@
 // src/components/dashboard/tabs/safe-management/safes/SafeDetailsModal.jsx
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   XMarkIcon,
   EyeIcon,
@@ -57,26 +58,27 @@ const SafeDetailsModal = ({ safeId, onClose }) => {
   };
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4">
-        <div className="bg-white rounded-xl shadow-xl p-4 sm:p-6">
+    return createPortal(
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto">
+        <div className="bg-white rounded-xl shadow-xl p-4 sm:p-6 my-auto">
           <Loader />
           <p className="text-center mt-4 text-gray-600">
             جاري تحميل تفاصيل الخزنة...
           </p>
         </div>
-      </div>
+      </div>,
+      document.body,
     );
   }
 
   if (error) {
-    return (
+    return createPortal(
       <div
-        className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
         onClick={onClose}
       >
         <div
-          className="bg-white rounded-xl shadow-xl max-w-md w-full mx-2 sm:mx-4"
+          className="bg-white rounded-xl shadow-xl max-w-md w-full mx-2 sm:mx-4 my-auto"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-6">
@@ -97,7 +99,8 @@ const SafeDetailsModal = ({ safeId, onClose }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body,
     );
   }
 
@@ -105,9 +108,9 @@ const SafeDetailsModal = ({ safeId, onClose }) => {
     return null;
   }
 
-  return (
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
@@ -414,6 +417,7 @@ const SafeDetailsModal = ({ safeId, onClose }) => {
       )}
     </div>
   );
+  return createPortal(modal, document.body);
 };
 
 export default SafeDetailsModal;

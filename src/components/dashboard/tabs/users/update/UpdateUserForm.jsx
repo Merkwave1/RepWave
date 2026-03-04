@@ -239,57 +239,55 @@ transition-all duration-200
         inputStyle used inline to keep file simple
       */}
 
-        {/* اسم المستخدم */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">
-            اسم المستخدم
-          </label>
+        {/* Name + Email row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">
+              اسم المستخدم
+            </label>
+            <input
+              type="text"
+              name="users_name"
+              value={formData.users_name}
+              onChange={handleChange}
+              required
+              maxLength={100}
+              className={premiumInput}
+            />
+          </div>
 
-          <input
-            type="text"
-            name="users_name"
-            value={formData.users_name}
-            onChange={handleChange}
-            required
-            maxLength={100}
-            className={premiumInput}
-          />
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">
+              البريد الإلكتروني
+            </label>
+            <input
+              type="email"
+              name="users_email"
+              value={formData.users_email}
+              onChange={handleChange}
+              required
+              className={premiumInput}
+            />
+          </div>
         </div>
 
-        {/* EMAIL */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">
-            البريد الإلكتروني
-          </label>
+        {/* Password + Role row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">
+              كلمة المرور (اترك فارغاً لعدم التغيير)
+            </label>
+            <input
+              type="password"
+              name="users_password"
+              value={formData.users_password}
+              onChange={handleChange}
+              className={premiumInput}
+            />
+          </div>
 
-          <input
-            type="email"
-            name="users_email"
-            value={formData.users_email}
-            onChange={handleChange}
-            required
-            className={premiumInput}
-          />
-        </div>
-
-        {/* PASSWORD */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">
-            كلمة المرور (اترك فارغاً لعدم التغيير)
-          </label>
-
-          <input
-            type="password"
-            name="users_password"
-            value={formData.users_password}
-            onChange={handleChange}
-            className={premiumInput}
-          />
-        </div>
-
-        {/* ROLE */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">الدور</label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-sm font-medium text-gray-600">الدور</label>
 
           <div className="relative">
             <select
@@ -336,10 +334,11 @@ transition-all duration-200
             </div>
           </div>
         </div>
+        </div>
 
         {/* PHONE + NATIONAL ID GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+          <div className="space-y-1.5 sm:space-y-2">
             <label className="text-sm font-medium text-gray-600">
               رقم الهاتف
             </label>

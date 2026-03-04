@@ -379,9 +379,12 @@ export default function RequestDetailsModal({
       dir="rtl"
       modalWidthClass="max-w-6xl"
     >
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-xl sticky top-0 z-10">
-        <h3 className="text-2xl font-bold" style={{ color: THEME_DARK }}>
-          تفاصيل الطلب رقم REQ-{request.request_id}
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-white rounded-t-xl sticky top-0 z-10">
+        <h3
+          className="text-base sm:text-2xl font-bold"
+          style={{ color: THEME_DARK }}
+        >
+          تفاصيل طلب REQ-{request.request_id}
         </h3>
         <button
           onClick={onClose}
@@ -403,44 +406,54 @@ export default function RequestDetailsModal({
           className="bg-white rounded-2xl p-4 border"
           style={{ boxShadow: "0 6px 20px rgba(15,23,42,0.04)" }}
         >
-          <div className="flex items-center gap-6 flex-wrap">
-            <div className="flex items-center gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6">
+            <div className="flex items-start gap-1.5">
               <BuildingOffice2Icon
-                className="h-5 w-5"
+                className="h-4 w-4 mt-0.5 flex-shrink-0"
                 style={{ color: THEME_ACCENT }}
               />
-              <span className="font-medium">المخزن المصدر:</span>
-              <span className="font-semibold">
-                {sourceWarehouse?.warehouse_name || "غير معروف"}
-              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] text-gray-400">المخزن المصدر</p>
+                <p className="text-xs font-semibold truncate">
+                  {sourceWarehouse?.warehouse_name || "غير معروف"}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-1.5">
               <BuildingOffice2Icon
-                className="h-5 w-5"
+                className="h-4 w-4 mt-0.5 flex-shrink-0"
                 style={{ color: THEME_ACCENT }}
               />
-              <span className="font-medium">المخزن الوجهة:</span>
-              <span className="font-semibold">
-                {destWarehouse?.warehouse_name || "غير معروف"}
-              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] text-gray-400">المخزن الوجهة</p>
+                <p className="text-xs font-semibold truncate">
+                  {destWarehouse?.warehouse_name || "غير معروف"}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-1.5">
               <InformationCircleIcon
-                className="h-5 w-5"
+                className="h-4 w-4 mt-0.5 flex-shrink-0"
                 style={{ color: THEME_ACCENT }}
               />
-              <span className="font-medium">الحالة:</span>
-              <span className="font-semibold">{request.request_status}</span>
+              <div>
+                <p className="text-[10px] text-gray-400">الحالة</p>
+                <p className="text-xs font-semibold">
+                  {request.request_status}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-1.5">
               <CalendarDaysIcon
-                className="h-5 w-5"
+                className="h-4 w-4 mt-0.5 flex-shrink-0"
                 style={{ color: THEME_ACCENT }}
               />
-              <span className="font-medium">التاريخ:</span>
-              <span className="font-semibold">
-                {request.request_created_at}
-              </span>
+              <div>
+                <p className="text-[10px] text-gray-400">التاريخ</p>
+                <p className="text-xs font-semibold">
+                  {request.request_created_at}
+                </p>
+              </div>
             </div>
           </div>
           <div className="flex items-start gap-2 mt-3">
@@ -482,7 +495,266 @@ export default function RequestDetailsModal({
               </div>
             )}
 
-          <div className="overflow-x-auto">
+          {/* ── Mobile cards (hidden on sm+) ── */}
+          <div className="sm:hidden flex flex-col gap-3">
+            {items.map((it) => (
+              <div
+                key={it.request_item_id}
+                className="border rounded-xl p-3 bg-gray-50 space-y-2"
+              >
+                {/* Product name */}
+                <div className="font-semibold text-sm text-[#1F2937]">
+                  {editRow === it.request_item_id ? (
+                    <SearchableSelect
+                      options={productVariantOptions}
+                      value={String(it.variant_id)}
+                      onChange={(val) => {
+                        if (!val) return;
+                        const pm = new Map();
+                        allInventoryItems.forEach((inv) => {
+                          if (
+                            inv.warehouse_id ===
+                              Number(selectedSourceWarehouseId) &&
+                            inv.variant_id === Number(val)
+                          ) {
+                            pm.set(
+                              inv.packaging_type_id,
+                              (pm.get(inv.packaging_type_id) || 0) +
+                                Number(inv.inventory_quantity || 0),
+                            );
+                          }
+                        });
+                        const ap = (packagingTypes || [])
+                          .filter((pt) => pm.has(pt.packaging_types_id))
+                          .map((pt) => ({
+                            value: String(pt.packaging_types_id),
+                            label: pt.packaging_types_name,
+                            q: pm.get(pt.packaging_types_id),
+                          }))
+                          .sort((a, b) => b.q - a.q);
+                        const bp = ap[0]?.value || "";
+                        let bb = "";
+                        if (bp) {
+                          const bs = allInventoryItems
+                            .filter(
+                              (inv) =>
+                                inv.warehouse_id ===
+                                  Number(selectedSourceWarehouseId) &&
+                                inv.variant_id === Number(val) &&
+                                inv.packaging_type_id === Number(bp),
+                            )
+                            .sort(
+                              (a, b) =>
+                                Number(b.inventory_quantity) -
+                                Number(a.inventory_quantity),
+                            );
+                          bb = bs[0] ? bs[0].inventory_id : "";
+                        }
+                        setLocalItems((prev) =>
+                          prev.map((x) =>
+                            x.request_item_id === it.request_item_id
+                              ? {
+                                  ...x,
+                                  variant_id: Number(val),
+                                  packaging_type_id: Number(bp) || "",
+                                }
+                              : x,
+                          ),
+                        );
+                        if (bb)
+                          setAllocInventoryByItem((prev) => ({
+                            ...prev,
+                            [it.request_item_id]: Number(bb),
+                          }));
+                        else
+                          setAllocInventoryByItem((prev) => {
+                            const n = { ...prev };
+                            delete n[it.request_item_id];
+                            return n;
+                          });
+                      }}
+                      placeholder="المنتج/الخيار"
+                      menuPortalTarget={document.body}
+                      menuPosition="auto"
+                      styles={dropdownStyles}
+                    />
+                  ) : it.products_name ? (
+                    `${it.products_name} - ${it.variant_name}`
+                  ) : (
+                    it.variant_name
+                  )}
+                </div>
+                {/* Packaging */}
+                <div className="text-xs text-gray-500">
+                  <span className="font-medium text-gray-700">التعبئة: </span>
+                  {editRow === it.request_item_id ? (
+                    <SearchableSelect
+                      options={getPackagingOptionsForEdit(it.variant_id)}
+                      value={String(it.packaging_type_id)}
+                      onChange={(val) => {
+                        if (!val) return;
+                        const bs = allInventoryItems
+                          .filter(
+                            (inv) =>
+                              inv.warehouse_id ===
+                                Number(selectedSourceWarehouseId) &&
+                              inv.variant_id === Number(it.variant_id) &&
+                              inv.packaging_type_id === Number(val),
+                          )
+                          .sort(
+                            (a, b) =>
+                              Number(b.inventory_quantity) -
+                              Number(a.inventory_quantity),
+                          );
+                        const bb = bs[0] ? bs[0].inventory_id : "";
+                        setLocalItems((prev) =>
+                          prev.map((x) =>
+                            x.request_item_id === it.request_item_id
+                              ? { ...x, packaging_type_id: Number(val) }
+                              : x,
+                          ),
+                        );
+                        if (bb)
+                          setAllocInventoryByItem((prev) => ({
+                            ...prev,
+                            [it.request_item_id]: Number(bb),
+                          }));
+                        else
+                          setAllocInventoryByItem((prev) => {
+                            const n = { ...prev };
+                            delete n[it.request_item_id];
+                            return n;
+                          });
+                      }}
+                      placeholder="نوع التعبئة"
+                      menuPortalTarget={document.body}
+                      menuPosition="auto"
+                      styles={dropdownStyles}
+                    />
+                  ) : (
+                    it.packaging_types_name
+                  )}
+                </div>
+                {/* Batch */}
+                {selectedSourceWarehouseId && (
+                  <div>
+                    <p className="text-[10px] text-gray-400 mb-1">الدفعة</p>
+                    <div className="relative">
+                      <select
+                        value={allocInventoryByItem[it.request_item_id] || ""}
+                        onChange={(e) =>
+                          setAllocInventoryByItem((prev) => ({
+                            ...prev,
+                            [it.request_item_id]: e.target.value
+                              ? Number(e.target.value)
+                              : undefined,
+                          }))
+                        }
+                        className="w-full appearance-none rounded-lg px-3 py-2 pr-8 bg-white border border-gray-200 text-xs font-medium text-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#8DD8F5]/60"
+                      >
+                        <option value="">اختر الدفعة</option>
+                        {getMatchingBatches(it).map((b) => (
+                          <option key={b.inventory_id} value={b.inventory_id}>
+                            {new Date(
+                              b.inventory_production_date,
+                            ).toLocaleDateString("en-GB")}{" "}
+                            • متاح {b.inventory_quantity}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-400">
+                        <svg
+                          className="h-3.5 w-3.5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.38a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Qty + availability */}
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="text-[10px] text-gray-400">الكمية</p>
+                    {editRow === it.request_item_id ? (
+                      <input
+                        type="number"
+                        min="0"
+                        className="border rounded px-2 py-1 w-20 text-sm"
+                        value={it.requested_quantity}
+                        onChange={(e) =>
+                          setLocalItems((prev) =>
+                            prev.map((x) =>
+                              x.request_item_id === it.request_item_id
+                                ? {
+                                    ...x,
+                                    requested_quantity: Number(e.target.value),
+                                  }
+                                : x,
+                            ),
+                          )
+                        }
+                      />
+                    ) : (
+                      <span className="font-semibold text-sm">
+                        {it.requested_quantity}
+                      </span>
+                    )}
+                  </div>
+                  {selectedSourceWarehouseId && (
+                    <div
+                      className={`text-xs mt-3 ${getAvailableForRow(it) >= Number(it.requested_quantity || 0) ? "text-green-600" : "text-red-600"}`}
+                    >
+                      متاح: {getAvailableForRow(it)}
+                    </div>
+                  )}
+                </div>
+                {/* Row actions */}
+                <div className="flex items-center gap-2 pt-1 border-t">
+                  {editRow === it.request_item_id ? (
+                    <>
+                      <button
+                        onClick={() => handleSaveEdit(it)}
+                        className="flex items-center gap-1 text-xs text-green-700 bg-green-50 px-2 py-1 rounded-lg"
+                      >
+                        <CheckCircleIcon className="h-4 w-4" />
+                        حفظ
+                      </button>
+                      <button
+                        onClick={() => setEditRow(null)}
+                        className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg"
+                      >
+                        إلغاء
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setEditRow(it.request_item_id)}
+                      className="flex items-center gap-1 text-xs text-blue-700 bg-blue-50 px-2 py-1 rounded-lg"
+                    >
+                      <PencilSquareIcon className="h-4 w-4" />
+                      تعديل
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDeleteItem(it)}
+                    className="flex items-center gap-1 text-xs text-red-700 bg-red-50 px-2 py-1 rounded-lg"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                    إزالة
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop table (hidden on mobile) ── */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="min-w-full text-sm divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -799,8 +1071,9 @@ export default function RequestDetailsModal({
             </table>
           </div>
 
+          {/* ── Add form ── */}
           <div className="mt-4 border-t pt-4">
-            <div className="flex gap-3 items-end">
+            <div className="grid grid-cols-1 sm:flex sm:gap-3 sm:items-end gap-3">
               <div className="flex-1">
                 <label className="text-xs text-gray-600 block mb-1">
                   المنتج/الخيار
@@ -1101,7 +1374,7 @@ export default function RequestDetailsModal({
             onApproveAllocate(request.request_id, allocations, adminNote);
           }}
           className="
-            px-8 py-3 rounded-xl font-bold text-white
+            px-2 py-2 text-xs md:text-base md:px-8 md:py-3 rounded-xl md:font-bold text-white
             bg-[#1F2937]
             shadow-[0_0_20px_rgba(141,216,245,.22)]
             hover:scale-105 transition
@@ -1113,7 +1386,7 @@ export default function RequestDetailsModal({
         <button
           onClick={() => onReject(request.request_id, adminNote)}
           className="
-            px-8 py-3 rounded-xl font-bold text-white
+            px-2 py-2 text-xs md:text-base md:px-8 md:py-3 rounded-xl font-bold text-white
             bg-red-600 hover:bg-red-700
             shadow-md hover:scale-105 transition
           "

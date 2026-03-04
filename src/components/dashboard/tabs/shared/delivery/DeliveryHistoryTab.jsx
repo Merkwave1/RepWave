@@ -807,6 +807,11 @@ export default function DeliveryHistoryTab() {
                 headerClassName: "w-16 border-r border-gray-200",
                 cellClassName: "w-16 border-r border-gray-200",
                 sortable: true,
+                render: (d) => (
+                  <span className="font-medium text-blue-600">
+                    #{d.sales_deliveries_id}
+                  </span>
+                ),
               },
               {
                 key: "sales_deliveries_sales_order_id",
@@ -814,6 +819,7 @@ export default function DeliveryHistoryTab() {
                 headerClassName: "border-r border-gray-200",
                 cellClassName: "border-r border-gray-200",
                 sortable: true,
+                render: (d) => `#${d.sales_deliveries_sales_order_id}`,
               },
               {
                 key: "warehouse_name",
@@ -821,6 +827,10 @@ export default function DeliveryHistoryTab() {
                 headerClassName: "min-w-[140px] border-r border-gray-200",
                 cellClassName: "border-r border-gray-200",
                 sortable: true,
+                render: (d) =>
+                  warehouses.find(
+                    (w) => w.warehouse_id === d.sales_deliveries_warehouse_id,
+                  )?.warehouse_name || "غير محدد",
               },
               {
                 key: "client_name",
@@ -828,6 +838,17 @@ export default function DeliveryHistoryTab() {
                 headerClassName: "min-w-[140px] border-r border-gray-200",
                 cellClassName: "border-r border-gray-200",
                 sortable: true,
+                render: (d) => {
+                  const id =
+                    d.sales_deliveries_client_id ||
+                    d.client_id ||
+                    d.clients_id ||
+                    d.sales_orders_client_id;
+                  const nm = clients.find(
+                    (c) => c.client_id === id,
+                  )?.client_name;
+                  return nm || d.clients_company_name || "غير محدد";
+                },
               },
               {
                 key: "delivery_datetime",
@@ -835,6 +856,15 @@ export default function DeliveryHistoryTab() {
                 headerClassName: "min-w-[180px] border-r border-gray-200",
                 cellClassName: "border-r border-gray-200",
                 sortable: true,
+                render: (d) => {
+                  const dt = formatDateTime(d.sales_deliveries_delivery_date);
+                  return (
+                    <div className="flex items-center gap-1">
+                      <CalendarIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      {dt.full}
+                    </div>
+                  );
+                },
               },
               {
                 key: "actions",
@@ -843,6 +873,25 @@ export default function DeliveryHistoryTab() {
                 cellClassName: "text-center border-r border-gray-200",
                 sortable: false,
                 align: "center",
+                mobileFullWidth: true,
+                render: (d) => (
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      className="p-1.5 rounded-full text-amber-700 bg-amber-100 hover:bg-amber-500 hover:text-white hover:shadow-[0_0_12px_rgba(245,158,11,0.45)] transition-all duration-200 hover:scale-110"
+                      onClick={() => handlePrintDelivery(d)}
+                      title="طباعة سند التسليم"
+                    >
+                      <PrinterIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                      className="p-1.5 rounded-full text-sky-700 bg-sky-100 hover:bg-sky-500 hover:text-white hover:shadow-[0_0_12px_rgba(56,189,248,0.45)] transition-all duration-200 hover:scale-110"
+                      onClick={() => handleViewDetails(d)}
+                      title="عرض التفاصيل"
+                    >
+                      <EyeIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                ),
               },
             ]}
             rowKey="sales_deliveries_id"
@@ -1171,7 +1220,7 @@ transition-all duration-200 hover:scale-110"
               <div className="flex justify-between items-center mt-6 pt-4 border-t">
                 <button
                   onClick={() => handlePrintDelivery(selectedDelivery)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-white font-medium shadow-lg transition hover:scale-[1.03]"
+                  className="flex items-center px-2 py-2 text-xs md:text-base md:px-8 md:py-3 rounded-xl text-white font-medium shadow-lg transition hover:scale-[1.03]"
                   style={{
                     background: "linear-gradient(90deg,#1F2937,#06202a)",
                   }}
@@ -1185,7 +1234,7 @@ transition-all duration-200 hover:scale-110"
                     setShowDetailModal(false);
                     setDeliveryDetails(null);
                   }}
-                  className="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 transition font-medium"
+                  className="px-2 py-2 text-xs md:text-base md:px-8 md:py-3 rounded-xl bg-gray-200 hover:bg-gray-300 transition font-medium"
                 >
                   إغلاق
                 </button>

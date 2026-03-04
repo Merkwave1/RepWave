@@ -1,5 +1,6 @@
 // src/components/dashboard/tabs/safe-management/safes/UpdateSafeForm.jsx
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   XMarkIcon,
   PencilIcon,
@@ -162,13 +163,13 @@ const UpdateSafeForm = ({ safe, onClose, onSubmit }) => {
     return null;
   }
 
-  return (
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
+        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[100vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -513,52 +514,52 @@ const UpdateSafeForm = ({ safe, onClose, onSubmit }) => {
               </div>
             </div>
           </form>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 text-base sm:text-sm"
-            >
-              إلغاء
-            </button>
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={isSubmitting || loadingUsers}
-              className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-sm"
-            >
-              {isSubmitting && (
-                <svg
-                  className="animate-spin h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              )}
-              {isSubmitting ? "جاري التحديث..." : "تحديث الخزنة"}
-            </button>
+          {/* Footer */}
+          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 text-base sm:text-sm"
+              >
+                إلغاء
+              </button>
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={isSubmitting || loadingUsers}
+                className="w-full sm:w-auto px-4 py-3 sm:px-6 sm:py-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-sm"
+              >
+                {isSubmitting && (
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                )}
+                {isSubmitting ? "جاري التحديث..." : "تحديث الخزنة"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
+  return createPortal(modal, document.body);
 };
 
 export default UpdateSafeForm;

@@ -212,7 +212,7 @@ const VisitsReportsPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="p-2 rounded-lg bg-green-500 text-white ml-3">
-              <MapPinIcon className="w-6 h-6" />
+              <MapPinIcon className="w-3 h-3 md:w-6 md:h-6" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">تقارير الزيارات</h1>

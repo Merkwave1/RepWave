@@ -200,12 +200,12 @@ export default function RepackModal({
       onClose={onClose}
       title={`تحويل تعبئة/تفكيك — ${inventoryItem?.variant_display_name}`}
     >
-      <div className="p-6 space-y-6" dir="rtl" style={{ color: THEME_DARK }}>
+      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6" dir="rtl" style={{ color: THEME_DARK }}>
         {error && <Alert type="error" message={error} className="mb-2" />}
 
         {/* ===== PRODUCT CARD ===== */}
         <div
-          className="relative overflow-hidden rounded-2xl p-5 shadow-lg"
+          className="relative overflow-hidden rounded-2xl p-3 sm:p-5 shadow-lg"
           style={{
             background: `linear-gradient(135deg, rgba(${THEME_ACCENT_RGB},0.18), rgba(255,255,255,1))`,
             border: `1px solid rgba(${THEME_ACCENT_RGB},0.45)`
@@ -217,7 +217,7 @@ export default function RepackModal({
             العنصر الحالي
           </p>
 
-          <h3 className="font-extrabold text-lg mb-2">
+          <h3 className="font-extrabold text-base sm:text-lg mb-2">
             {inventoryItem?.variant_display_name}
           </h3>
 
@@ -231,7 +231,7 @@ export default function RepackModal({
         </div>
 
         {/* ===== TARGET PACKAGING ===== */}
-        <div className="bg-white rounded-2xl shadow-md p-5 border">
+        <div className="bg-white rounded-2xl shadow-md p-3 sm:p-5 border">
           <p className="text-xs font-semibold opacity-70 mb-2">
             التحويل إلى
           </p>
@@ -261,23 +261,23 @@ export default function RepackModal({
         </div>
 
         {/* ===== QUANTITY CONTROL ===== */}
-        <div className="bg-white rounded-2xl shadow-md p-6 border space-y-4">
+        <div className="bg-white rounded-2xl shadow-md p-4 sm:p-6 border space-y-4">
           <p className="text-xs font-semibold opacity-70 text-center">
             الكمية المراد تحويلها
           </p>
 
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-3 sm:gap-4">
             <button
               onClick={handleDecrement}
               disabled={quantityToConvert <= 0 || !selectedToPackagingType}
-              className="w-12 h-12 rounded-full flex items-center justify-center shadow hover:scale-105 transition bg-white border"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow hover:scale-105 transition bg-white border"
               aria-label="decrement"
             >
-              <MinusIcon className="w-6 h-6" />
+              <MinusIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
             <div
-              className="px-10 py-4 rounded-2xl text-3xl font-extrabold shadow-inner"
+              className="px-6 sm:px-10 py-3 sm:py-4 rounded-2xl text-2xl sm:text-3xl font-extrabold shadow-inner min-w-[80px] text-center"
               style={{
                 background: '#f8fafc',
                 border: '1px solid rgba(0,0,0,0.05)'
@@ -289,10 +289,10 @@ export default function RepackModal({
             <button
               onClick={handleIncrement}
               disabled={!selectedToPackagingType}
-              className="w-12 h-12 rounded-full flex items-center justify-center shadow hover:scale-105 transition bg-white border"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow hover:scale-105 transition bg-white border"
               aria-label="increment"
             >
-              <PlusIcon className="w-6 h-6" />
+              <PlusIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
 
@@ -326,17 +326,17 @@ export default function RepackModal({
         </div>
 
         {/* ===== ACTIONS ===== */}
-        <div className="flex justify-between pt-4">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 pt-2 sm:pt-4">
           <button
             onClick={onClose}
-            className="px-6 py-3 rounded-xl border hover:bg-gray-50 transition"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl border hover:bg-gray-50 transition"
           >
             إلغاء
           </button>
 
           <button
             onClick={handleConfirm}
-            className="px-8 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition"
+            className="w-full sm:w-auto px-8 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition"
             style={{
               background: `linear-gradient(135deg, ${THEME_DARK}, #0f172a)`,
               color: 'white'

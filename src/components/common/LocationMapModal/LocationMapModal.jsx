@@ -81,7 +81,7 @@ function LocationMapModal({
           </div>
 
           {/* Content */}
-          <div className="px-6 py-6 space-y-4">
+          <div className="px-3 sm:px-6 py-3 sm:py-6 space-y-3 sm:space-y-4">
             {/* Map Container */}
             <div className="rounded-2xl overflow-hidden border border-[#8DD8F5]/30 shadow-sm">
               <MapPicker
@@ -96,22 +96,22 @@ function LocationMapModal({
             </div>
 
             {/* Selected Coordinates */}
-            <div className="bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 p-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="bg-[#8DD8F5]/10 rounded-2xl border border-[#8DD8F5]/30 p-3 sm:p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#1F2937] mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
                     خط العرض (Latitude)
                   </label>
-                  <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 font-mono text-sm text-[#1F2937] shadow-sm">
+                  <div className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 font-mono text-xs sm:text-sm text-[#1F2937] shadow-sm truncate">
                     {(parseFloat(selectedLat) || 0).toFixed(7)}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#1F2937] mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
                     خط الطول (Longitude)
                   </label>
-                  <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 font-mono text-sm text-[#1F2937] shadow-sm">
+                  <div className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 font-mono text-xs sm:text-sm text-[#1F2937] shadow-sm truncate">
                     {(parseFloat(selectedLng) || 0).toFixed(7)}
                   </div>
                 </div>
@@ -125,7 +125,7 @@ function LocationMapModal({
 
               {derivedReadOnly && description && (
                 <div className="mt-3 text-xs text-[#1F2937]/70 flex items-start gap-2">
-                  <InformationCircleIcon className="h-4 w-4 text-[#8DD8F5] mt-0.5" />
+                  <InformationCircleIcon className="h-4 w-4 text-[#8DD8F5] mt-0.5 shrink-0" />
                   <span>{description}</span>
                 </div>
               )}
@@ -133,15 +133,10 @@ function LocationMapModal({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-200">
+          <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 border-t border-gray-200">
             <button
               onClick={onClose}
-              className="
-              px-6 py-2 rounded-xl
-              bg-gray-100 border border-gray-200
-              text-[#1F2937]
-              hover:bg-gray-200 transition
-            "
+              className="px-4 sm:px-6 py-2 rounded-xl bg-gray-100 border border-gray-200 text-[#1F2937] hover:bg-gray-200 transition text-sm font-medium"
             >
               {derivedReadOnly ? "إغلاق" : "إلغاء"}
             </button>
@@ -149,15 +144,9 @@ function LocationMapModal({
             {!derivedReadOnly && (
               <button
                 onClick={handleConfirm}
-                className="
-                px-6 py-2 rounded-xl
-                bg-[#8DD8F5] hover:bg-[#7ccfee]
-                text-[#1F2937] font-semibold
-                shadow-md transition
-                flex items-center gap-2
-              "
+                className="px-4 sm:px-6 py-2 rounded-xl bg-[#8DD8F5] hover:bg-[#7ccfee] text-[#1F2937] font-semibold shadow-md transition flex items-center justify-center gap-2 text-sm"
               >
-                <MapPinIcon className="h-5 w-5" />
+                <MapPinIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 تأكيد الموقع
               </button>
             )}

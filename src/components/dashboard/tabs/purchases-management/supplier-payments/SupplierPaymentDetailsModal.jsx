@@ -138,7 +138,7 @@ const SupplierPaymentDetailsModal = ({ paymentId, onClose, onPrint }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-5xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
+        className="bg-white rounded-xl flex flex-col shadow-xl max-w-5xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -1,5 +1,6 @@
 // src/components/dashboard/tabs/safe-management/safe-transfers/AddSafeTransferForm.jsx
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowsRightLeftIcon,
   XMarkIcon,
@@ -139,118 +140,124 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
     return symbol ? `${formatted} ${symbol}` : formatted;
   };
 
-  return (
+  const isOverBudget =
+    sourceSafe &&
+    formData.transfer_amount &&
+    parseFloat(formData.transfer_amount) >
+      parseFloat(sourceSafe.safes_balance || 0);
+
+  const modal = (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-3 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden mx-2 sm:mx-4"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-300">
+        {/* Premium Header */}
+        <div className="bg-gradient-to-l from-blue-600 to-indigo-500 rounded-t-2xl px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-xl font-bold text-gray-800 flex items-center gap-2 truncate">
-              <ArrowsRightLeftIcon className="h-6 w-6 text-blue-600" />
-              تحويل بين الخزائن
-            </h3>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2 bg-white/20 rounded-xl shrink-0">
+                <ArrowsRightLeftIcon className="h-5 w-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-white truncate">
+                  تحويل بين الخزائن
+                </h3>
+                <p className="text-blue-100 text-xs mt-0.5 hidden sm:block">
+                  نقل رصيد من خزنة إلى أخرى
+                </p>
+              </div>
+            </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-all"
+              className="p-1.5 hover:bg-white/20 rounded-lg transition-colors shrink-0"
             >
-              <XMarkIcon className="h-5 w-5 text-gray-600" />
+              <XMarkIcon className="h-5 w-5 text-white" />
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div
-          className="overflow-y-auto max-h-[calc(95vh-110px)] sm:max-h-[calc(90vh-140px)]"
-          dir="rtl"
-        >
-          <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-6">
-            {errors.submit && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                {errors.submit}
+        {/* Body */}
+        <form onSubmit={handleSubmit} dir="rtl">
+          <div className="p-3 sm:p-5 space-y-3">
+            {/* Errors */}
+            {(errors.submit || errors.safes) && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                {errors.submit || errors.safes}
               </div>
             )}
 
-            {errors.safes && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                {errors.safes}
+            {/* Safe Selection Card */}
+            <div className="rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-blue-50 px-4 py-2 flex items-center gap-2">
+                <ArrowsRightLeftIcon className="h-4 w-4 text-blue-600" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+                  اختيار الخزائن
+                </span>
               </div>
-            )}
-
-            {/* Safe Selection */}
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <ArrowsRightLeftIcon className="h-5 w-5 text-blue-600" />
-                اختيار الخزائن
-              </h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Source Safe */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الخزنة المصدر *
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">
+                    الخزنة المصدر <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="source_safe_id"
                     value={formData.source_safe_id}
                     onChange={handleChange}
-                    className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`w-full px-3 py-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-400 transition-all ${
                       errors.source_safe_id
-                        ? "border-red-500"
-                        : "border-gray-300"
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200"
                     }`}
                     disabled={isSubmitting || loading}
                     dir="rtl"
                   >
-                    <option value="">اختر الخزنة المصدر</option>
+                    <option value="">— اختر الخزنة المصدر —</option>
                     {safes.map((safe) => (
                       <option key={safe.safes_id} value={safe.safes_id}>
-                        {safe.safes_name} -{" "}
-                        {safe.safes_type === "company"
-                          ? "خزنة الشركة"
-                          : "خزنة مندوب"}
-                        (رصيد: {formatBalance(safe.safes_balance)})
+                        {safe.safes_name} (
+                        {safe.safes_type === "company" ? "شركة" : "مندوب"}) —{" "}
+                        {formatBalance(safe.safes_balance)}
                       </option>
                     ))}
                   </select>
                   {errors.source_safe_id && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-xs text-red-600">
                       {errors.source_safe_id}
                     </p>
                   )}
                   {sourceSafe && (
-                    <div className="mt-2 text-sm text-gray-600">
-                      الرصيد الحالي:{" "}
+                    <p className="mt-1.5 text-xs text-gray-500">
+                      الرصيد:{" "}
                       <span className="font-semibold text-green-600">
                         {formatBalance(sourceSafe.safes_balance)}
                       </span>
-                    </div>
+                    </p>
                   )}
                 </div>
 
                 {/* Destination Safe */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الخزنة الوجهة *
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">
+                    الخزنة الوجهة <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="destination_safe_id"
                     value={formData.destination_safe_id}
                     onChange={handleChange}
-                    className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`w-full px-3 py-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-400 transition-all ${
                       errors.destination_safe_id
-                        ? "border-red-500"
-                        : "border-gray-300"
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200"
                     }`}
                     disabled={isSubmitting || loading}
                     dir="rtl"
                   >
-                    <option value="">اختر الخزنة الوجهة</option>
+                    <option value="">— اختر الخزنة الوجهة —</option>
                     {safes
                       .filter(
                         (safe) =>
@@ -258,41 +265,40 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                       )
                       .map((safe) => (
                         <option key={safe.safes_id} value={safe.safes_id}>
-                          {safe.safes_name} -{" "}
-                          {safe.safes_type === "company"
-                            ? "خزنة الشركة"
-                            : "خزنة مندوب"}
-                          (رصيد: {formatBalance(safe.safes_balance)})
+                          {safe.safes_name} (
+                          {safe.safes_type === "company" ? "شركة" : "مندوب"}) —{" "}
+                          {formatBalance(safe.safes_balance)}
                         </option>
                       ))}
                   </select>
                   {errors.destination_safe_id && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-xs text-red-600">
                       {errors.destination_safe_id}
                     </p>
                   )}
                   {destinationSafe && (
-                    <div className="mt-2 text-sm text-gray-600">
-                      الرصيد الحالي:{" "}
+                    <p className="mt-1.5 text-xs text-gray-500">
+                      الرصيد:{" "}
                       <span className="font-semibold text-blue-600">
                         {formatBalance(destinationSafe.safes_balance)}
                       </span>
-                    </div>
+                    </p>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Transfer Amount */}
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <BanknotesIcon className="h-5 w-5 text-green-600" />
-                مبلغ التحويل
-              </h4>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  المبلغ *
+            {/* Amount Card */}
+            <div className="rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-green-50 px-4 py-2 flex items-center gap-2">
+                <BanknotesIcon className="h-4 w-4 text-green-600" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-green-700">
+                  مبلغ التحويل
+                </span>
+              </div>
+              <div className="p-3 sm:p-4">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">
+                  المبلغ <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <NumberInput
@@ -302,88 +308,110 @@ const AddSafeTransferForm = ({ onClose, onSubmit }) => {
                         target: { name: "transfer_amount", value: v },
                       })
                     }
-                    className={`w-full ${errors.transfer_amount ? "border-red-500" : ""}`}
+                    className={`w-full px-3 py-2.5 rounded-lg text-sm outline-none border focus:ring-2 focus:ring-green-400 transition-all ${
+                      errors.transfer_amount
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200"
+                    }`}
                     placeholder="0.00"
                     disabled={isSubmitting}
                   />
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                    {symbol}
-                  </div>
+                  {symbol && (
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">
+                      {symbol}
+                    </div>
+                  )}
                 </div>
                 {errors.transfer_amount && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="mt-1 text-xs text-red-600">
                     {errors.transfer_amount}
                   </p>
                 )}
-
-                {/* Balance validation */}
-                {sourceSafe &&
-                  formData.transfer_amount &&
-                  parseFloat(formData.transfer_amount) >
-                    parseFloat(sourceSafe.safes_balance || 0) && (
-                    <div className="mt-2 text-sm text-red-600">
-                      ⚠️ المبلغ المطلوب أكبر من الرصيد المتاح في الخزنة المصدر
-                    </div>
-                  )}
+                {isOverBudget && (
+                  <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                    ⚠️ المبلغ أكبر من الرصيد المتاح في الخزنة المصدر
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Notes */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ملاحظات
-              </label>
-              <textarea
-                name="transfer_notes"
-                value={formData.transfer_notes}
-                onChange={handleChange}
-                rows="3"
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="أدخل أي ملاحظات إضافية حول التحويل..."
-                disabled={isSubmitting}
-              />
+            {/* Notes Card */}
+            <div className="rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-gray-50 px-4 py-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  ملاحظات
+                </span>
+              </div>
+              <div className="p-3 sm:p-4">
+                <textarea
+                  name="transfer_notes"
+                  value={formData.transfer_notes}
+                  onChange={handleChange}
+                  rows={2}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-400 transition-all resize-none"
+                  placeholder="ملاحظات إضافية حول التحويل..."
+                  disabled={isSubmitting}
+                />
+              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t">
-              <button
-                type="submit"
-                disabled={
-                  isSubmitting ||
-                  loading ||
-                  (sourceSafe &&
-                    formData.transfer_amount &&
-                    parseFloat(formData.transfer_amount) >
-                      parseFloat(sourceSafe.safes_balance || 0))
-                }
-                className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-sm"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    جاري التحويل...
-                  </>
-                ) : (
-                  <>
-                    <ArrowsRightLeftIcon className="h-4 w-4" />
-                    تأكيد التحويل
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto bg-gray-500 text-white py-3 px-6 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 text-base sm:text-sm"
-              >
-                إلغاء
-              </button>
-            </div>
-          </form>
-        </div>
+            {/* Live Preview Strip */}
+            {(sourceSafe || destinationSafe || formData.transfer_amount) && (
+              <div className="rounded-xl bg-gradient-to-l from-blue-50 to-indigo-50 border border-blue-100 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-2">
+                  معاينة التحويل
+                </p>
+                <div className="flex items-center gap-2 flex-wrap text-sm">
+                  <span className="font-medium text-gray-700">
+                    {sourceSafe?.safes_name || "—"}
+                  </span>
+                  <ArrowsRightLeftIcon className="h-4 w-4 text-blue-500 shrink-0" />
+                  <span className="font-medium text-gray-700">
+                    {destinationSafe?.safes_name || "—"}
+                  </span>
+                  {formData.transfer_amount && (
+                    <span className="mr-auto font-bold text-blue-700">
+                      {formatBalance(formData.transfer_amount)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="border-t border-gray-100 px-3 sm:px-5 py-3 flex flex-col-reverse sm:flex-row gap-2 bg-gray-50 rounded-b-2xl">
+            <button
+              type="submit"
+              disabled={isSubmitting || loading || isOverBudget}
+              className="flex-1 bg-gradient-to-l from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white py-2.5 px-4 rounded-xl font-semibold text-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                  جاري التحويل...
+                </>
+              ) : (
+                <>
+                  <ArrowsRightLeftIcon className="h-4 w-4" />
+                  تأكيد التحويل
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-all"
+            >
+              إلغاء
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
+  return createPortal(modal, document.body);
 };
 
 export default AddSafeTransferForm;

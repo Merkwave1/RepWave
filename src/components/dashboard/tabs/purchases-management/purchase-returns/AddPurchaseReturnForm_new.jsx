@@ -8,7 +8,7 @@ import useCurrency from '../../../../../hooks/useCurrency';
 import { getCurrentLocalDateTime, formatLocalDateTime } from '../../../../../utils/dateUtils';
 
 export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
-  const { symbol, formatCurrency: formatMoney } = useCurrency();
+  const { formatCurrency: formatMoney } = useCurrency();
   // Fallback data for testing
   const fallbackSuppliers = [
     { supplier_id: 1, supplier_name: 'مورد تجريبي 1' },
@@ -306,14 +306,30 @@ export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
   
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto" dir="rtl">
-      <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">إضافة مرتجع شراء جديد</h3>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-6xl mx-auto overflow-hidden" dir="rtl">
+
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-5 bg-gradient-to-l from-[#1F2937] to-[#7C1D1D] text-white">
+        <div>
+          <h3 className="text-lg sm:text-2xl font-bold leading-tight">إضافة مرتجع شراء جديد</h3>
+          <p className="text-xs sm:text-sm text-red-200 mt-0.5">اختر المورد وأمر الشراء ثم حدد الكميات المرتجعة</p>
+        </div>
+        <button type="button" onClick={onCancel}
+          className="p-2 rounded-full hover:bg-white/20 transition" aria-label="إغلاق">
+          <MinusCircleIcon className="h-6 w-6 text-white" />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-8">
+
+        {/* ── Section 1: Basic Info ── */}
+        <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 border-b border-gray-200 bg-gray-100">
+            <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">معلومات المرتجع</h4>
+          </div>
+          <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               المورد <span className="text-red-500">*</span>
             </label>
             <SearchableSelect
@@ -333,7 +349,7 @@ export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               أمر الشراء <span className="text-red-500">*</span>
             </label>
             <SearchableSelect
@@ -353,139 +369,80 @@ export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
               <p className="text-xs text-blue-600 mt-1">جاري تحميل تفاصيل الأمر...</p>
             )}
             {selectedOrderWarehouse && (
-              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
-                <div className="text-sm text-blue-800">
-                  <strong>المخزن المحدد:</strong> {selectedOrderWarehouse.warehouse_name || 'غير محدد'}
-                </div>
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-2 text-sm text-blue-800">
+                <span className="font-bold">المخزن:</span> {selectedOrderWarehouse.warehouse_name || 'غير محدد'}
               </div>
             )}
           </div>
-        </div>
+          </div>{/* end grid */}
+        </div>{/* end section card */}
 
-        {/* Hidden: return date should be sent automatically (current local datetime) */}
-        {/* We keep purchase_return_date in state but do not show the input */}
-
-        {/* Note: Return-level fields (reason, notes, discount) are shown in the totals block below */}
-
-        {/* Items Section */}
-        <div className="border-t pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-gray-800">عناصر المرتجع</h4>
+        {/* ── Section 2: Items ── */}
+        <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 border-b border-gray-200 bg-gray-100 flex items-center justify-between">
+            <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">عناصر المرتجع</h4>
             {!formData.purchase_return_purchase_order_id ? (
-              <p className="text-sm text-gray-500">اختر أمر شراء لإظهار العناصر</p>
+              <span className="text-xs text-gray-500">اختر أمر شراء لإظهار العناصر</span>
             ) : formData.return_items.length > 0 && (
-              <div className="text-sm text-gray-600">
-                المجموع: {formData.return_items.length} عنصر | 
-                <span className="text-green-600 mx-1">
-                  لديه كميات متاحة: {formData.return_items.filter(item => parseFloat(item.available_to_return || 0) > 0).length}
-                </span> | 
-                <span className="text-orange-600 mx-1">
-                  أصناف لم يتم استلامها: {formData.return_items.filter(item => item.return_type === 'NOT_RECEIVED').length}
-                </span> | 
-                <span className="text-blue-600 mx-1">
-                  أصناف في المخزون: {formData.return_items.filter(item => item.return_type === 'RECEIVED').length}
-                </span> |
-                <span className="text-red-600">
-                  مُرتجع بالكامل: {formData.return_items.filter(item => item.return_type === 'NONE').length}
-                </span>
+              <div className="flex flex-wrap gap-2 text-[11px]">
+                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">متاح: {formData.return_items.filter(i => parseFloat(i.available_to_return || 0) > 0).length}</span>
+                <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">غير مستلم: {formData.return_items.filter(i => i.return_type === 'NOT_RECEIVED').length}</span>
+                <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">في المخزون: {formData.return_items.filter(i => i.return_type === 'RECEIVED').length}</span>
+                <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">مُرتجع كلياً: {formData.return_items.filter(i => i.return_type === 'NONE').length}</span>
               </div>
             )}
           </div>
 
+          <div className="p-4 sm:p-6">
           {!formData.purchase_return_purchase_order_id ? (
-            <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              <p className="text-gray-500">يجب اختيار أمر الشراء أولاً لإظهار العناصر المتاحة للإرجاع</p>
+            <div className="text-center py-10 text-gray-400">
+              <p className="text-sm">يجب اختيار أمر الشراء أولاً لإظهار العناصر</p>
             </div>
           ) : formData.return_items.length === 0 ? (
-            <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              <p className="text-gray-500">
-                {loadingOrderDetails ? 'جاري تحميل عناصر أمر الشراء...' : 'لا توجد عناصر في أمر الشراء المحدد'}
-              </p>
+            <div className="text-center py-10 text-gray-400">
+              <p className="text-sm">{loadingOrderDetails ? 'جاري تحميل عناصر أمر الشراء...' : 'لا توجد عناصر في أمر الشراء المحدد'}</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {formData.return_items.map((item, index) => {
+                const canReturn = item.return_type !== 'NONE';
                 return (
-                  <div
-                    key={index}
-                    className="bg-gray-50 p-4 rounded-lg border"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h5 className="font-medium text-gray-700">عنصر #{index + 1}</h5>
-                      <div className="flex items-center gap-4 text-xs">
-                        <div className="text-gray-500">
-                          مطلوب: {item.original_quantity || '0'}
-                        </div>
-                        <div className="text-gray-500">
-                          مستلم: {item.quantity_received || '0'}
-                        </div>
-                        <div className="text-red-500">
-                          مُرتجع سابقاً: {item.total_returned || '0'}
-                        </div>
-                        {/* Display single return type available */}
-                        {item.return_type === 'NOT_RECEIVED' && (
-                          <div className="text-orange-600 font-medium">
-                            متاح للإرجاع: {item.available_to_return} (لم يتم استلامها)
-                          </div>
-                        )}
-                        {item.return_type === 'RECEIVED' && (
-                          <div className="text-blue-600 font-medium">
-                            متاح للإرجاع: {item.available_to_return} (في المخزون)
-                          </div>
-                        )}
-                        {item.return_type === 'NONE' && (
-                          <div className="text-red-500 font-medium">
-                            لا يمكن الإرجاع (مُرتجع بالكامل)
-                          </div>
-                        )}
-                        {/* Warehouse and inventory info */}
-                        <div className="text-gray-600 font-medium">
-                          المخزن: {item.warehouse_name || 'غير محدد'}
-                        </div>
-                        {item.return_type === 'RECEIVED' && (
-                          <div className="text-indigo-600 font-medium">
-                            الكمية في المخزون: {item.inventory_quantity || '0'}
-                          </div>
-                        )}
-                        {/* Status badge */}
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          item.receive_status === 'تم الاستلام بالكامل'
-                            ? 'bg-green-100 text-green-800' 
-                            : item.receive_status === 'تم الاستلام جزئياً'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-orange-100 text-orange-800'
-                        }`}>
-                          {item.receive_status}
-                        </div>
+                  <div key={index} className={`bg-white rounded-xl border shadow-sm overflow-hidden ${!canReturn ? 'opacity-60' : ''}`}>
+                    {/* Item header */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-gray-50 border-b border-gray-200">
+                      <span className="text-xs font-semibold text-gray-600">عنصر #{index + 1} — {item.product_variant_name || item.product_name || 'منتج غير معروف'}</span>
+                      <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                        <span className="text-gray-500">مطلوب: <b>{item.original_quantity || '0'}</b></span>
+                        <span className="text-gray-500">مستلم: <b>{item.quantity_received || '0'}</b></span>
+                        <span className="text-red-500">مُرتجع سابقاً: <b>{item.total_returned || '0'}</b></span>
+                        {item.return_type === 'NOT_RECEIVED' && <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">متاح (غير مستلم): {item.available_to_return}</span>}
+                        {item.return_type === 'RECEIVED' && <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">متاح (مخزون): {item.available_to_return}</span>}
+                        {item.return_type === 'NONE' && <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">مُرتجع بالكامل</span>}
+                        <span className={`px-2 py-0.5 rounded-full font-medium ${
+                          item.receive_status === 'تم الاستلام بالكامل' ? 'bg-green-100 text-green-700'
+                          : item.receive_status === 'تم الاستلام جزئياً' ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-orange-100 text-orange-700'}` }>{item.receive_status}</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                      {/* Product Variant - Read Only */}
+                    <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {/* Product read-only */}
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          المنتج
-                        </label>
-                        <div className="w-full px-2 py-1 text-sm bg-gray-100 border border-gray-300 rounded">
-                          {item.product_variant_name || item.product_name || 'منتج غير معروف'}
+                        <label className="block text-xs font-medium text-gray-500 mb-1">المنتج</label>
+                        <div className="px-2 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg text-gray-700 truncate">
+                          {item.product_variant_name || item.product_name || 'غير معروف'}
                         </div>
                       </div>
-
-                      {/* Packaging Type - Read Only */}
+                      {/* Packaging read-only */}
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          نوع التعبئة
-                        </label>
-                        <div className="w-full px-2 py-1 text-sm bg-gray-100 border border-gray-300 rounded">
+                        <label className="block text-xs font-medium text-gray-500 mb-1">نوع التعبئة</label>
+                        <div className="px-2 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg text-gray-700">
                           {item.packaging_type_name || 'غير محدد'}
                         </div>
                       </div>
-
-                      {/* Quantity to Return - Editable */}
+                      {/* Qty input */}
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          الكمية المرتجعة <span className="text-red-500">*</span>
-                        </label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">الكمية المرتجعة <span className="text-red-500">*</span></label>
                         <NumberInput
                           value={item.quantity_returned || ''}
                           onChange={(value) => {
@@ -497,77 +454,50 @@ export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
                           min="0"
                           max={item.available_to_return}
                           step="0.01"
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          disabled={!canReturn}
+                          className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"
                         />
-                        <div className="text-xs mt-1">
-                          {item.available_to_return > 0 ? (
-                            <span className="text-green-600">
-                              {item.return_type === 'RECEIVED' ? (
-                                <>متاح للإرجاع: {item.available_to_return} (من المخزون)</>
-                              ) : item.return_type === 'NOT_RECEIVED' ? (
-                                <>متاح للإرجاع: {item.available_to_return} (أصناف لم يتم استلامها)</>
-                              ) : (
-                                <>متاح للإرجاع: {item.available_to_return}</>
-                              )}
-                              {item.total_returned > 0 && (
-                                <span className="text-red-500 ml-2">
-                                  (تم إرجاع {item.total_returned} مسبقاً)
-                                </span>
-                              )}
-                            </span>
-                          ) : (
-                            <span className="text-red-600">
-                              لا توجد كمية متاحة للإرجاع
-                              {item.total_returned > 0 && (
-                                <span className="ml-2">
-                                  (تم إرجاع جميع الكميات: {item.total_returned})
-                                </span>
-                              )}
-                            </span>
-                          )}
-                        </div>
+                        {item.available_to_return > 0 ? (
+                          <p className="text-[10px] text-green-600 mt-0.5">الحد الأقصى: {item.available_to_return}</p>
+                        ) : (
+                          <p className="text-[10px] text-red-500 mt-0.5">لا توجد كمية متاحة</p>
+                        )}
                       </div>
-
-                      {/* Item Total */}
+                      {/* Total chip */}
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          المجموع ({symbol})
-                        </label>
-                        <div className="w-full px-2 py-1 text-sm bg-gray-100 border border-gray-300 rounded">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">الإجمالي</label>
+                        <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm font-bold text-red-700 text-center">
                           {formatMoney(calculateItemTotals(item).total)}
                         </div>
-                        <div className="text-xs text-blue-600 mt-1">
-                          سعر الوحدة: {formatMoney(item.unit_cost)}
-                        </div>
+                        <p className="text-[10px] text-blue-500 mt-0.5 text-center">سعر الوحدة: {formatMoney(item.unit_cost)}</p>
                       </div>
                     </div>
-
-                    {/* Per-item return reason removed per UX request */}
-
                   </div>
                 );
               })}
             </div>
           )}
-        </div>
+          </div>{/* end items padding */}
+        </div>{/* end items section card */}
 
-        {/* Totals Summary */}
+        {/* ── Section 3: Totals & reason ── */}
         {formData.return_items.length > 0 && (
-          <div className="border-t pt-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="text-lg font-semibold text-gray-800 mb-3 text-center">إجمالي العناصر</h4>
+          <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+            <div className="px-4 sm:px-6 py-3 border-b border-gray-200 bg-gray-100">
+              <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">ملخص المرتجع</h4>
+            </div>
+            <div className="p-4 sm:p-6">
               <div className="space-y-4">
-                {/* First row: reason, notes (single-line), discount (ع.ت) in the same row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">سبب الإرجاع</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">سبب الإرجاع</label>
                     <select
                       name="purchase_return_reason"
                       value={formData.purchase_return_reason}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white"
                     >
-                      <option value="">اختر السبب</option>
+                      <option value="">اختر السبب…</option>
                       <option value="damaged">منتج تالف</option>
                       <option value="wrong_item">عنصر خاطئ</option>
                       <option value="poor_quality">جودة ضعيفة</option>
@@ -578,33 +508,31 @@ export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">ملاحظات الإرجاع</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ملاحظات الإرجاع</label>
                     <input
                       type="text"
                       name="purchase_return_notes"
                       value={formData.purchase_return_notes}
                       onChange={handleChange}
                       placeholder="ملاحظات مختصرة..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
                     />
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <label className="inline-flex items-center gap-2 cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          checked={manualDiscountEnabled} 
+                    <label className="block text-sm font-medium text-gray-700 mb-1">خصم على الإرجاع</label>
+                    <div className="flex items-center gap-2 mb-1">
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer text-xs text-gray-600">
+                        <input
+                          type="checkbox"
+                          checked={manualDiscountEnabled}
                           onChange={(e) => setManualDiscountEnabled(e.target.checked)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          className="w-3.5 h-3.5 text-red-500 border-gray-300 rounded"
                         />
-                        <span className="text-sm font-medium text-gray-700">تخصيص يدوي</span>
+                        تخصيص يدوي
                       </label>
-                      <label className="block text-sm font-medium text-gray-700">خصم على الإرجاع (ع.ت)</label>
                       {!manualDiscountEnabled && orderLevelDiscount > 0 && (
-                        <span className="text-xs text-blue-600">
-                          (تلقائي: {formatMoney(returnTotals.discount)})
-                        </span>
+                        <span className="text-[10px] text-blue-500">(تلقائي: {formatMoney(returnTotals.discount)})</span>
                       )}
                     </div>
                     <NumberInput
@@ -614,25 +542,23 @@ export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
                       min="0"
                       step="0.01"
                       disabled={!manualDiscountEnabled}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                     {!manualDiscountEnabled && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        سيتم حساب الخصم تلقائياً بنسبة الكمية المرتجعة من إجمالي الطلب ({formatMoney(orderLevelDiscount)})
-                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">يُحسب تلقائياً بنسبة الكمية ({formatMoney(orderLevelDiscount)})</p>
                     )}
                   </div>
                 </div>
 
-                {/* Second row: subtotal and final total after discount */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
-                  <div>
-                    <span className="block text-sm text-gray-600">المجموع الفرعي</span>
-                    <span className="text-lg font-semibold text-gray-900">{formatMoney(returnTotals.subtotal)}</span>
+                {/* Totals row */}
+                <div className="flex flex-col sm:flex-row justify-end gap-4 sm:gap-8 pt-3 border-t border-gray-200 text-sm">
+                  <div className="flex items-center justify-between sm:flex-col sm:items-end gap-1">
+                    <span className="text-gray-500">المجموع الفرعي</span>
+                    <span className="font-semibold text-gray-800 text-base">{formatMoney(returnTotals.subtotal)}</span>
                   </div>
-                  <div>
-                    <span className="block text-sm text-gray-600">الإجمالي النهائي بعد الخصم</span>
-                    <span className="text-xl font-bold text-green-600">{formatMoney(returnTotals.finalTotal)}</span>
+                  <div className="flex items-center justify-between sm:flex-col sm:items-end gap-1 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-r border-gray-300 sm:pr-8">
+                    <span className="font-bold text-gray-700">الإجمالي النهائي</span>
+                    <span className="text-xl font-extrabold text-red-600">{formatMoney(returnTotals.finalTotal)}</span>
                   </div>
                 </div>
               </div>
@@ -640,33 +566,23 @@ export default function AddPurchaseReturnForm({ onAdd, onCancel, suppliers }) {
           </div>
         )}
 
-        {/* Form Actions */}
-        <div className="flex items-center justify-end space-x-4 rtl:space-x-reverse pt-6 border-t">
-          {/* Show validation message if form is disabled */}
+        {/* ── Action Buttons ── */}
+        <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
           {isFormActionDisabled && formData.return_items.length > 0 && (
-            <div className="flex-1">
-              <Alert
-                type="warning"
-                message="يجب إدخال كمية إرجاع صحيحة (ضمن الكمية المتاحة للإرجاع) لعنصر واحد على الأقل"
-              />
+            <div className="flex-1 min-w-0">
+              <Alert type="warning" message="يجب إدخال كمية إرجاع صحيحة لعنصر واحد على الأقل" />
             </div>
           )}
-          
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
+          <button type="button" onClick={onCancel}
+            className="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition shadow-sm">
             إلغاء
           </button>
-          <button
-            type="submit"
-            disabled={isFormActionDisabled}
-            className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button type="submit" disabled={isFormActionDisabled}
+            className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm transition ${isFormActionDisabled ? 'bg-red-300 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'}`}>
             إضافة المرتجع
           </button>
         </div>
+
       </form>
     </div>
   );

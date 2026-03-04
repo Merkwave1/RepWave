@@ -94,7 +94,7 @@ const ReportsTab = () => {
 
       {/* Navigation Tabs */}
       <div className="bg-white border-b border-gray-200">
-        <nav className="flex px-6">
+        <nav className="flex px-6 overflow-x-auto whitespace-nowrap">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = currentTab === tab.key;

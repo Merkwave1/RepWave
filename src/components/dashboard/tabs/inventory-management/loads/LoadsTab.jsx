@@ -487,42 +487,80 @@ export default function LoadsTab() {
               title: "رقم الطلب",
               className: "w-16",
               sortable: true,
+              render: (req) => (
+                <span className="font-medium text-[#1F2937]">
+                  #{req.request_id}
+                </span>
+              ),
             },
             {
               key: "sourceWarehouse",
               title: "المخزن المصدر",
               className: "",
               sortable: true,
+              render: (req) => {
+                const wh = warehouses.find(
+                  (w) => w.warehouse_id === req.request_source_warehouse_id,
+                );
+                return wh?.warehouse_name || "غير محدد";
+              },
             },
             {
               key: "destinationWarehouse",
               title: "المخزن الوجهة",
               className: "",
               sortable: true,
+              render: (req) => {
+                const wh = warehouses.find(
+                  (w) =>
+                    w.warehouse_id === req.request_destination_warehouse_id,
+                );
+                return wh?.warehouse_name || "غير محدد";
+              },
             },
             {
               key: "created_by_name",
               title: "منشئ الطلب",
               className: "min-w-[140px]",
               sortable: true,
+              render: (req) => req.created_by_name || "غير محدد",
             },
             {
               key: "request_status",
               title: "الحالة",
               className: "",
               sortable: true,
+              render: (req) => getStatusBadge(req.request_status),
             },
             {
               key: "request_created_at",
               title: "تاريخ الإنشاء",
               className: "min-w-[180px]",
               sortable: true,
+              render: (req) => (
+                <div className="flex items-center">
+                  <CalendarIcon className="h-4 w-4 ml-1 text-gray-400" />
+                  {new Date(req.request_created_at).toLocaleDateString("ar-EG")}
+                </div>
+              ),
             },
             {
               key: "actions",
               title: "الإجراءات",
               className: "w-32 text-center ",
               sortable: false,
+              mobileFullWidth: true,
+              render: (req) => (
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => handleViewRequest(req)}
+                    title="عرض التفاصيل"
+                    className="p-1.5 rounded-full text-sky-700 bg-sky-100 hover:bg-sky-500 hover:text-white hover:shadow-[0_0_12px_rgba(56,189,248,0.45)] transition-all duration-200 hover:scale-110"
+                  >
+                    <EyeIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              ),
             },
           ]}
           renderRow={(request) => {
@@ -564,11 +602,12 @@ export default function LoadsTab() {
                     <button
                       onClick={() => handleViewRequest(request)}
                       title="عرض التفاصيل"
-                            className="p-1.5 rounded-full 
+                      className="p-1.5 rounded-full 
                    text-sky-700 bg-sky-100
                    hover:bg-sky-500 hover:text-white
                    hover:shadow-[0_0_12px_rgba(56,189,248,0.45)]
-                   transition-all duration-200 hover:scale-110"                    >
+                   transition-all duration-200 hover:scale-110"
+                    >
                       <EyeIcon className="h-4 w-4" />
                     </button>
                   </div>

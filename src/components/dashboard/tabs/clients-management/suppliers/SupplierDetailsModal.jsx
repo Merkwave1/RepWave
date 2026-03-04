@@ -65,7 +65,7 @@ const Modal = ({
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-black/40 flex justify-center items-center p-2 sm:p-4 z-50">
       <div
-        className={`bg-white rounded-xl shadow-2xl p-2 sm:p-6 ${modalWidthClass} w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col`}
+        className={`bg-white rounded-2xl shadow-2xl p-0 ${modalWidthClass} w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col`}
         dir={dir}
       >
         {children}
@@ -107,14 +107,14 @@ function SupplierDetailsModal({ isOpen, onClose, supplier }) {
         <div className="absolute inset-0 bg-gradient-to-l from-[#1F2937] to-[#2c3a4f]" />
         <div className="absolute inset-0 bg-[#8DD8F5] opacity-10" />
 
-        <div className="relative p-6 flex items-start justify-between">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-[#8DD8F5]/20 rounded-xl backdrop-blur">
-                <Bars3BottomLeftIcon className="h-7 w-7 text-[#8DD8F5]" />
+        <div className="relative p-4 sm:p-6 flex items-start justify-between">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 sm:p-3 bg-[#8DD8F5]/20 rounded-xl backdrop-blur">
+                <Bars3BottomLeftIcon className="h-5 w-5 sm:h-7 sm:w-7 text-[#8DD8F5]" />
               </div>
 
-              <h3 className="text-2xl font-black text-white tracking-tight">
+              <h3 className="text-base sm:text-2xl font-black text-white tracking-tight">
                 {supplier.supplier_name || "مورد بدون اسم"}
               </h3>
             </div>
@@ -140,9 +140,9 @@ function SupplierDetailsModal({ isOpen, onClose, supplier }) {
       </div>
 
       {/* Body */}
-      <div className="flex flex-col lg:flex-row flex-grow overflow-hidden bg-gray-50">
+      <div className="flex flex-col lg:flex-row flex-grow min-h-0 overflow-hidden bg-gray-50">
         {/* Sidebar */}
-        <aside className="lg:w-64 w-full border-l border-gray-200 bg-white p-4 flex-shrink-0">
+        <aside className="lg:w-64 w-full border-b lg:border-b-0 lg:border-l border-gray-200 bg-white p-3 sm:p-4 flex-shrink-0 overflow-y-auto">
           <h4 className="text-sm font-bold text-[#1F2937] mb-4">ملخص سريع</h4>
 
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-3">
@@ -173,7 +173,7 @@ function SupplierDetailsModal({ isOpen, onClose, supplier }) {
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-4 sm:mb-10">
             <div className="space-y-5">
               <h5 className="text-sm font-extrabold tracking-wide text-[#1F2937]/60 uppercase flex items-center gap-2">
                 <InformationCircleIcon className="h-5 w-5 text-[#8DD8F5]" />
@@ -222,7 +222,7 @@ function SupplierDetailsModal({ isOpen, onClose, supplier }) {
           </div>
 
           {/* Activity */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
             <h5 className="text-sm font-extrabold tracking-wide text-[#1F2937]/60 uppercase mb-4 flex items-center gap-2">
               <ClipboardDocumentListIcon className="h-5 w-5 text-[#8DD8F5]" />
               نشاط
@@ -232,7 +232,7 @@ function SupplierDetailsModal({ isOpen, onClose, supplier }) {
       </div>
 
       {/* Footer */}
-      <div className="p-4 bg-white border-t border-gray-200 rounded-b-xl flex justify-end">
+      <div className="p-3 sm:p-4 bg-white border-t border-gray-200 flex justify-end">
         <button
           onClick={onClose}
           className="
