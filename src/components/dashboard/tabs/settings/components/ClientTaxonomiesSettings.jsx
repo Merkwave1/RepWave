@@ -29,27 +29,27 @@ import {
 // Generic card shell
 const Card = ({ title, icon, description, children, refreshing, onRefresh }) => (
   <div className="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col overflow-hidden hover:shadow-md transition-shadow duration-200">
-    <div className="px-5 pt-5 flex items-start justify-between gap-3">
-      <div className="flex items-start gap-3">
-        <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+    <div className="px-4 sm:px-5 pt-4 sm:pt-5 flex items-start justify-between gap-2">
+      <div className="flex items-start gap-3 min-w-0">
+        <div className="p-2 rounded-lg bg-blue-50 text-blue-600 shrink-0">
           {icon}
         </div>
-        <div>
-          <h3 className="text-sm font-semibold text-gray-800 mb-1">{title}</h3>
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-gray-800 mb-1 leading-snug">{title}</h3>
           {description && <p className="text-xs text-gray-500 leading-relaxed">{description}</p>}
         </div>
       </div>
       <button
-        className={`inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-md border ${refreshing ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white hover:bg-gray-50 text-gray-600 border-gray-200'}`}
+        className={`inline-flex items-center shrink-0 text-xs font-medium px-2.5 py-1.5 rounded-md border ${refreshing ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white hover:bg-gray-50 text-gray-600 border-gray-200'}`}
         onClick={onRefresh}
         disabled={refreshing}
         title="تحديث"
       >
-        <ArrowPathIcon className={`h-4 w-4 ml-1 ${refreshing ? 'animate-spin' : ''}`} />
+        <ArrowPathIcon className={`h-3.5 w-3.5 ml-1 ${refreshing ? 'animate-spin' : ''}`} />
         {refreshing ? 'جاري...' : 'تحديث'}
       </button>
     </div>
-    <div className="p-5 pt-3 flex-1 flex flex-col">{children}</div>
+    <div className="p-4 sm:p-5 pt-3 flex-1 flex flex-col">{children}</div>
   </div>
 );
 
@@ -160,30 +160,34 @@ function ListManager({
       {error && (
         <Alert type="error" message={error} onClose={() => setError(null)} className="mb-3" />
       )}
-      <div className="flex flex-col gap-3 mb-4">
-        <div className="flex flex-wrap gap-2">
+      {/* Add form: stacks vertically on mobile, row on sm+ */}
+      <div className="flex flex-col gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
-            className="min-w-[200px] flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             placeholder={placeholder}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           />
-          <input
-            type="number"
-            className="w-28 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="الترتيب"
-            value={newSortOrder}
-            onChange={(e) => setNewSortOrder(e.target.value)}
-            min="0"
-          />
-          <Button onClick={handleAdd} disabled={saving || !newName.trim()} className="bg-blue-600 hover:bg-blue-700">
-            <PlusIcon className="h-4 w-4 ml-1" /> إضافة
-          </Button>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              className="w-24 sm:w-24 flex-1 sm:flex-none px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="الترتيب"
+              value={newSortOrder}
+              onChange={(e) => setNewSortOrder(e.target.value)}
+              min="0"
+            />
+            <Button onClick={handleAdd} disabled={saving || !newName.trim()} className="bg-[#8DD8F5] hover:bg-[#7CC4E0] flex-1 sm:flex-none flex items-center justify-center text-sm whitespace-nowrap">
+              <PlusIcon className="h-4 w-4 ml-1" /> إضافة
+            </Button>
+          </div>
         </div>
         <div className="relative">
-          <MagnifyingGlassIcon className="h-4 w-4 absolute right-3 top-3 text-gray-400" />
+          <MagnifyingGlassIcon className="h-4 w-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
-            className="w-full pr-8 pl-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+            className="w-full pr-8 pl-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-sm"
             placeholder="بحث..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -194,94 +198,161 @@ function ListManager({
       {loading ? (
         <Loader />
       ) : (
-        <div className="overflow-x-auto">
-          <div className="max-h-56 overflow-y-auto custom-scrollbar border border-gray-100 rounded-md">
-            <table className="min-w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-right text-sm font-medium text-gray-600 px-3 py-2 w-24">الترتيب</th>
-                  <th className="text-right text-sm font-medium text-gray-600 px-3 py-2">الاسم</th>
-                  <th className="w-24"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredItems.map((item) => (
-                  <tr key={item[idKey]} className="border-t border-gray-100">
-                    <td className="px-3 py-1.5 align-middle">
-                      {editingId === item[idKey] ? (
-                        <input
-                          type="number"
-                          className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          value={editingSortOrder}
-                          onChange={(e) => setEditingSortOrder(e.target.value)}
-                          min="0"
-                        />
-                      ) : (
-                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
+        <>
+          {/* Mobile card-list (hidden on sm+) */}
+          <div className="sm:hidden max-h-72 overflow-y-auto custom-scrollbar flex flex-col gap-2 border border-gray-100 rounded-xl p-2">
+            {filteredItems.length === 0 ? (
+              <p className="py-6 text-center text-gray-400 text-sm">لا توجد عناصر</p>
+            ) : (
+              filteredItems.map((item) => (
+                <div key={item[idKey]} className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5">
+                  {editingId === item[idKey] ? (
+                    <div className="flex flex-col gap-2">
+                      <input
+                        className="w-full px-2.5 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        placeholder="الاسم"
+                      />
+                      <input
+                        type="number"
+                        className="w-full px-2.5 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        value={editingSortOrder}
+                        onChange={(e) => setEditingSortOrder(e.target.value)}
+                        min="0"
+                        placeholder="الترتيب"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          className="flex-1 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium"
+                          onClick={handleUpdate}
+                          disabled={saving || !editingName.trim()}
+                        >حفظ</button>
+                        <button
+                          className="flex-1 py-1.5 rounded-lg bg-gray-200 text-gray-700 text-xs font-medium"
+                          onClick={resetEditState}
+                        >إلغاء</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {/* Row 1 – sort badge + full name */}
+                      <div className="flex items-start gap-2">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold shrink-0 mt-0.5">
                           {normalizeSortOrder(item[sortKey])}
                         </span>
-                      )}
-                    </td>
-                    <td className="px-3 py-1.5 align-middle">
-                      {editingId === item[idKey] ? (
-                        <div className="flex items-center gap-2">
-                          <input
-                            className="flex-1 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={editingName}
-                            onChange={(e) => setEditingName(e.target.value)}
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-gray-800 text-sm">{item[nameKey]}</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-1.5 text-left">
-                      {editingId === item[idKey] ? (
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            className="inline-flex items-center px-2 py-1 rounded-md bg-green-600 text-white hover:bg-green-700 text-xs"
-                            onClick={handleUpdate}
-                            disabled={saving || !editingName.trim()}
-                          >
-                            حفظ
-                          </button>
-                          <button
-                            className="inline-flex items-center px-2 py-1 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 text-xs"
-                            onClick={resetEditState}
-                          >
-                            إلغاء
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            className="p-1.5 rounded-md hover:bg-yellow-50 text-yellow-700"
-                            title="تعديل"
-                            onClick={() => startEdit(item)}
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            className="p-1.5 rounded-md hover:bg-red-50 text-red-600"
-                            title="حذف"
-                            onClick={() => handleDelete(item[idKey])}
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {filteredItems.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="px-3 py-6 text-center text-gray-500 text-sm">لا توجد عناصر</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                        <span className="text-gray-800 text-sm font-medium leading-snug break-words w-full">
+                          {item[nameKey]}
+                        </span>
+                      </div>
+                      {/* Row 2 – actions */}
+                      <div className="flex gap-2 justify-end border-t border-gray-100 pt-1.5">
+                        <button
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-700 text-xs font-medium hover:bg-yellow-100"
+                          onClick={() => startEdit(item)}
+                        ><PencilIcon className="h-3.5 w-3.5" /> تعديل</button>
+                        <button
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100"
+                          onClick={() => handleDelete(item[idKey])}
+                        ><TrashIcon className="h-3.5 w-3.5" /> حذف</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
-        </div>
+
+          {/* Desktop table (hidden on mobile) */}
+          <div className="hidden sm:block overflow-x-auto">
+            <div className="max-h-56 overflow-y-auto custom-scrollbar border border-gray-100 rounded-md">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="text-right text-sm font-medium text-gray-600 px-3 py-2 w-24">الترتيب</th>
+                    <th className="text-right text-sm font-medium text-gray-600 px-3 py-2">الاسم</th>
+                    <th className="w-24"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredItems.map((item) => (
+                    <tr key={item[idKey]} className="border-t border-gray-100">
+                      <td className="px-3 py-1.5 align-middle">
+                        {editingId === item[idKey] ? (
+                          <input
+                            type="number"
+                            className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            value={editingSortOrder}
+                            onChange={(e) => setEditingSortOrder(e.target.value)}
+                            min="0"
+                          />
+                        ) : (
+                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
+                            {normalizeSortOrder(item[sortKey])}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-1.5 align-middle">
+                        {editingId === item[idKey] ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              className="flex-1 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-gray-800 text-sm">{item[nameKey]}</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-1.5 text-left">
+                        {editingId === item[idKey] ? (
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              className="inline-flex items-center px-2 py-1 rounded-md bg-green-600 text-white hover:bg-green-700 text-xs"
+                              onClick={handleUpdate}
+                              disabled={saving || !editingName.trim()}
+                            >
+                              حفظ
+                            </button>
+                            <button
+                              className="inline-flex items-center px-2 py-1 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 text-xs"
+                              onClick={resetEditState}
+                            >
+                              إلغاء
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              className="p-1.5 rounded-md hover:bg-yellow-50 text-yellow-700"
+                              title="تعديل"
+                              onClick={() => startEdit(item)}
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              className="p-1.5 rounded-md hover:bg-red-50 text-red-600"
+                              title="حذف"
+                              onClick={() => handleDelete(item[idKey])}
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredItems.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-3 py-6 text-center text-gray-500 text-sm">لا توجد عناصر</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

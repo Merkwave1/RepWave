@@ -318,8 +318,8 @@ const ComprehensiveDashboard = () => {
 
           <HoverDonut
             data={[
-              { name: "آخر 30 يوم", value: primaryValue },
               { name: "آخر 7 أيام", value: secondaryValue },
+              { name: "ال24 يوم السابقين ", value: Math.max(0, primaryValue - secondaryValue) },
             ]}
             colors={donutColors}
           />

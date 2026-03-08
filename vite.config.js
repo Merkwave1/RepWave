@@ -24,8 +24,8 @@ export default defineConfig({
     // Allow external connections (required for Docker)
     host: '0.0.0.0',
     port: 5173,
-    // Allow all hosts for remote dev access
-    allowedHosts: 'all',
+    // Allow all hosts for remote dev access (tunnel, etc.)
+    allowedHosts: true,
     // Enable HMR
     hmr: true,
     // Watch options for better performance in Docker
